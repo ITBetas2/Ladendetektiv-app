@@ -77,13 +77,31 @@ exports.handler = async (event) => {
     const preview = text.length > 140 ? (text.slice(0,137) + "...") : text;
     const body = preview ? `${user || "Jemand"}: ${preview}` : `${user || "Jemand"} hat geschrieben`;
 
+    const title = "Projekt TAS – Chat";
+    const preview = text.length > 140 ? (text.slice(0,137) + "...") : text;
+    const body = preview ? `${user || "Jemand"}: ${preview}` : `${user || "Jemand"} hat geschrieben`;
+    const link = "/#chat"; // open chat tab on click (frontend should handle hash)
+
+    // IMPORTANT:
+    // Send DATA-ONLY payload so the service worker's onBackgroundMessage runs reliably across browsers.
+    // The SW will call showNotification() using these data fields.
     const res = await admin.messaging().sendEachForMulticast({
       tokens,
-      notification: { title, body },
-      data: { roomId: String(roomId || "global") }
+      data: {
+        roomId: String(roomId || "global"),
+        title,
+        body,
+        icon: "/icons/icon-192x192.png",
+        link
+      },
+      webpush: {
+        headers: {
+          Urgency: "high",
+          TTL: "2419200"
+        }
+      }
     });
-
-    // Cleanup invalid tokens
+// Cleanup invalid tokens
     const invalid = [];
     res.responses.forEach((r, i) => {
       if(!r.success){
@@ -112,7 +130,7 @@ exports.handler = async (event) => {
       await batch.commit();
     }
 
-    return { statusCode: 200, body: JSON.stringify({ ok:true, sent: res.successCount || 0 }) };
+    return { statusCode: 200, body: JSON.stringify({ ok:true, sent: res.successCount || 0, failure: res.failureCount || 0 }) };
   }catch(e){
     console.error(e);
     return { statusCode: 500, body: "Error: " + (e?.message || e) };

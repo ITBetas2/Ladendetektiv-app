@@ -3868,7 +3868,6 @@ async function notify(){
 // ---------- PUSH (FCM) ----------
 const VAPID_PUBLIC_KEY = "BM4ge6OlpY_fY9n0P5yIBlwb9TlFomqrqPF1ZE-LScjUIXqydXU8P_6zDNq7RGGkctkFmg0Bd4rqgOoRxplYqB8";
 
-function $(id){ return document.getElementById(id); } // (safety if not defined yet)
 
 function setPushUiStatus(msg, ok=true){
   const el = document.getElementById("pushStatus");
@@ -3935,7 +3934,7 @@ async function enablePushFCM(){
     }
 
     await setDoc(doc(db, "users", uid), {
-      fcmTokens: { [token]: TrueIfPossible() }
+      fcmTokens: { [token]: true }
     }, { merge: true });
 
     // store in local for quick display
@@ -3950,8 +3949,6 @@ async function enablePushFCM(){
   }
 }
 
-// helper to avoid python capitalizing boolean
-function TrueIfPossible(){ return true; }
 
 async function disablePushFCM(){
   try{

@@ -3375,16 +3375,11 @@ function bindTypingUI(){
 }
 
 async function sendChat(){
-  alert("sendChat() wurde aufgerufen"); // Debug – MUSS erscheinen
-
   const text = $("chatText").value.trim();
   if(!text) return;
-
   const userId = requireLogin();
   const roomId = state.chatRoom || "global";
   const user = state.session?.user || "User";
-
-  // 1) Firestore schreiben
   await addDoc(chatCol(roomId), {
     text,
     user,
@@ -3392,37 +3387,10 @@ async function sendChat(){
     at: serverTimestamp(),
     atMs: Date.now()
   });
-
   $("chatText").value = "";
   setMyTyping(false).catch(()=>{});
   scrollChatBottom(true);
-
-  // 2) PUSH TRIGGER 🔔
-  try{
-    const cur = auth.currentUser;
-    const idToken = cur ? await cur.getIdToken() : null;
-
-    fetch(`${location.origin}/.netlify/functions/push_chat`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(idToken ? { "Authorization": "Bearer " + idToken } : {})
-      },
-      body: JSON.stringify({
-        roomId,
-        text,
-        user,
-        uid: userId
-      })
-    })
-    .then(r => console.log("push_chat status:", r.status))
-    .catch(e => console.error("push_chat error:", e));
-
-  }catch(e){
-    console.error("push_chat token error:", e);
-  }
 }
-
 
 // ---------- Rangliste (Firestore realtime) ----------
 
@@ -4510,6 +4478,31 @@ sendChat = async function(){
   const user = state.session?.user || "User";
   const email = state.session?.email || "";
   await addDoc(chatCol(roomId), { text, user, uid: userId, email, at: serverTimestamp() });
+
+  // Push notification trigger via Netlify Function (best-effort)
+  try{
+    const cur = auth?.currentUser || null;
+    const idToken = cur ? await cur.getIdToken() : null;
+
+    fetch("/.netlify/functions/push_chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(idToken ? { "Authorization": "Bearer " + idToken } : {})
+      },
+      body: JSON.stringify({ roomId, text, user, uid: userId, email })
+    }).then(async (r)=>{
+      // helps debugging in DevTools Network/Console
+      if(!r.ok){
+        const t = await r.text().catch(()=> "");
+        console.warn("[push_chat] non-OK:", r.status, t);
+      }else{
+        console.log("[push_chat] OK");
+      }
+    }).catch((e)=>console.warn("[push_chat] fetch failed", e));
+  }catch(e){
+    console.warn("[push_chat] skipped", e);
+  }
   document.getElementById("chatText").value = "";
   try{ scrollChatBottom(true); }catch(_e){ const log=document.getElementById("chatLog"); if(log) log.scrollTop = log.scrollHeight; }
 

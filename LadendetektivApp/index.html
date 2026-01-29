@@ -3380,8 +3380,6 @@ async function sendChat(){
   const userId = requireLogin();
   const roomId = state.chatRoom || "global";
   const user = state.session?.user || "User";
-
-  // 1) write message to Firestore
   await addDoc(chatCol(roomId), {
     text,
     user,
@@ -3389,27 +3387,6 @@ async function sendChat(){
     at: serverTimestamp(),
     atMs: Date.now()
   });
-
-  // 2) trigger push via Netlify Function (best-effort, non-blocking)
-  try{
-    const cur = auth.currentUser;
-    const idToken = cur ? await cur.getIdToken() : null;
-
-    fetch(`${location.origin}/.netlify/functions/push_chat`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(idToken ? { "Authorization": "Bearer " + idToken } : {})
-      },
-      body: JSON.stringify({
-        roomId,
-        text,
-        user,
-        uid: userId
-      })
-    }).catch(()=>{});
-  }catch(_e){}
-
   $("chatText").value = "";
   setMyTyping(false).catch(()=>{});
   scrollChatBottom(true);

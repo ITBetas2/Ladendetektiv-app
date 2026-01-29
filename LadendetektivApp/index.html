@@ -4642,24 +4642,47 @@ async function deleteChatRole(){
   document.getElementById("btnDeleteChatRole")?.addEventListener("click", ()=> deleteChatRole().catch(e=>alert(e?.message||e)));
 })();
 
-// Patch sendChat: add email field + mute check
+// Patch sendChat: add email field + mute check + trigger push via Netlify Function
 sendChat = async function(){
   await loadModeration().catch(()=>{});
   if(isMuted()){
     alert("Du bist aktuell gemutet und kannst keine Nachrichten senden.");
     return;
   }
-  const text = document.getElementById("chatText")?.value?.trim() || "";
+
+  const inp = document.getElementById("chatText");
+  const text = (inp?.value || "").trim();
   if(!text) return;
+
   const userId = requireLogin();
   const roomId = state.chatRoom || "global";
   const user = state.session?.user || "User";
   const email = state.session?.email || "";
-  await addDoc(chatCol(roomId), { text, user, uid: userId, email, at: serverTimestamp() });
-  document.getElementById("chatText").value = "";
-  try{ scrollChatBottom(true); }catch(_e){ const log=document.getElementById("chatLog"); if(log) log.scrollTop = log.scrollHeight; }
 
+  // 1) write message to Firestore
+  await addDoc(chatCol(roomId), { text, user, uid: userId, email, at: serverTimestamp() });
+
+  // 2) trigger push via Netlify Function (best-effort, non-blocking)
+  try{
+    const cur = auth?.currentUser || null;
+    const idToken = cur ? await cur.getIdToken() : null;
+
+    fetch("/.netlify/functions/push_chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(idToken ? { "Authorization": "Bearer " + idToken } : {})
+      },
+      body: JSON.stringify({ roomId, text, user, uid: userId, email })
+    }).catch(()=>{});
+  }catch(_e){}
+
+  // UI cleanup
+  if(inp) inp.value = "";
+  setMyTyping(false).catch(()=>{});
+  try{ scrollChatBottom(true); }catch(_e){ const log=document.getElementById("chatLog"); if(log) log.scrollTop = log.scrollHeight; }
 };
+
 
 // Enhanced watcher (forced by v37)
 

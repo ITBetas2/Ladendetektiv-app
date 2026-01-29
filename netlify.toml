@@ -3,6 +3,9 @@
   publish = "."
   functions = "netlify/functions"
 
+  [[plugins]]
+  package = "@netlify/plugin-functions-install-core"
+
 # Ensure the service worker is always served as a real file (no SPA redirects, no caching)
 [[headers]]
   for = "/firebase-messaging-sw.js"

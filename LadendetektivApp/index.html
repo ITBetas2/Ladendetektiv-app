@@ -3395,7 +3395,7 @@ async function sendChat(){
     const cur = auth.currentUser;
     const idToken = cur ? await cur.getIdToken() : null;
 
-    fetch("/.netlify/functions/push_chat", {
+    fetch(`${location.origin}/.netlify/functions/push_chat`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

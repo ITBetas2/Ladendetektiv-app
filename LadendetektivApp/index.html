@@ -1,0 +1,5076 @@
+<!DOCTYPE html>
+
+<html lang="de">
+<head>
+<!-- PWA / App Icons -->
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180x180.png">
+<meta name="theme-color" content="#0b1a3a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Ladendetektive</title>
+<style>
+    /* ========= DESIGN: NUR FARBEN ANPASSEN ========= */
+    :root{
+      --bg: #0b1020;
+      --panel: #111a33;
+      --panel2: #0f1730;
+      --text: #e8ecff;
+      --muted: #aab3da;
+      --brand: #4da3ff;
+      --accent: #7c5cff;
+      --ok: #2ee59d;
+      --bad: #ff4d6d;
+      --border: rgba(255,255,255,.10);
+      --shadow: 0 14px 40px rgba(0,0,0,.45);
+      --chip: rgba(255,255,255,.08);
+      --danger: #ff4d6d;
+      --warn: #ffcc66;
+      --safeBottom: env(safe-area-inset-bottom, 0px);
+      --navH: 72px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ min-height:100dvh; height:auto; overflow-x:hidden; overflow-y:auto; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 700px at 15% 10%, rgba(77,163,255,.16), transparent 60%),
+                  radial-gradient(1100px 700px at 85% 30%, rgba(124,92,255,.14), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+    }
+
+    .app{
+      display:grid;
+      grid-template-columns: 280px 1fr 380px;
+      grid-template-rows: 1fr;
+      gap:14px;
+      height:100%;
+      min-height:0;
+      padding:14px;
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      min-height: 0;
+    }
+
+    .sidebar, .rightbar { display:flex; flex-direction:column; }
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:14px 14px 12px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,.14);
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px; min-width:0;
+    }
+    .logo{
+      width:36px; height:36px;
+      border-radius: 12px;
+      display:grid; place-items:center;
+      background: rgba(77,163,255,.18);
+      border:1px solid var(--border);
+      user-select:none;
+      font-weight:700;
+    }
+    .brand h1{
+      font-size:14px; margin:0;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .sub{ font-size:12px; color: var(--muted); margin-top:2px; }
+
+    .statusDot{
+      width:10px; height:10px; border-radius:999px;
+      background: var(--bad);
+      box-shadow: 0 0 0 4px rgba(255,77,109,.12);
+    }
+    .statusDot.ok{
+      background: var(--ok);
+      box-shadow: 0 0 0 4px rgba(46,229,157,.12);
+    }
+
+    .btn{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border-radius: 12px;
+      padding:10px 12px;
+      cursor:pointer;
+      font-weight:600;
+      transition: transform .04s ease, background .15s ease;
+      user-select:none;
+    }
+    .btn:hover{ background: rgba(255,255,255,.10); }
+    .btn:active{ transform: translateY(1px); }
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(77,163,255,.35), rgba(124,92,255,.25));
+      border-color: rgba(77,163,255,.35);
+    }
+    .btn.danger{
+      background: rgba(255,77,109,.12);
+      border-color: rgba(255,77,109,.35);
+    }
+    .btn.small{ padding:8px 10px; border-radius: 10px; font-size:12px; }
+    .btn.row{ width:100%; text-align:left; }
+
+    .section{
+      padding:12px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .field{
+      display:flex; flex-direction:column; gap:6px; margin-top:10px;
+    }
+    .field label{ font-size:12px; color: var(--muted); }
+    input, select, textarea{
+      width:100%;
+      padding:10px 11px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+      outline:none;
+    }
+    textarea{ resize:none; min-height: 90px; }
+
+    .list{
+      padding:10px;
+      overflow:auto;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .item{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 10px;
+      border-radius: 14px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.18);
+    }
+    .item .meta{ min-width:0; flex:1; }
+    .item .title{
+      font-weight:700; font-size:13px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .item .desc{
+      font-size:12px; color: var(--muted);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      margin-top:2px;
+    }
+    .chip{
+      font-size:11px;
+      background: var(--chip);
+      border:1px solid var(--border);
+      padding:4px 8px;
+      border-radius: 999px;
+      color: var(--muted);
+      white-space:nowrap;
+    }
+
+    .main{
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+    }
+
+    .mainHeader{
+      padding:14px;
+      border-bottom: 1px solid var(--border);
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      background: rgba(0,0,0,.12);
+    }
+
+    .searchRow{ display:flex; gap:10px; align-items:center; width:100%; }
+    .searchRow input{ flex:1; }
+
+    .dropzone{
+      margin:14px;
+      border:2px dashed rgba(255,255,255,.18);
+      background: rgba(0,0,0,.12);
+      border-radius: 18px 18px 0 0;
+      padding:18px;
+      text-align:center;
+      color: var(--muted);
+      transition: background .15s ease, border-color .15s ease;
+    }
+    .dropzone.drag{
+      background: rgba(77,163,255,.10);
+      border-color: rgba(77,163,255,.45);
+      color: var(--text);
+    }
+
+    .grid{
+      padding:0 14px 14px;
+      overflow:auto;
+      min-height:0;
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:10px;
+    }
+    .fileCard{
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.16);
+      border-radius: 16px;
+      padding:12px;
+      display:flex; flex-direction:column; gap:8px;
+      min-width:0;
+    }
+    .fileCard .row{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .fileCard .name{
+      font-weight:800;
+      font-size:13px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .fileCard .small{
+      font-size:12px; color: var(--muted);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .fileCard .actions{ display:flex; gap:8px; flex-wrap:wrap; }
+
+    .chat{
+      display:flex; flex-direction:column; min-height:0;
+    }
+    .chatLog{
+      padding:12px;
+      overflow:auto;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .bubble{
+      max-width: 85%;
+      padding:10px 12px;
+      border-radius: 14px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.20);
+      color: var(--text);
+    }
+    .bubble.me{
+      align-self:flex-end;
+      background: rgba(77,163,255,.14);
+      border-color: rgba(77,163,255,.30);
+    }
+    .bubble .t{
+      font-size:12px; color: var(--muted); margin-top:6px;
+    }
+    .chatInput{
+      display:flex; gap:10px;
+      padding:12px;
+      border-top:1px solid var(--border);
+      background: rgba(0,0,0,.12);
+    }
+    .chatInput input{ flex:1; }
+
+    .row2{ display:flex; gap:10px; }
+    .hint{ font-size:12px; color: var(--muted); line-height:1.35; }
+    .hidden{ display:none !important; }
+
+    @media (max-width: 980px){
+
+      .mobileHeader{ display:flex;
+
+  /* Mobile Startseite: besser lesbar & klickfreundlich */
+  #startPanel{
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+  }
+  #startPanel .topbar{
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  #startPanel .chip{
+    align-self: flex-start;
+  }
+  #startPanel .section{
+    padding: 12px 0;
+  }
+  #startPanel #updatesBox{
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  #startPanel .row2{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  #startPanel .row2 .btn{
+    width: 100%;
+    min-height: 48px;
+    font-size: 15px;
+    padding: 12px 14px;
+  }
+
+  /* Generell: größere Touch-Ziele im Mobile */
+  #mobileBottomNav .mbtn{
+    min-width: 56px;
+  }
+  #mobileBottomNav .mbtn .ico{
+    font-size: 18px;
+  }
+  #mobileBottomNav .mbtn .lbl{
+    font-size: 11px;
+  }
+
+
+}
+.viewport{ padding-top: var(--mobHeaderH); }
+      .app{
+        grid-template-columns: 1fr;
+        padding: 12px;
+      /* Mobile: prevent bottom nav overlay by shrinking the fixed viewport */
+      .viewport{
+        inset: 0 0 calc(var(--navH) + var(--safeBottom)) 0;
+      }
+
+      }
+      .sidebar, .rightbar{
+        display:none;
+      }
+      .main{
+        grid-column: 1 / -1;
+      }
+      .grid{
+        grid-template-columns: 1fr;
+      }
+      .dropzone{
+        margin: 12px;
+      }
+      .mainHeader{
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
+}
+
+    /* Tablet: 2 columns, hide rightbar */
+    @media (min-width: 981px) and (max-width: 1250px){
+      .app{
+        grid-template-columns: 280px 1fr;
+      }
+      .rightbar{
+        display:none;
+      }
+      .grid{
+        grid-template-columns: repeat(2, minmax(0,1fr));
+      }
+    }
+  
+    /* Mobile Safari fix: prevent auto-zoom/jump on form focus (iOS zooms if font-size < 16px) */
+    @media (max-width: 900px){
+      input, select, textarea{ font-size:16px; }
+      body{ min-height:100dvh; }
+      .app{ height:auto; min-height:100dvh; }
+    }
+
+
+/* --- Viewport/Keyboard/Jank fix (Android/WebView) --- */
+html, body { height: 100%; }
+body { overflow: hidden; }
+.viewport{
+  position: fixed;
+  inset: 0;
+  height: 100dvh;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+
+
+/* Ensure columns fill viewport and internal areas scroll */
+.sidebar, .main, .rightbar{ height:100%; min-height:0; }
+/* Chat: eigener scrollbarer Container */
+.rightbar{ display:flex; flex-direction:column; min-height:0; }
+.rightbar .chat{ display:flex; flex-direction:column; flex:1; min-height:0; }
+.rightbar .chatLog{ flex:1; min-height:160px; overflow:auto; }
+
+/* Prevent accidental page jump on focus (keep within viewport) */
+input, textarea, select { scroll-margin-top: 90px; }
+
+  /* Auth-Gate (Login zuerst) */
+  .authOverlay{
+    position:fixed; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    padding:18px;
+    background:rgba(0,0,0,.55);
+    backdrop-filter: blur(6px);
+    z-index:9999;
+  }
+  .authModal{
+    width:min(520px, 100%);
+    max-height: 90dvh;
+    overflow:auto;
+  }
+  .authTitle{ font-weight:900; font-size:18px; margin-bottom:10px; }
+  /* Android/iOS Keyboard: verhindert Zoom/Jump */
+  .authOverlay input, .authOverlay select, .authOverlay textarea{ font-size:16px; }
+  .hidden{ display:none !important; }
+
+    .presenceBar{
+      display:flex; align-items:center; gap:8px;
+      padding-left:10px;
+      flex-shrink:0;
+    }
+    .avatarStack{ display:flex; align-items:center; }
+    .avatar{
+      width:30px; height:30px; border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      overflow:hidden;
+      display:grid; place-items:center;
+      position:relative;
+      margin-left:-8px;
+    }
+    .avatar:first-child{ margin-left:0; }
+    .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .onlineDot{
+      position:absolute; right:-1px; bottom:-1px;
+      width:10px; height:10px; border-radius:999px;
+      background: var(--ok);
+      box-shadow: 0 0 0 3px rgba(17,26,51,.95);
+      border:1px solid rgba(255,255,255,.18);
+    }
+    .presenceLabel{ font-size:12px; color: var(--muted); white-space:nowrap; }
+
+
+    /* ========= DESKTOP NAV (wie Mobile-Menü) ========= */
+    .desktopNavBar{
+      display:none;
+      position: sticky;
+      top:0;
+      z-index: 30;
+      margin: 0 14px;
+      border-radius: 18px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.22);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+    }
+    .desktopNavInner{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 12px;
+    }
+    .tabs{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .tabBtn{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border-radius: 999px;
+      padding:8px 12px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:12px;
+      user-select:none;
+    }
+    .tabBtn.active{
+      background: linear-gradient(135deg, rgba(77,163,255,.35), rgba(124,92,255,.25));
+      border-color: rgba(77,163,255,.35);
+    }
+    .tabRight{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+
+    /* Desktop: „Compact View“ statt 3-Spalten */
+    @media (min-width: 981px){
+      .desktopNavBar{ display:block; }
+      .app{
+        grid-template-columns: 1fr;
+      }
+      .sidebar, .rightbar{ display:none; }
+      #startPanel{ display:none; } /* wird via JS aktiviert */
+      body{ padding-top: 0; }
+    }
+
+
+    .dateSep{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin: 6px 0;
+      color: var(--muted);
+      font-size:12px;
+      user-select:none;
+    }
+    .dateSep::before, .dateSep::after{
+      content:"";
+      flex:1;
+      height:1px;
+      background: var(--border);
+    }
+    .bubble{ position:relative; }
+    .delMsgBtn{
+      position:absolute;
+      top:6px;
+      right:6px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      border-radius: 10px;
+      padding:4px 8px;
+      font-size:11px;
+      cursor:pointer;
+    }
+    .delMsgBtn:hover{ background: rgba(255,77,109,.12); color: var(--text); border-color: rgba(255,77,109,.35); }
+
+
+/* ===== Mobile Setup v48 ===== */
+@media (max-width: 900px){
+  .topnav{ display:none !important; }
+  .mobileHeader{ display:none !important; } /* we use bottom nav instead */
+  #mobileBottomNav{ display:flex !important; }
+  .viewport{ padding-bottom:72px; } /* space for bottom nav */
+  #mainPanel, #rightbar, #sidebar{ width:100% !important; }
+  #rightbar{ margin-left:0 !important; }
+  .card{ margin:10px; }
+}
+#mobileBottomNav{
+  display:none;
+  position:fixed;
+  left:0; right:0; bottom:0;
+  height:64px;
+  padding:8px 10px;
+  gap:8px;
+  background: rgba(10,14,28,.92);
+  border-top:1px solid var(--border);
+  backdrop-filter: blur(10px);
+  z-index: 40;
+  align-items:center;
+  justify-content:space-between;
+}
+#mobileBottomNav .mbtn{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  padding:6px 4px;
+  border-radius:14px;
+  border:1px solid transparent;
+  background: rgba(255,255,255,.04);
+  color: var(--text);
+  font-size:11px;
+}
+#mobileBottomNav .mbtn.active{
+  border-color: rgba(77,163,255,.45);
+  background: rgba(77,163,255,.10);
+}
+#mobileBottomNav .mbtn span{
+  font-size:16px;
+}
+
+/* =========================================================
+   MOBILE-ONLY BUNDLE (override)
+   -> ganz ans ENDE deiner <style> setzen
+   Breakpoint: <= 900px (iOS/Android)
+========================================================= */
+@media (max-width: 900px){
+
+  /* ---------- Base / Layout ---------- */
+  :root{
+    --navH: 72px; /* deine Bottom-Nav Höhe */
+  }
+
+  html, body{
+    height: 100%;
+  }
+
+  /* Fixed viewport + Scroll im Container (dein Ansatz) */
+  body{
+    overflow: hidden;
+  }
+
+  .viewport{
+    position: fixed;
+    inset: 0;
+    height: 100dvh;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+
+    /* Platz für Bottom-Nav + Safe-Area */
+    padding-bottom: calc(var(--navH) + var(--safeBottom));
+    padding-top: 0;
+  }
+
+  /* App Shell: weniger Padding */
+  .app{
+    grid-template-columns: 1fr !important;
+    padding: 8px !important;
+    gap: 10px !important;
+    height: auto !important;
+    min-height: 100dvh !important;
+  }
+
+  /* Desktop/Sidebars auf Mobile aus, wie bei dir */
+  .sidebar, .rightbar{ display: none !important; }
+  .main{ grid-column: 1 / -1; }
+
+  /* ---------- Cards: weniger „zerklüftet“ ---------- */
+  .card{
+    margin: 6px 4px !important;
+    border-radius: 14px !important;
+    box-shadow: var(--shadow);
+  }
+
+  .topbar{
+    padding: 12px 12px 10px !important;
+    gap: 10px !important;
+  }
+
+  .section{
+    padding: 10px 12px !important;
+  }
+
+  /* ---------- Forms: iOS Zoom vermeiden + ruhiger ---------- */
+  input, select, textarea{
+    font-size: 16px !important; /* iOS no-zoom */
+    padding: 11px 12px !important;
+    border-radius: 12px !important;
+  }
+
+  textarea{ min-height: 96px !important; }
+
+  /* ---------- Buttons: große Touch-Ziele + Full Width ---------- */
+  .btn{
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    font-size: 15px;
+  }
+
+  .btn.small{
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 12px;
+  }
+
+  /* Row2 wird auf Mobile immer „untereinander“ */
+  .row2{
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* ---------- Start Panel: wie „App Startseite“ ---------- */
+  #startPanel{
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 6px 4px !important;
+  }
+
+  #startPanel .topbar{
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #startPanel .row2{
+    grid-template-columns: 1fr !important;
+  }
+
+  #startPanel #updatesBox{
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ---------- Main Header / Suche: stapeln & kompakter ---------- */
+  .mainHeader{
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: 10px !important;
+    background: rgba(0,0,0,.20);
+    backdrop-filter: blur(10px);
+  }
+
+  .searchRow{
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  #typeFilter{
+    max-width: 100% !important;
+  }
+
+  #btnNotify{
+    width: 100% !important;
+  }
+
+  /* ---------- Dropzone: weniger Höhe, cleaner ---------- */
+  .dropzone{
+    margin: 10px !important;
+    padding: 14px !important;
+    border-radius: 16px !important;
+  }
+
+  .dropzone .hint{
+    line-height: 1.45;
+  }
+
+  /* ---------- Grid: 1 Spalte, Karten ruhiger ---------- */
+  .grid{
+    grid-template-columns: 1fr !important;
+    padding: 0 10px 10px !important;
+    gap: 10px !important;
+  }
+
+  .fileCard{
+    border-radius: 16px !important;
+    padding: 12px !important;
+    gap: 10px !important;
+  }
+
+  .fileCard .row{
+    gap: 10px !important;
+  }
+
+  .fileCard .name{
+    font-size: 14px !important;
+    line-height: 1.2;
+  }
+
+  .fileCard .small{
+    font-size: 12.5px !important;
+    line-height: 1.4;
+    white-space: normal !important; /* weniger „1-line“-Abschneiden */
+  }
+
+  /* Actions als 2-Spalten Grid */
+  .fileCard .actions{
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .fileCard .actions .btn{
+    width: 100% !important;
+  }
+
+  /* ---------- Chat Panel: wenn du chat view aktivierst ---------- */
+  .chatLog{
+    padding: 10px !important;
+    gap: 10px !important;
+  }
+
+  .bubble{
+    max-width: 92% !important;
+    border-radius: 16px !important;
+  }
+
+  .chatInput{
+    position: sticky;
+    bottom: calc(var(--navH) + var(--safeBottom));
+    z-index: 20;
+    padding: 10px !important;
+    gap: 8px !important;
+    background: rgba(0,0,0,.20);
+    backdrop-filter: blur(10px);
+  }
+
+  .chatInput input{
+    min-height: 46px;
+  }
+
+  /* Neue Nachrichten Button: nicht unter Bottom-Nav verschwinden */
+  #newMsgBtn{
+    bottom: calc(var(--navH) + var(--safeBottom) + 16px) !important;
+    right: 12px !important;
+    border-radius: 14px !important;
+  }
+
+  /* ---------- Bottom Nav: klarer & konsistenter ---------- */
+  #mobileBottomNav{
+    display: flex !important;
+    height: 64px;
+    padding: 8px 10px;
+  }
+
+  #mobileBottomNav .mbtn{
+    min-width: 56px;
+    border-radius: 14px;
+    padding: 6px 4px;
+    font-size: 11px;
+  }
+
+  #mobileBottomNav .mbtn span{
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  /* ---------- Optional: Chips etwas größer ---------- */
+  .chip{
+    padding: 5px 10px;
+    font-size: 11.5px;
+  }
+}
+
+
+
+
+/* ===== DRIVE-ONLY MODE (Infos/Dokumente) ===== */
+#fileGrid{ display:none !important; }
+.mainHeader{ display:none !important; }
+
+/* Make the drive box look like a normal content panel (no dashed upload look) */
+#dropzone{
+  border: 1px solid var(--border) !important;
+  background: rgba(0,0,0,.14) !important;
+  border-radius: 16px !important;
+  margin: 14px !important;
+  text-align: left !important;
+}
+#dropzone.drag{
+  /* no special drag styling */
+  background: rgba(0,0,0,.14) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+</style>
+
+<!-- ===== MOBILE VISIBILITY FIX (Chat + Settings) ===== -->
+<style>
+@media (max-width: 900px){
+  /* Allow JS-controlled views to appear even if earlier CSS hid them */
+  .sidebar[style*="display: flex"],
+  .rightbar[style*="display: flex"],
+  .main[style*="display: flex"]{
+    display: flex !important;
+  }
+}
+</style>
+
+
+
+<!-- ===== CHAT FINAL CLEAN (WhatsApp/Signal-ish + Swipe) ===== -->
+<style>
+/* Chat layout polish (all sizes) */
+.chatLog{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.bubble{
+  align-self:flex-start;
+  max-width:min(86%, 520px);
+  padding:10px 12px;
+  border-radius:16px;
+  position:relative;
+  word-wrap:break-word;
+  overflow-wrap:anywhere;
+}
+.bubble.me{
+  align-self:flex-end;
+}
+/* Meta line like WA: small, right-aligned */
+.bubble .t{
+  display:flex;
+  justify-content:flex-end;
+  gap:6px;
+  font-size:11px;
+  opacity:.85;
+  margin-top:6px;
+}
+/* Optional name for others */
+.bubble .u{
+  font-weight:800;
+  font-size:12px;
+  opacity:.9;
+  margin-bottom:4px;
+}
+/* Date separator */
+.dateSep{
+  align-self:center;
+  font-size:11px;
+  opacity:.75;
+  margin:6px 0;
+}
+
+/* Swipe hint background */
+.chatSwipeBg{
+  position:relative;
+}
+.chatSwipeBg::before{
+  content:"🗑️ Löschen";
+  position:absolute;
+  right:14px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:12px;
+  opacity:.0;
+  transition:opacity .12s ease;
+  pointer-events:none;
+}
+.chatSwipeBg.showDel::before{ opacity:.7; }
+
+@media (max-width: 900px){
+  /* Input row: input grows, button compact */
+  .chatInput{
+    display:flex !important;
+    align-items:center !important;
+    gap:10px !important;
+  }
+  .chatInput input{
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    min-height: 46px;
+  }
+  .chatInput .btn{
+    width:auto !important;
+    min-width: 96px;
+    padding: 12px 14px !important;
+    min-height: 46px;
+  }
+
+  .chatLog{ padding: 10px !important; }
+  .bubble{ max-width: 88% !important; border-radius: 18px !important; }
+}
+</style>
+
+
+<!-- ===== CHAT INPUT BAR FIX (Mobile) ===== -->
+<style>
+@media (max-width: 900px){
+  /* The viewport already has padding-bottom for the bottom nav.
+     Keep the input bar inside the chat card at the real bottom (no extra offset). */
+  .rightbar .chat{
+    display:flex !important;
+    flex-direction:column !important;
+    min-height:0 !important;
+  }
+  .rightbar .chatLog{
+    flex:1 1 auto !important;
+    min-height:0 !important;
+    overflow:auto !important;
+    /* Space so last messages are not hidden behind the input bar */
+    padding-bottom: 84px !important;
+  }
+
+  .rightbar .chatInput{
+    position: sticky !important;
+    bottom: 0 !important;           /* was bottom: calc(navH + safeArea) */
+    z-index: 30 !important;
+    margin: 0 !important;
+    border-top: 1px solid var(--border);
+    background: rgba(10,14,28,.88) !important;
+    backdrop-filter: blur(10px);
+  }
+
+  /* Keep button compact and input wide */
+  .rightbar .chatInput input{ flex:1 1 auto !important; min-width:0 !important; }
+  .rightbar .chatInput .btn{ width:auto !important; min-width: 96px; }
+
+  /* Make sure the chat card itself can shrink/scroll properly */
+  .rightbar.card, .rightbar{
+    min-height:0 !important;
+  }
+}
+</style>
+
+
+<!-- ===== CHAT BUBBLES LEFT/RIGHT FIX ===== -->
+<style>
+/* Wrapper controls alignment for each row */
+.chatSwipeBg{
+  display:flex;
+  justify-content:flex-start;
+  width:100%;
+}
+.chatSwipeBg.me{
+  justify-content:flex-end;
+}
+
+/* Keep delete hint aligned to the swipe direction (left swipe shows on right) */
+.chatSwipeBg::before{
+  right: 14px;
+}
+</style>
+
+
+
+<!-- ===== MOBILE KEYBOARD / JUMP FIX (Chat) ===== -->
+<style>
+@media (max-width: 900px){
+  :root{ --kb: 0px; } /* keyboard offset set by JS */
+
+  /* Keep outer viewport stable; let chatLog scroll (only while chat is visible) */
+  .rightbar[style*="display: flex"] ~ .viewport,
+  .rightbar[style*="display:flex"] ~ .viewport{ /* (fallback if markup changes) */
+    overflow: hidden !important;
+  }
+
+  /* Apply ONLY when chat panel (rightbar) is visible */
+  .rightbar[style*="display: flex"],
+  .rightbar[style*="display:flex"]{
+    height: calc(100dvh - 16px) !important;
+    min-height: 0 !important;
+  }
+
+  .rightbar[style*="display: flex"] .chat,
+  .rightbar[style*="display:flex"] .chat{
+    display:flex !important;
+    flex-direction:column !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+  }
+
+  .rightbar[style*="display: flex"] .chatLog,
+  .rightbar[style*="display:flex"] .chatLog{
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: auto !important;
+    padding-bottom: calc(78px + var(--navH) + var(--safeBottom) + var(--kb)) !important;
+  }
+
+  /* Input fixed above bottom nav + keyboard ONLY when chat visible */
+  .rightbar[style*="display: flex"] .chatInput,
+  .rightbar[style*="display:flex"] .chatInput{
+    position: fixed !important;
+    left: 14px !important;
+    right: 14px !important;
+    bottom: calc(var(--navH) + var(--safeBottom) + var(--kb)) !important;
+    z-index: 60 !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 16px !important;
+    box-shadow: var(--shadow);
+    margin: 0 !important;
+  }
+
+  .rightbar[style*="display: flex"].card,
+  .rightbar[style*="display:flex"].card{
+    padding-bottom: calc(86px + var(--navH) + var(--safeBottom)) !important;
+  }
+}
+</style>
+
+
+
+
+<!-- ===== CHAT: ONLY MESSAGE LIST SCROLLS (scoped) ===== -->
+<style>
+@media (max-width: 900px){
+  /* Default (all tabs): allow normal scroll */
+  html, body{ height:auto; overflow:auto; }
+  .viewport{ overflow:auto; height: 100dvh; }
+
+  /* CHAT active: lock everything except .chatLog */
+  body.view-chat{
+    height: 100%;
+    overflow: hidden !important;
+  }
+  body.view-chat .viewport{
+    height: 100dvh !important;
+    overflow: hidden !important;
+    /* reserve space for bottom nav, without creating scroll */
+    padding-bottom: 0 !important;
+    }
+
+  /* Chat panel occupies the remaining height above bottom nav */
+  body.view-chat .rightbar{
+    display: flex !important;
+    flex-direction: column !important;
+    height: calc(100dvh - var(--navH) - var(--safeBottom)) !important;
+    min-height: 0 !important;
+    overflow: hidden !important; /* prevent chat tab scrolling */
+    margin: 0 !important;
+  }
+
+  body.view-chat .rightbar .chat{
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    display:flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important; /* prevent nested scroll */
+  }
+
+  /* Only the message list scrolls */
+  body.view-chat .rightbar .chatLog{
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px !important;
+  }
+
+  /* Input bar stays visible at bottom of chat card */
+  body.view-chat .rightbar .chatInput{
+    flex: 0 0 auto !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 50 !important;
+    margin: 0 !important;
+    border-top: 1px solid var(--border);
+    background: rgba(10,14,28,.90) !important;
+    backdrop-filter: blur(10px);
+  }
+}
+</style>
+
+
+<!-- ===== CHAT FIT FIX (no content behind input) ===== -->
+<style>
+@media (max-width: 900px){
+  :root{ --chatInputH: 72px; }
+
+  /* In chat view: rightbar fills space ABOVE bottom nav */
+  body.view-chat .rightbar{
+    height: calc(100dvh - var(--navH) - var(--safeBottom)) !important;
+    max-height: calc(100dvh - var(--navH) - var(--safeBottom)) !important;
+  }
+
+  /* Make sure containers don't create extra scroll */
+  body.view-chat .rightbar,
+  body.view-chat .rightbar .chat{
+    overflow: hidden !important;
+  }
+
+  /* Only chatLog scrolls, and it reserves space for the input bar */
+  body.view-chat .rightbar .chatLog{
+    padding-bottom: calc(var(--chatInputH) + 12px) !important;
+    box-sizing: border-box;
+  }
+
+  /* Keep input stuck to bottom INSIDE the card (not covering content) */
+  body.view-chat .rightbar .chatInput{
+    position: sticky !important;
+    bottom: 0 !important;
+    margin-top: 0 !important;
+  }
+}
+</style>
+
+
+
+<!-- ===== MOBILE HEADBAR / LAYOUT: hide side columns except their tab ===== -->
+<style>
+@media (max-width: 900px){
+  /* Single column base */
+  .app{
+    grid-template-columns: 1fr !important;
+  }
+  .main{
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Strictly hide side columns on mobile */
+  .sidebar{ display:none !important; }
+  .rightbar{ display:none !important; }
+
+  /* Only show when their tab is active */
+  body.view-settings .sidebar{ display:flex !important; }
+  body.view-chat .rightbar{ display:none !important; }
+
+  /* Headbar for main panels */
+  #startPanel .topbar,
+  #rankingPanel .topbar,
+  #casePanel .topbar{
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(10,14,28,.80);
+    backdrop-filter: blur(10px);
+  }
+
+  /* Make these panels always full width */
+  #startPanel, #rankingPanel, #casePanel{
+    width: 100% !important;
+    margin: 6px 4px !important;
+  }
+}
+</style>
+
+
+<!-- ===== FINAL MOBILE VIEW OVERRIDES (fix side columns) ===== -->
+<style>
+@media (max-width: 900px){
+  .app{ grid-template-columns: 1fr !important; }
+  .main{ grid-column: 1 / -1 !important; width:100% !important; }
+
+  /* default: no side columns */
+  .sidebar, .rightbar{ display:none !important; }
+
+  /* only show in their dedicated view */
+  body.view-settings .sidebar{ display:flex !important; }
+  body.view-chat .rightbar{ display:flex !important; }
+}
+</style>
+
+
+<!-- ===== MOBILE START/RANK/FALL INTERNAL LAYOUT FIX ===== -->
+<style>
+@media (max-width: 900px){
+
+  /* START PANEL: collapse internal layout into vertical flow */
+  #startPanel .section{
+    display: block !important;
+  }
+
+  #startPanel .section > div{
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Menu buttons stacked */
+  #startPanel .row2{
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* RANK + FALL panels */
+  #rankingPanel .section,
+  #casePanel .section{
+    display: block !important;
+  }
+
+  #rankingPanel .section > *,
+  #casePanel .section > *{
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+</style>
+
+
+<!-- ===== DRIVE MODE: disable local upload UI ===== -->
+<style>
+/* Hide local upload controls if they exist anywhere */
+#filePicker, #btnPickFiles{ display:none !important; }
+</style>
+
+
+<style>
+/* This keeps the layout, but disables drag interactions */
+#dropzone{ user-select:none; }
+</style>
+
+<style>
+
+
+/* ===== PANEL LAYOUT FIX: topbar should be TOP (not left) =====
+   Because JS sets panels to display:flex, they default to flex-direction:row.
+   Force column layout so content uses full width. */
+#startPanel, #rankingPanel, #casePanel{
+  flex-direction: column !important;
+  align-items: stretch !important;
+}
+#startPanel .topbar, #rankingPanel .topbar, #casePanel .topbar{
+  width: 100% !important;
+}
+
+</style>
+<style>
+
+/* ===== CASE LIST ("Deine Fälle") – better mobile layout ===== */
+#caseList .item{
+  align-items: center !important;
+  gap: 12px !important;
+}
+#caseList .btn{
+  width: auto !important;          /* override mobile .btn { width:100% } */
+  min-width: 44px !important;
+  min-height: 44px !important;
+  padding: 10px 12px !important;
+}
+#caseList .caseMeta{
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+#caseList .caseTitle{
+  font-weight: 900;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#caseList .caseSub{
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+</style>
+<style>
+
+/* ===== MOBILE: Presence (Online + Avatars) in Start + Chat ===== */
+@media (max-width: 900px){
+  #presenceBarStartMobile, #presenceBarChatMobile{
+    padding-left: 0;
+    gap: 6px;
+  }
+  #presenceBarStartMobile .presenceLabel,
+  #presenceBarChatMobile .presenceLabel{
+    font-size: 11px;
+  }
+  #presenceBarStartMobile .avatar,
+  #presenceBarChatMobile .avatar{
+    width: 26px;
+    height: 26px;
+    margin-left: -7px;
+  }
+  #presenceBarStartMobile .avatar:first-child,
+  #presenceBarChatMobile .avatar:first-child{
+    margin-left: 0;
+  }
+}
+
+</style>
+
+<!-- ===== HOME: Services List readability + smaller delete button ===== -->
+<style>
+/* "Erfasste Dienste" – better readability + compact delete */
+#serviceList{ padding: 0 !important; }
+#serviceList .item{
+  align-items: flex-start !important;
+  gap: 12px !important;
+}
+#serviceList .meta{ min-width:0; }
+#serviceList .title{
+  font-size: 14px;
+  line-height: 1.25;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+#serviceList .desc{
+  font-size: 12.5px;
+  line-height: 1.35;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  margin-top: 4px;
+}
+/* Keep delete button small even on mobile (overrides .btn{width:100%} mobile rule) */
+#serviceList button.btn{
+  width: auto !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  padding: 8px 10px !important;
+  border-radius: 12px !important;
+  font-size: 13px !important;
+}
+#serviceList button.btn.danger{
+  background: rgba(255,77,109,.10) !important;
+  border-color: rgba(255,77,109,.30) !important;
+}
+</style>
+
+
+<!-- ===== MOBILE REFACTOR (clean + single scroll owner) ===== -->
+<style id="mobile-refactor">
+/* Goals:
+   - No outer (body/html) scrolling on mobile
+   - Exactly one visible panel at a time
+   - Panel scroll (not the page); in Chat ONLY message list scrolls
+   - Works even if JS toggles via inline styles OR via body classes
+*/
+@media (max-width: 900px){
+
+  /* Lock the page itself */
+  html, body{
+    height: 100% !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    position: fixed !important;
+    inset: 0 !important;
+    overscroll-behavior: none !important;
+  }
+
+  /* One fixed viewport; NO scrolling here */
+  .viewport{
+    position: fixed !important;
+    inset: 0 !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+
+  :root{ --navH: 72px; } /* keep consistent */
+
+  /* App shell stays within the screen above bottom nav */
+  .app{
+    height: calc(100dvh - var(--navH) - var(--safeBottom)) !important;
+    max-height: calc(100dvh - var(--navH) - var(--safeBottom)) !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    padding: 8px !important;
+    gap: 10px !important;
+  }
+
+  /* Default: hide all panels (we will enable exactly one) */
+  .sidebar, .main, .rightbar,
+  #startPanel, #rankingPanel, #casePanel{
+    display: none !important;
+    min-height: 0 !important;
+    height: 100% !important;
+  }
+
+  /* --- Visibility (body classes) --- */
+  body.view-start #startPanel{ display:flex !important; flex-direction:column !important; }
+  body.view-files .main{ display:flex !important; flex-direction:column !important; }
+  body.view-case #casePanel{ display:flex !important; flex-direction:column !important; }
+  body.view-chat .rightbar{ display:flex !important; flex-direction:column !important; }
+  body.view-settings .sidebar{ display:flex !important; flex-direction:column !important; }
+
+  /* Ranking can be either view-rank or view-ranking (some scripts use different names) */
+  body.view-rank #rankingPanel,
+  body.view-ranking #rankingPanel{
+    display:flex !important;
+    flex-direction:column !important;
+  }
+
+  /* --- Visibility fallback (inline styles set by JS) ---
+     Your JS sets start/ranking/case panels via element.style.display="flex".
+     Because we use !important above, we must explicitly allow it. */
+  #startPanel[style*="display: flex"]{ display:flex !important; flex-direction:column !important; }
+  #rankingPanel[style*="display: flex"]{ display:flex !important; flex-direction:column !important; }
+  #casePanel[style*="display: flex"]{ display:flex !important; flex-direction:column !important; }
+  .sidebar[style*="display: flex"]{ display:flex !important; flex-direction:column !important; }
+  .main[style*="display: flex"]{ display:flex !important; flex-direction:column !important; }
+  .rightbar[style*="display: flex"]{ display:flex !important; flex-direction:column !important; }
+
+  /* --- Scrolling rules --- */
+
+  /* Non-chat panels scroll as a whole (header can be sticky inside if you use it) */
+  body.view-start #startPanel,
+  body.view-files .main,
+  body.view-case #casePanel,
+  body.view-settings .sidebar,
+  body.view-rank #rankingPanel,
+  body.view-ranking #rankingPanel,
+  #startPanel[style*="display: flex"],
+  #rankingPanel[style*="display: flex"],
+  #casePanel[style*="display: flex"]{
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  /* Chat: ONLY chatLog scrolls */
+  body.view-chat .rightbar,
+  .rightbar[style*="display: flex"]{
+    overflow: hidden !important;
+  }
+  body.view-chat .rightbar .chat,
+  .rightbar[style*="display: flex"] .chat{
+    display:flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+  body.view-chat .rightbar .chatLog,
+  .rightbar[style*="display: flex"] .chatLog{
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  body.view-chat .rightbar .chatInput,
+  .rightbar[style*="display: flex"] .chatInput{
+    flex: 0 0 auto !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 60 !important;
+  }
+
+
+  /* --- Force chat input to sit at the bottom of the chat card (override older fixed/floating rules) --- */
+  body.view-chat .rightbar .chatInput,
+  .rightbar[style*="display: flex"] .chatInput{
+    position: sticky !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 0 16px 16px !important; /* attached, not floating */
+    box-shadow: none !important;
+  }
+
+  /* Some older blocks add padding-bottom to the whole rightbar/card -> remove so input isn't "floating" */
+  body.view-chat .rightbar.card,
+  body.view-chat .rightbar{
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+
+  /* Reserve space for chat input so last message isn't hidden */
+  :root{ --chatInputH: 72px; }
+  body.view-chat .rightbar .chatLog,
+  .rightbar[style*="display: flex"] .chatLog{
+    padding-bottom: calc(var(--chatInputH) + 12px) !important;
+  }
+
+  /* Allow vertical pan only where it should scroll */
+  body{ touch-action: none; }
+  body.view-chat .chatLog,
+  body.view-start #startPanel,
+  body.view-files .main,
+  body.view-case #casePanel,
+  body.view-settings .sidebar,
+  body.view-rank #rankingPanel,
+  body.view-ranking #rankingPanel,
+  .list, .grid{
+    touch-action: pan-y;
+  }
+
+
+  /* --- CHAT: hard-pin input to bottom of the chat panel (beats older fixed/sticky rules) --- */
+  body.view-chat .rightbar,
+  .rightbar[style*="display: flex"]{
+    position: relative !important;
+    height: 100% !important;
+    overflow: hidden !important;
+  }
+
+  /* Ensure chat container fills panel */
+  body.view-chat .rightbar .chat,
+  .rightbar[style*="display: flex"] .chat{
+    position: relative !important;
+    height: 100% !important;
+    flex: 1 1 auto !important;
+    overflow: hidden !important;
+  }
+
+  /* Pin input absolutely to the bottom INSIDE the card */
+  body.view-chat .rightbar .chatInput,
+  .rightbar[style*="display: flex"] .chatInput{
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 0 16px 16px !important;
+    box-shadow: none !important;
+  }
+
+  /* Make the message list the only scroll area and reserve space for the pinned input */
+  body.view-chat .rightbar .chatLog,
+  .rightbar[style*="display: flex"] .chatLog{
+    overflow-y: auto !important;
+    padding-bottom: calc(var(--chatInputH) + 14px) !important;
+  }
+
+
+
+  /* --- Active panel should fill the app viewport (grid can otherwise size by content) --- */
+  .app{ position: relative !important; }
+
+  body.view-start #startPanel,
+  body.view-files .main,
+  body.view-case #casePanel,
+  body.view-chat .rightbar,
+  body.view-settings .sidebar,
+  body.view-rank #rankingPanel,
+  body.view-ranking #rankingPanel,
+  #startPanel[style*="display: flex"],
+  #rankingPanel[style*="display: flex"],
+  #casePanel[style*="display: flex"],
+  .sidebar[style*="display: flex"],
+  .main[style*="display: flex"],
+  .rightbar[style*="display: flex"]{
+    position: absolute !important;
+    inset: 0 !important;
+    /* keep your card spacing inside the app */
+    margin: 6px 4px !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  /* With absolute panels, ensure the chat input pins to the real bottom */
+  body.view-chat .rightbar .chat,
+  .rightbar[style*="display: flex"] .chat{
+    height: 100% !important;
+  }
+
+
+
+  /* --- CHAT: make chat area fill remaining height; input sits at true bottom via flex (no floating) --- */
+  body.view-chat .rightbar,
+  .rightbar[style*="display: flex"]{
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    overflow: hidden !important;
+  }
+
+  /* Hints above chat take natural height; chat fills the rest */
+  body.view-chat .rightbar .chat,
+  .rightbar[style*="display: flex"] .chat{
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body.view-chat .rightbar .chatLog,
+  .rightbar[style*="display: flex"] .chatLog{
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    padding-bottom: 12px !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  body.view-chat .rightbar .chatInput,
+  .rightbar[style*="display: flex"] .chatInput{
+    flex: 0 0 auto !important;
+    position: static !important;   /* kill absolute/sticky/fixed */
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    margin-top: auto !important;   /* pushes it to the bottom */
+    width: 100% !important;
+    border-radius: 0 0 16px 16px !important;
+    box-shadow: none !important;
+  }
+
+
+
+  /* --- Kill legacy bottom padding that creates "empty space" below chat input --- */
+  body.view-chat .rightbar.card,
+  body.view-chat aside.rightbar.card,
+  .rightbar.card[style*="display: flex"],
+  .rightbar.card[style*="display:flex"],
+  .rightbar[style*="display: flex"].card,
+  .rightbar[style*="display:flex"].card{
+    padding-bottom: 0 !important;
+  }
+
+}
+</style>
+
+</head>
+<body>
+<div id="authOverlay" class="authOverlay">
+  <div class="card authModal">
+    <div class="authTitle" id="authTitle">Login / Registrierung</div>
+    <div class="field">
+      <label>Benutzername</label>
+      <input id="authUser" placeholder="z.B. bjoern" autocomplete="username"/>
+    </div>
+    <div class="field">
+      <label>Passwort</label>
+      <input id="authPass" placeholder="••••••••" type="password" autocomplete="current-password"/>
+    </div>
+    <div class="row2" style="margin-top:10px;">
+      <button class="btn primary" id="btnDoLogin" type="button">Login</button>
+      <button class="btn" id="btnDoRegister" type="button">Registrieren</button>
+    </div>
+    <div class="hint" style="margin-top:10px;">
+      Hinweis: Im Prototyp wird ein Benutzername ohne @ automatisch zu <b>@tas.local</b> ergänzt.
+    </div>
+  </div>
+</div>
+<div id="adminOverlay" class="authOverlay hidden">
+  <div class="card authModal">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+      <div class="authTitle" style="margin:0;">Admin Bereich</div>
+      <button class="btn small" id="btnCloseAdmin" type="button">Schließen</button>
+    </div>
+
+    <div class="section" style="margin-top:12px;">
+      <h3 style="margin:0 0 8px 0; font-size:14px;">App Whitelist (zugelassene E-Mails)</h3>
+      <div class="hint" style="margin-bottom:8px;">Eine E-Mail pro Zeile. Alles wird klein geschrieben gespeichert.</div>
+      <textarea id="whitelistBox" style="width:100%; min-height:140px; resize:vertical; padding:10px; border-radius:12px; border:1px solid var(--border); background:rgba(0,0,0,.22); color:var(--text);"></textarea>
+      <div class="row2" style="margin-top:10px;">
+        <button class="btn primary" id="btnSaveWhitelist" type="button">Whitelist speichern</button>
+        <div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 style="margin:0 0 8px 0; font-size:14px;">Rollen</h3>
+      <div class="hint" style="margin-bottom:8px;">Rolle anlegen/ändern: Name + Rechte setzen, dann speichern.</div>
+
+      <div class="field">
+        <label>Rollenname</label>
+        <input id="roleName" placeholder="z.B. Leitung oder Mitarbeiter"/>
+      </div>
+
+      <div class="row2">
+        <label class="pill"><input type="checkbox" id="roleCanUpload"/> Upload</label>
+        <label class="pill"><input type="checkbox" id="roleCanDownload"/> Download</label>
+      </div>
+      <div class="row2" style="margin-top:8px;">
+        <label class="pill"><input type="checkbox" id="roleCanAdmin"/> Admin</label>
+        <div></div>
+      </div>
+
+      <div class="row2" style="margin-top:10px;">
+        <button class="btn primary" id="btnSaveRole" type="button">Rolle speichern</button>
+        <button class="btn danger" id="btnDeleteRole" type="button">Rolle löschen</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 style="margin:0 0 8px 0; font-size:14px;">Benutzer Rolle zuweisen</h3>
+      <div class="field">
+        <label>E-Mail</label>
+        <input id="userRoleEmail" placeholder="user@firma.ch"/>
+      </div>
+      <div class="field">
+        <label>Rolle</label>
+        <select id="userRoleSelect"></select>
+      </div>
+      <button class="btn primary" id="btnSetUserRole" type="button">Rolle zuweisen</button>
+    
+    <div class="section">
+      <h3 style="margin:0 0 8px 0; font-size:14px;">Chat Rollen</h3>
+      <div class="hint" style="margin-bottom:8px;">Damit im Chat ein Admin/Moderator an einem Icon erkennbar ist.</div>
+
+      <div class="field">
+        <label>E-Mail (für Chat-Rolle)</label>
+        <input id="chatRoleEmail" placeholder="user@firma.ch"/>
+      </div>
+      <div class="field">
+        <label>Rolle</label>
+        <select id="chatRoleSelect">
+          <option value="user">User</option>
+          <option value="mod">Moderator</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div class="row2" style="margin-top:10px;">
+        <button class="btn primary" id="btnSetChatRole" type="button">Chat-Rolle speichern</button>
+        <button class="btn danger" id="btnDeleteChatRole" type="button">Chat-Rolle löschen</button>
+      </div>
+
+      <div class="hint" style="margin-top:10px;">Aktuelle Chat-Rollen (read-only)</div>
+      <textarea id="chatRolesBox" style="width:100%; min-height:120px; resize:vertical; padding:10px; border-radius:12px; border:1px solid var(--border); background:rgba(0,0,0,.22); color:var(--text);" readonly></textarea>
+    </div>
+
+    <div class="section">
+      <h3 style="margin:0 0 8px 0; font-size:14px;">Chat Moderation</h3>
+      <div class="hint" style="margin-bottom:8px;">Admin: Nutzer muten (UIDs oder E-Mails, je Zeile) und Chat/Systemmeldungen bereinigen.</div>
+
+      <div class="field">
+        <label>Muted (eine UID oder E-Mail pro Zeile)</label>
+        <textarea id="mutedBox" style="width:100%; min-height:120px; resize:vertical; padding:10px; border-radius:12px; border:1px solid var(--border); background:rgba(0,0,0,.22); color:var(--text);"></textarea>
+      </div>
+
+      <div class="row2" style="margin-top:10px;">
+        <button class="btn primary" id="btnSaveMuted" type="button">Muted speichern</button>
+        <button class="btn danger" id="btnClearChat" type="button">Chat leeren (letzte 500)</button>
+      </div>
+      <div class="row2" style="margin-top:10px;">
+        <button class="btn danger" id="btnClearSystem" type="button">Systemmeldungen löschen (letzte 500)</button>
+        <div></div>
+      </div>
+      <div class="hint" style="margin-top:8px;">Hinweis: Mute blockiert das Senden. Lesen bleibt erlaubt.</div>
+    </div>
+
+</div>
+
+  </div>
+</div>
+
+<div class="mobileHeader hidden" id="mobileHeader">
+  <button class="iconBtn" id="btnHamburger" type="button" aria-label="Menü öffnen">☰</button>
+  <div class="mhTitle">
+    <div style="font-weight:900" id="mhAppName">Projekt TAS</div>
+    <div class="mhSub" id="mhDateLine"></div>
+  </div>
+  <div style="display:flex; gap:8px; align-items:center;">
+    <div class="chip" id="mhUserChip">offline</div>
+  </div>
+</div>
+
+<div class="drawerOverlay hidden" id="drawerOverlay"></div>
+<nav class="drawer hidden" id="drawer">
+  <div class="drawerTop">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div class="logo" style="width:34px;height:34px;border-radius:12px;" id="drawerLogo">TAS</div>
+      <div style="min-width:0">
+        <div style="font-weight:900; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="drawerAppName">Projekt TAS</div>
+        <div class="mhSub" id="drawerUserLine">🔴 abgemeldet</div>
+      </div>
+    </div>
+    <button class="iconBtn" id="btnCloseDrawer" type="button" aria-label="Menü schließen">✕</button>
+  </div>
+
+  <div class="drawerList">
+    <button class="drawerBtn active" id="navStart" type="button">🏠 Home</button>
+    <button class="drawerBtn" id="navFiles" type="button">📄 Infos/Dokumente</button>
+    <button class="drawerBtn" id="navRanking" type="button">🏆 Rangliste</button>
+    <button class="drawerBtn" id="navCase" type="button">📝 Fall eintragen</button>
+    <button class="drawerBtn" id="navChat" type="button">💬 Chat</button>
+    <button class="drawerBtn hidden" id="navAdmin" type="button">🛡️ Admin</button>
+<button class="drawerBtn" id="navSettings" type="button">⚙️ Settings</button>
+  </div>
+
+  <div class="drawerFooter">
+    <button class="btn small danger" id="drawerLogout" type="button">Logout</button>
+    <div class="hint" style="margin-top:10px;">Tipp: Auf Mobile öffnest du das Menü über ☰.</div>
+  </div>
+</nav>
+<div class="viewport">
+
+<div class="desktopNavBar" id="desktopNavBar">
+  <div class="desktopNavInner">
+    <div class="tabs" id="desktopTabs">
+      <button class="tabBtn active" id="dnavStart" type="button">🏠 Home</button>
+      <button class="tabBtn" id="dnavFiles" type="button">📄 Infos/Dokumente</button>
+      <button class="tabBtn" id="dnavRanking" type="button">🏆 Rangliste</button>
+      <button class="tabBtn" id="dnavCase" type="button">📝 Fall eintragen</button>
+      <button class="tabBtn" id="dnavChat" type="button">💬 Chat</button>
+<button class="tabBtn" id="dnavSettings" type="button">⚙️ Settings</button>
+      <button class="tabBtn hidden" id="dnavAdmin" type="button">🛡️ Admin</button>
+    </div>
+    <div class="tabRight">
+
+      <div class="presenceBar" id="presenceBar" style="margin-right:8px;">
+        <div class="presenceLabel" id="presenceLabel">offline</div>
+        <div class="avatarStack" id="avatarStack"></div>
+      </div>
+
+      <div class="chip" id="dnavUserChip">offline</div>
+      <button class="btn small danger hidden" id="dnavLogout" type="button">Logout</button>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="appShell">
+<!-- SIDEBAR -->
+<aside class="card sidebar">
+<div class="topbar">
+<div class="brand">
+<div class="logo" id="appLogo">TAS</div>
+<div style="min-width:0">
+<h1 id="appName">Projekt TAS</h1>
+<div class="sub" id="userLine">🔴 abgemeldet</div>
+</div>
+</div>
+<div class="statusDot" id="statusDot" title="Login Status"></div>
+</div>
+<div class="section">
+  <div class="row2">
+    <button class="btn small primary" id="btnLoginOpen" type="button">Login</button>
+        <button class="btn small danger hidden" id="btnLogout" type="button">Logout</button>
+  </div>
+
+  <div class="hint" style="margin-top:10px;">
+    Profil: Name & Bild kannst du nach dem Login selbst setzen.
+  </div>
+
+  <div class="field">
+    <label>Dein Name</label>
+    <input id="profileName" placeholder="z.B. Björn"/>
+  </div>
+  <div class="field">
+    <label>Profilbild</label>
+    <input id="profilePic" type="file" accept="image/*"/>
+  </div>
+  <div class="row2" style="margin-top:10px;">
+    <button class="btn small" id="btnSaveProfile" type="button">Profil speichern</button>
+    <button class="btn small hidden" id="btnOpenAdmin" type="button">Admin</button>
+  </div>
+
+  <div class="hint" style="margin-top:10px;">
+    Hinweis: Upload/Download-Rechte hängen von deiner Rolle ab.
+  </div>
+</div>
+</aside>
+<!-- START (MOBILE) -->
+<section class="card startPanel" id="startPanel" style="display:none;">
+  <div class="topbar">
+    <div>
+      <div style="font-weight:900; font-size:16px;">Home</div>
+      <div class="sub" id="startDate"></div>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div class="presenceBar" id="presenceBarStartMobile">
+        <div class="presenceLabel" id="presenceLabelStartMobile">offline</div>
+        <div class="avatarStack" id="avatarStackStartMobile"></div>
+      </div>
+      <div class="chip">Übersicht</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div style="font-weight:900; margin-bottom:8px;">Dienst erfassen</div>
+
+    <div class="row2" style="flex-wrap:wrap;">
+      <div class="field" style="flex:1; min-width:180px; margin-top:0;">
+        <label>Datum</label>
+        <input id="serviceDate" type="date"/>
+      </div>
+      <div class="field" style="flex:1; min-width:180px; margin-top:0;">
+        <label>Personalnummer</label>
+        <input id="servicePN" placeholder="z.B. 12345" inputmode="numeric"/>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:10px;">
+      <label>Name</label>
+      <input id="serviceName" placeholder="z.B. Björn"/>
+    </div>
+
+    <div class="row2" style="margin-top:10px; flex-wrap:wrap;">
+      <div class="field" style="flex:1; min-width:180px; margin-top:0;">
+        <label>Dienstbeginn</label>
+        <input id="serviceStartTime" type="time" disabled/>
+        <div class="hint" id="serviceRunningLine" style="margin-top:6px;">—</div>
+      </div>
+      <div class="field hidden" id="serviceEndWrap" style="flex:1; min-width:180px; margin-top:0;">
+        <label>Dienstende</label>
+        <input id="serviceEndTime" type="time"/>
+      </div>
+    </div>
+
+    <div class="row2" style="margin-top:12px; flex-wrap:wrap;">
+      <button class="btn primary" id="btnServiceStart" type="button">Dienstbeginn</button>
+      <button class="btn" id="btnServiceEnd" type="button" disabled>Dienstende</button>
+    </div>
+
+    <div style="margin-top:10px;">
+      <button class="btn primary" id="btnServiceSave" type="button" disabled>Speichern</button>
+    </div>
+
+    <div class="hint" id="serviceStatusHint" style="margin-top:10px;">Tipp: Dienstbeginn starten → danach Dienstende setzen → speichern.</div>
+  </div>
+
+  <div class="section">
+    <details id="servicesDetails" open>
+      <summary style="font-weight:900; cursor:pointer;">Erfasste Dienste</summary>
+      <div class="list" id="serviceList" style="padding:0; gap:10px; max-height: 340px; overflow:auto; margin-top:10px;"></div>
+    </details>
+  </div>
+</section>
+<!-- RANGLISTE -->
+<section class="card" id="rankingPanel" style="display:none;">
+  <div class="topbar">
+    <div>
+      <div style="font-weight:900; font-size:16px;">🏆 Rangliste</div>
+      <div class="sub">Fälle pro Person (Firebase)</div>
+    </div>
+    <div class="chip">Live</div>
+  </div>
+
+  <div class="section">
+    <div class="hint" style="margin-bottom:10px;">
+      Live-Rangliste aus Firestore. Sortiert nach gemeldeten Fällen (absteigend).
+    </div>
+
+    <div class="list" id="rankingList" style="padding:0; gap:10px;"></div>
+  </div>
+</section>
+
+
+<!-- FALL EINTRAGEN -->
+<section class="card" id="casePanel" style="display:none;">
+  <div class="topbar">
+    <div>
+      <div style="font-weight:900; font-size:16px;">📝 Fall eintragen</div>
+      <div class="sub">Speicherung &amp; Liste über Firebase</div>
+    </div>
+    <div class="chip">Live</div>
+  </div>
+
+  <div class="section">
+    <div class="hint" style="margin-bottom:10px;">
+      Trage einen Fall ein (Name, Ort, Datum, Zeit) und speichere ihn. Unten siehst du deine gespeicherten Fälle.
+    </div>
+
+    <div class="field">
+      <label>Name</label>
+      <input id="caseName" placeholder="z.B. Max Mustermann"/>
+    </div>
+
+    <div class="field">
+      <label>Ort</label>
+      <input id="casePlace" placeholder="z.B. Zürich HB / Filiale XY"/>
+    </div>
+
+    <div class="row2" style="margin-top:10px; flex-wrap:wrap;">
+      <div class="field" style="flex:1; min-width:180px;">
+        <label>Datum</label>
+        <input id="caseDate" type="date"/>
+      </div>
+      <div class="field" style="flex:1; min-width:160px;">
+        <label>Zeit</label>
+        <input id="caseTime" type="time"/>
+      </div>
+    </div>
+
+    <div class="row2" style="margin-top:12px; flex-wrap:wrap;">
+      <button class="btn primary" id="btnSaveCase" type="button">Speichern</button>
+      <button class="btn" id="btnClearCase" type="button">Felder leeren</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div style="font-weight:900; margin-bottom:10px;">Deine Fälle</div>
+    <div class="list" id="caseList" style="padding:0; gap:10px;"></div>
+  </div>
+</section>
+
+
+
+<!-- MAIN -->
+<main class="card main">
+<div class="mainHeader">
+<div class="searchRow" style="flex:1;">
+<input id="searchInput" placeholder="Suchen (Dokumente, Infos, Notizen, Kategorie, Dateiname)..."/>
+<select id="typeFilter" style="max-width:170px;">
+<option value="all">Alles</option>
+<option value="doc">Dokumente</option>
+<option value="img">Bilder</option>
+</select>
+<button class="btn small" id="btnNotify">🔔 Notify</button>
+</div>
+</div>
+
+<div class="dropzone" id="dropzone">
+  <div style="font-weight:900; font-size:16px; color:var(--text);">📁 Infos &amp; Dokumente</div>
+  <div class="hint" style="margin-top:6px;">
+    Alle relevanten Dokumente liegen zentral im Google Drive. Öffne den Ordner über den Button.
+  </div>
+  <div style="margin-top:12px; display:flex; justify-content:center;">
+    <button class="btn primary" id="btnOpenDrive" type="button">Google Drive öffnen</button>
+  </div>
+</div>
+
+<div class="grid hidden" id="fileGrid"></div>
+
+</main>
+<!-- RIGHT: CHAT + AUTH -->
+<aside class="card rightbar">
+<div class="topbar">
+<div style="font-weight:900">Chat</div>
+<div style="display:flex; align-items:center; gap:10px; min-width:0;">  <div class="presenceBar" id="presenceBarChatMobile">    <div class="presenceLabel" id="presenceLabelChatMobile">offline</div>    <div class="avatarStack" id="avatarStackChatMobile"></div>  </div>  <div class="chip" id="chatMode">lokal</div></div>
+</div>
+<div class="hint" style="padding:0 12px 4px; color: var(--muted);">Chat-Raum: <b>global</b></div>
+<div class="hint hidden" id="typingLine" style="padding:0 12px 10px; color: var(--muted);">🟢 jemand tippt…</div>
+<div class="chat">
+<div class="chatLog" id="chatLog"></div>
+<div class="chatInput">
+<input id="chatText" placeholder="Nachricht..."/>
+<button class="btn primary" id="btnSend" type="button">Senden</button>
+</div>
+</div>
+</aside>
+</div>
+</div>
+</div>
+<script type="module">
+/**
+ * Projekt TAS – Firebase Edition (Single-File)
+ * - Firebase Auth (Email/Pass; "Benutzername" ohne @ wird zu @tas.local gemappt)
+ * - Firestore: Kategorien, Items (Metadaten/Notizen), Chat (Realtime)
+ * - Storage: deaktiviert (Spark Plan) – Uploads werden im UI deaktiviert
+ *
+ * WICHTIG (Deploy):
+ * 1) In Firebase Console: Authentication -> Email/Password aktivieren
+ * 2) Firestore + Storage aktivieren
+ * 3) Security Rules anpassen (Beispiel am Ende dieses Scripts)
+ */
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+  getAuth, onAuthStateChanged,
+  createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
+  updateProfile
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  doc,
+  addDoc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  orderBy,
+  where,
+  getDoc,
+  getDocs,
+  onSnapshot,
+  serverTimestamp,
+  Timestamp,
+  deleteField,
+  limit} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAU-gtZxzBOCIDYrqQ82Su8qslcWAcOE9o",
+  authDomain: "ladendetektiv-app.firebaseapp.com",
+  projectId: "ladendetektiv-app",
+  storageBucket: "ladendetektiv-app.firebasestorage.app",
+  messagingSenderId: "1039057164732",
+  appId: "1:1039057164732:web:0c7907a83bdbe21e95b3b9"
+};
+
+// Hinweis: Firebase Auth funktioniert nicht über file:// – bitte über http(s) öffnen (z.B. VSCode Live Server).
+if (location.protocol === "file:") {
+  console.warn("Du öffnest die Datei per file://. Bitte starte einen lokalen Webserver (z.B. VSCode Live Server), sonst kann Firebase Auth fehlschlagen.");
+}
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ---------- Power Automate Webhook (Dienstzeit -> Teams) ----------
+const FLOW_URL_DIENSTZEIT = 'https://default37df5520fb854c58aa126bafbea273.f4.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/0ce4602e433446ee87e52dd7494e76a0/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=NOVErBbD9Q2_hBUiVaf6eMxMaiUstp5rVhU4DN42WJc';
+
+// Sends Dienstzeit payload to Power Automate.
+// Note: Many Power Automate HTTP triggers do not send CORS headers.
+// Using mode:'no-cors' avoids the browser blocking the request; the flow will still receive it.
+async function notifyTeamsDienstzeit(payload){
+  try{
+    await fetch(FLOW_URL_DIENSTZEIT, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  }catch(e){
+    console.warn("Teams/Flow Notify failed:", e);
+  }
+}
+
+
+// Viele Projekte nutzen als Bucket-Namen weiterhin <projectId>.appspot.com.
+// ---------- DOM helpers ----------
+const $ = (id) => document.getElementById(id);
+const uid = () => crypto.randomUUID();
+const fmtDate = (ts) => new Date(ts).toLocaleString("de-CH");
+function escapeHtml(s){
+  return (s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+var shouldAutoScroll = window.shouldAutoScroll || function(container, threshold = 80){
+  if(!container) return true;
+  return (container.scrollHeight - container.scrollTop - container.clientHeight) < threshold;
+};
+window.shouldAutoScroll = shouldAutoScroll;
+
+function scrollToBottom(el){
+  if(!el) return;
+  el.scrollTop = el.scrollHeight;
+  // double-tick for layout timing (no recursion!)
+  setTimeout(()=>{ el.scrollTop = el.scrollHeight; }, 60);
+}
+
+
+// Global error catcher: zeigt Fehler, falls das Script in mobilen WebViews früh abstürzt
+window.addEventListener("error", (ev)=>{
+  console.error(ev.error || ev.message);
+  const box = document.getElementById("authErrorBox");
+  if(box){
+    box.textContent = "JS Fehler: " + (ev.error?.message || ev.message || String(ev));
+    box.classList.remove("hidden");
+  }
+});
+window.addEventListener("unhandledrejection", (ev)=>{
+  console.error(ev.reason);
+  const box = document.getElementById("authErrorBox");
+  if(box){
+    box.textContent = "Promise Fehler: " + (ev.reason?.message || String(ev.reason||ev));
+    box.classList.remove("hidden");
+  }
+});
+
+// ---------- State ----------
+var chatRoles = window.chatRoles || {};
+window.chatRoles = chatRoles;
+
+const STORAGE_DISABLED = true; // Spark Plan: kein Firebase Storage
+let state = {
+  selectedCatId: "all",
+  search: "",
+  typeFilter: "all",
+  cats: [],
+  items: [],
+  session: null, // {uid, email, user}
+  chatRoom: "global",
+  unsubCats: null,
+  unsubItems: null,
+  unsubChat: null,
+  unsubCases: null,
+  unsubServices: null,
+  cases: [],
+  services: [],
+  rankings: [],
+  };
+
+// ---------- Auth utils ----------
+function normalizeEmail(input){
+  const v = (input||"").trim();
+  if(!v) return "";
+  if(v.includes("@")) return v.toLowerCase();
+  // allow "Benutzername" ohne Email -> map to pseudo-domain
+  return `${v.toLowerCase()}@tas.local`;
+}
+
+function displayNameFromEmail(email){
+  if(!email) return "Gast";
+  return (email.split("@")[0] || email).trim();
+}
+
+
+async function fileToAvatarDataUrl(file, maxSize=256, quality=0.78){
+  // Converts an image File into a small square JPEG dataURL (Spark-plan friendly, no Storage).
+  if(!file) return "";
+  const img = await new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const i = new Image();
+    i.onload = () => { URL.revokeObjectURL(url); resolve(i); };
+    i.onerror = (e) => { URL.revokeObjectURL(url); reject(new Error("Bild konnte nicht geladen werden.")); };
+    i.src = url;
+  });
+
+  const canvas = document.createElement("canvas");
+  canvas.width = maxSize;
+  canvas.height = maxSize;
+  const ctx = canvas.getContext("2d");
+
+  // cover-crop to square
+  const iw = img.naturalWidth || img.width;
+  const ih = img.naturalHeight || img.height;
+  const scale = Math.max(maxSize / iw, maxSize / ih);
+  const sw = maxSize / scale;
+  const sh = maxSize / scale;
+  const sx = (iw - sw) / 2;
+  const sy = (ih - sh) / 2;
+
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.clearRect(0, 0, maxSize, maxSize);
+  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, maxSize, maxSize);
+
+  return canvas.toDataURL("image/jpeg", quality);
+}
+
+
+function applySessionUI(){
+  const dot = $("statusDot");
+  const line = $("userLine");
+  const logoutBtn = $("btnLogout");
+  const chatMode = $("chatMode");
+
+  const overlay = $("authOverlay");
+  const appShell = $("appShell");
+
+
+// Mobile header / drawer mirrors
+const mhAppName = document.getElementById("mhAppName");
+const drawerAppName = document.getElementById("drawerAppName");
+const mhUserChip = document.getElementById("mhUserChip");
+const drawerUserLine = document.getElementById("drawerUserLine");
+const drawerLogo = document.getElementById("drawerLogo");
+if(mhAppName) mhAppName.textContent = document.getElementById("appName")?.textContent || "Projekt TAS";
+if(drawerAppName) drawerAppName.textContent = document.getElementById("appName")?.textContent || "Projekt TAS";
+if(drawerLogo) drawerLogo.textContent = document.getElementById("appLogo")?.textContent || "TAS";
+if(mhUserChip) mhUserChip.textContent = state.session?.uid ? (state.session.user || state.session.email) : "offline";
+if(drawerUserLine) drawerUserLine.textContent = state.session?.uid ? ("🟢 " + (state.session.user || state.session.email)) : "🔴 abgemeldet";
+
+// Desktop nav mirrors
+const dnavUserChip = document.getElementById("dnavUserChip");
+const dnavLogout = document.getElementById("dnavLogout");
+if(dnavUserChip) dnavUserChip.textContent = state.session?.uid ? (state.session.user || state.session.email) : "offline";
+if(dnavLogout){
+  if(state.session?.uid) dnavLogout.classList.remove("hidden");
+  else dnavLogout.classList.add("hidden");
+}
+
+  if(state.session?.uid){
+    dot.classList.add("ok");
+    line.textContent = "🟢 angemeldet als " + (state.session.user || state.session.email);
+    logoutBtn.classList.remove("hidden");
+    chatMode.textContent = `firebase • ${(state.chatRoom||"global")}`;
+  } else {
+    dot.classList.remove("ok");
+    line.textContent = "🔴 abgemeldet";
+    logoutBtn.classList.add("hidden");
+    chatMode.textContent = "offline";
+  }
+
+  // Gate: Ohne Login keine App-Bedienung
+  if(state.session?.uid){
+    overlay?.classList.add("hidden");
+    appShell?.classList.remove("hidden");
+  } else {
+    overlay?.classList.remove("hidden");
+    appShell?.classList.add("hidden");
+  }
+}
+
+function explainFirebaseAuthError(err){
+  const code = err?.code || "";
+  const msg = err?.message || String(err || "");
+  // Häufige Ursachen + klare Hinweise
+  if(code === "auth/configuration-not-found" || msg.includes("CONFIGURATION_NOT_FOUND") || msg.includes("configuration-not-found")){
+    return "Firebase Auth Konfiguration nicht gefunden (auth/configuration-not-found).\n\nCheckliste:\n1) Öffne die Seite über http(s) (nicht file://).\n2) Firebase Console → Authentication → Sign-in method → Email/Password aktivieren.\n3) API-Key Restrictions prüfen (HTTP Referrer / localhost erlauben).\n4) Prüfen ob apiKey wirklich zu projectId passt.";
+  }
+  if(code === "auth/operation-not-allowed"){
+    return "Login/Registrierung ist für dieses Projekt nicht erlaubt. Bitte Firebase Console → Authentication → Email/Password aktivieren.";
+  }
+  if(code === "auth/user-not-found"){
+    return "Dieser Nutzer existiert nicht. Bitte erst registrieren oder Benutzername/Email prüfen.";
+  }
+  if(code === "auth/wrong-password"){
+    return "Falsches Passwort.";
+  }
+  if(code === "auth/email-already-in-use"){
+    return "Diese Email wird bereits verwendet. Bitte einloggen.";
+  }
+  if(code === "auth/invalid-email"){
+    return "Ungültige Email. (Tipp: Benutzername ohne @ wird automatisch zu @tas.local ergänzt.)";
+  }
+  return msg;
+}
+
+
+// ---------- App Security / Roles / Profile ----------
+const CFG_SECURITY = doc(db, "appConfig", "security"); // { whitelist: [email], admins:[uid] }
+const ROLES_COL = collection(db, "appConfig", "global", "roles"); // subcollection under appConfig/global
+const USERROLES_COL = collection(db, "appConfig", "global", "userRoles"); // subcollection under appConfig/global
+
+
+
+
+// --- Fixed bootstrap admin (hardcoded) ---
+const FIXED_ADMIN = {
+  email: "itbetas2@gmail.com".toLowerCase(),
+  uid: "FVoqT70QeneHgiBcvEG3m0u1Pku1"
+};
+function uniq(arr){
+  return Array.from(new Set((arr||[]).filter(Boolean)));
+}
+state.profile = { displayName:"", photoURL:"" };
+state.roleName = "Mitarbeiter";
+state.role = { canUpload:false, canDownload:true, canAdmin:false };
+state.onlineUsers = [];
+state.unsubPresence = null;
+
+
+state.unsubMyProfile = null;
+function perms(){
+  return state.role || { canUpload:false, canDownload:true, canAdmin:false };
+}
+
+function applyPermsUI(){
+  const p = perms();
+  const isFixedAdmin = !!(state.session?.uid && (state.session.uid === FIXED_ADMIN.uid || String(state.session.email||"").toLowerCase() === FIXED_ADMIN.email));
+  // Upload controls
+  const dz = document.getElementById("dropzone");
+  const pick = document.getElementById("btnPickFiles");
+  const fp = document.getElementById("filePicker");
+  if(!p.canUpload){
+    if(pick) { pick.disabled = true; pick.classList.add("hidden"); } // hide button, keep area
+    if(fp) fp.disabled = true;
+    if(dz){
+      dz.style.opacity = "0.65";
+    }
+  } else {
+    if(pick) { pick.disabled = false; pick.classList.remove("hidden"); }
+    if(fp) fp.disabled = false;
+    if(dz){
+      dz.style.opacity = "";
+      dz.style.pointerEvents = "";
+    }
+  }
+  // Admin controls
+  const btnAdmin = document.getElementById("btnOpenAdmin");
+  const navAdmin = document.getElementById("navAdmin");
+  const dnavAdmin = document.getElementById("dnavAdmin");
+  if(p.canAdmin || isFixedAdmin){
+    btnAdmin?.classList.remove("hidden");
+    navAdmin?.classList.remove("hidden");
+    dnavAdmin?.classList.remove("hidden");
+  } else {
+    btnAdmin?.classList.add("hidden");
+    navAdmin?.classList.add("hidden");
+    dnavAdmin?.classList.add("hidden");
+  }
+}
+
+function roleDefaults(){
+  return {
+    "Leitung": { name:"Leitung", canUpload:true, canDownload:true, canAdmin:true },
+    "Mitarbeiter": { name:"Mitarbeiter", canUpload:false, canDownload:true, canAdmin:false },
+  };
+}
+
+async function ensureDefaultDocs(){
+  // Ensure security doc exists
+  const secSnap = await getDoc(CFG_SECURITY).catch(()=>null);
+  if(!secSnap || !secSnap.exists()){
+    await setDoc(CFG_SECURITY, { whitelist: [FIXED_ADMIN.email], admins: [FIXED_ADMIN.uid], updatedAt: serverTimestamp() }, { merge:true });
+  }
+
+  // Always ensure fixed admin is present
+  try{
+    const sec2 = await getDoc(CFG_SECURITY);
+    const data = sec2.data() || {};
+    const admins = uniq([...(data.admins||[]), FIXED_ADMIN.uid]);
+    const whitelist = uniq([...(data.whitelist||[]), FIXED_ADMIN.email]);
+    await setDoc(CFG_SECURITY, { admins, whitelist, updatedAt: serverTimestamp() }, { merge:true });
+  }catch(_e){}
+  // Ensure roles exist
+  const rolesSnap = await getDocs(ROLES_COL).catch(()=>null);
+  if(rolesSnap && rolesSnap.empty){
+    const defs = roleDefaults();
+    for(const [name, data] of Object.entries(defs)){
+      await setDoc(doc(db, "appConfig", "global", "roles", name), { ...data, updatedAt: serverTimestamp() }, { merge:true });
+    }
+  }
+}
+
+async function isEmailAllowed(email){
+  const secSnap = await getDoc(CFG_SECURITY).catch(()=>null);
+  const wl = secSnap?.data()?.whitelist || [];
+  if(!wl.length) return true; // empty whitelist -> allow all
+  const e = (email||"").toLowerCase();
+  return wl.map(x=>String(x||"").toLowerCase()).includes(e);
+}
+
+async function loadMyRole(email, uid){
+  // 1) Explicit user role by email
+  let roleName = null;
+  try{
+    const ur = await getDoc(doc(db, "appConfig", "global", "userRoles", (email||"").toLowerCase())).catch(()=>null);
+    roleName = ur?.data()?.role || null;
+  }catch(_e){}
+  // 2) Bootstrap: first user becomes admin if admins empty
+  const secSnap = await getDoc(CFG_SECURITY).catch(()=>null);
+  const admins = secSnap?.data()?.admins || [];
+  if(admins.length === 0){
+    await setDoc(CFG_SECURITY, { admins: uniq([FIXED_ADMIN.uid, uid].filter(Boolean)), updatedAt: serverTimestamp() }, { merge:true });
+  }
+  const adminsList = (secSnap?.data()?.admins || []);
+  const isAdmin = adminsList.includes(uid) || (String(email||"").toLowerCase() === FIXED_ADMIN.email) || (uid === FIXED_ADMIN.uid);
+
+  // 3) If admin but no explicit role -> Leitung
+  if(isAdmin && !roleName) roleName = "Leitung";
+  if(!roleName) roleName = "Mitarbeiter";
+
+  // load role document
+  const rSnap = await getDoc(doc(db, "appConfig", "global", "roles", roleName)).catch(()=>null);
+  const role = rSnap?.data() || roleDefaults()[roleName] || roleDefaults()["Mitarbeiter"];
+
+  state.roleName = roleName;
+  state.role = {
+    canUpload: !!role.canUpload,
+    canDownload: !!role.canDownload,
+    canAdmin: !!role.canAdmin,
+  };
+  // Hard override: FIXED_ADMIN always has Admin-Rechte
+  if((String(email||"").toLowerCase() === FIXED_ADMIN.email) || (uid === FIXED_ADMIN.uid)){
+    state.role.canAdmin = true;
+    state.role.canUpload = true;
+    state.role.canDownload = true;
+  }
+  applyPermsUI();
+}
+
+async function loadMyProfile(uid){
+  const pSnap = await getDoc(doc(db, "users", uid)).catch(()=>null);
+  const data = pSnap?.data() || {};
+  state.profile.displayName = data.displayName || state.session?.user || "";
+  state.profile.photoURL = data.photoURL || data.avatarDataUrl || "";
+  const nameInp = document.getElementById("profileName");
+  if(nameInp) nameInp.value = state.profile.displayName || "";
+}
+
+// Live-profile watcher (fixes avatar/name flipping when multiple tabs/devices are open)
+function watchMyProfile(uid){
+  if(state.unsubMyProfile) { try{ state.unsubMyProfile(); }catch(_){} }
+  if(!uid) return;
+  state.unsubMyProfile = onSnapshot(doc(db, "users", uid), (snap)=>{
+    const data = snap.data() || {};
+    const newName = data.displayName || state.session?.user || "";
+    const newPhoto = data.photoURL || data.avatarDataUrl || "";
+
+    const changed = (newName !== state.profile.displayName) || (newPhoto !== state.profile.photoURL);
+
+    state.profile.displayName = newName;
+    state.profile.photoURL = newPhoto;
+
+    if(state.session?.uid){
+      // keep session label consistent
+      if(newName) state.session.user = newName;
+      applySessionUI();
+      if(changed){
+        // push updated avatar/name into presence so everyone sees the latest
+        upsertPresence().catch(()=>{});
+      }
+    }
+  }, (err)=>{
+    console.warn("watchMyProfile error:", err);
+  });
+}
+
+
+async function saveMyProfile(){
+  const uid = requireLogin();
+  const name = (document.getElementById("profileName")?.value || "").trim();
+  const pic = document.getElementById("profilePic")?.files?.[0];
+
+  let avatarDataUrl = state.profile.photoURL || "";
+  if(pic){
+    // Spark Plan friendly: store small avatar directly in Firestore (no Storage).
+    avatarDataUrl = await fileToAvatarDataUrl(pic);
+    // Firestore doc limit safety
+    if(avatarDataUrl.length > 700_000){
+      throw new Error("Bild ist zu groß. Bitte ein kleineres Bild wählen.");
+    }
+  }
+
+  const displayName =
+    name || state.profile.displayName || displayNameFromEmail(state.session?.email);
+
+  await setDoc(doc(db, "users", uid), {
+    email: state.session?.email || "",
+    displayName,
+    avatarDataUrl: avatarDataUrl || "",
+    photoURL: "", // reserved if you later switch to Storage/URL
+    updatedAt: serverTimestamp()
+  }, { merge:true });
+
+  state.profile.displayName = displayName;
+  state.profile.photoURL = avatarDataUrl || "";
+  state.session.user = displayName;
+
+  applySessionUI();
+  await upsertPresence().catch(()=>{});
+  alert("Profil gespeichert.");
+}
+
+// ---------- Presence ----------
+const PRESENCE_COL = collection(db, "presence");
+
+async function upsertPresence(){
+  if(!state.session?.uid) return;
+  const uid = state.session.uid;
+  const ref = doc(db, "presence", uid);
+  await setDoc(ref, {
+    uid,
+    email: state.session.email || "",
+    displayName: state.profile.displayName || state.session.user || displayNameFromEmail(state.session.email),
+    photoURL: state.profile.photoURL || "",
+    online: true,
+    lastSeen: serverTimestamp()
+  }, { merge:true });
+}
+
+async function setOffline(){
+  if(!state.session?.uid) return;
+  try{
+    await updateDoc(doc(db, "presence", state.session.uid), { online:false, lastSeen: serverTimestamp() });
+  }catch(_e){}
+}
+
+function watchPresence(){
+  if(state.unsubPresence) state.unsubPresence();
+  state.unsubPresence = onSnapshot(PRESENCE_COL, (snap)=>{
+    const now = Date.now();
+    const online = [];
+    snap.forEach(d=>{
+      const p = d.data() || {};
+      const ls = p.lastSeen?.toMillis ? p.lastSeen.toMillis() : (p.lastSeen || 0);
+      // Consider user online if online flag true and lastSeen within 2 minutes
+      if(p.online && (now - ls) < 2*60*1000){
+        online.push({ uid:d.id, ...p, lastSeen: ls });
+      }
+    });
+    online.sort((a,b)=> (b.lastSeen||0) - (a.lastSeen||0));
+    state.onlineUsers = online;
+    renderPresenceBar();
+  });
+}
+
+function renderPresenceBar(){
+const label = document.getElementById("presenceLabel");
+  const stack = document.getElementById("avatarStack");
+  const labelStartM = document.getElementById("presenceLabelStartMobile");
+  const stackStartM = document.getElementById("avatarStackStartMobile");
+  const labelChatM = document.getElementById("presenceLabelChatMobile");
+  const stackChatM = document.getElementById("avatarStackChatMobile");
+  const hasAny = (label && stack) || (labelStartM && stackStartM) || (labelChatM && stackChatM);
+  if(!hasAny) return;
+
+  if(!state.session?.uid){
+    label.textContent = "offline";
+    stack.innerHTML = "";
+    return;
+  }
+
+  const online = state.onlineUsers || [];
+  if(label) label.textContent = online.length ? `Online: ${online.length}` : "Online: 0";
+  if(stack) stack.innerHTML = "";
+  if(labelStartM) labelStartM.textContent = online.length ? `Online: ${online.length}` : "Online: 0";
+  if(stackStartM) stackStartM.innerHTML = "";
+  if(labelChatM) labelChatM.textContent = online.length ? `Online: ${online.length}` : "Online: 0";
+  if(stackChatM) stackChatM.innerHTML = "";
+
+  online.slice(0, 6).forEach(u=>{
+    const a = document.createElement("div");
+    a.className = "avatar";
+    a.title = u.displayName || u.email || "User";
+    if(u.photoURL){
+      const img = document.createElement("img");
+      img.src = u.photoURL;
+      img.alt = u.displayName || "avatar";
+      a.appendChild(img);
+    } else {
+      a.textContent = (u.displayName||u.email||"U").trim().slice(0,1).toUpperCase();
+    }
+    const dot = document.createElement("div");
+    dot.className = "onlineDot";
+    a.appendChild(dot);
+    if(stack) stack.appendChild(a.cloneNode(true));
+    if(stackStartM) stackStartM.appendChild(a.cloneNode(true));
+    if(stackChatM) stackChatM.appendChild(a);
+  });
+}
+
+// Heartbeat + offline best-effort
+let presenceTimer = null;
+function startPresence(){
+  stopPresence();
+  upsertPresence().catch(()=>{});
+  presenceTimer = setInterval(()=> upsertPresence().catch(()=>{}), 30_000);
+  window.addEventListener("beforeunload", setOffline);
+  document.addEventListener("visibilitychange", ()=>{
+    if(document.hidden) setOffline();
+    else upsertPresence().catch(()=>{});
+  });
+}
+function stopPresence(){
+  if(presenceTimer) clearInterval(presenceTimer);
+  presenceTimer = null;
+  window.removeEventListener("beforeunload", setOffline);
+}
+
+// ---------- Admin UI ----------
+function openAdmin(){
+  document.getElementById("adminOverlay")?.classList.remove("hidden");
+  loadAdminUI().catch((e)=>{ console.error(e); alert("Admin-UI Fehler: " + (e?.message||e)); });
+}
+function closeAdmin(){
+  document.getElementById("adminOverlay")?.classList.add("hidden");
+}
+
+async function loadAdminUI(){
+  if(!perms().canAdmin) return alert("Keine Admin-Rechte.");
+  await ensureDefaultDocs();
+  // whitelist
+  const secSnap = await getDoc(CFG_SECURITY);
+  const wl = (secSnap.data()?.whitelist || []).join("\n");
+  const box = document.getElementById("whitelistBox");
+  if(box) box.value = wl;
+
+  // roles dropdown
+  const sel = document.getElementById("userRoleSelect");
+  if(sel){
+    sel.innerHTML = "";
+    const rSnap = await getDocs(ROLES_COL);
+    rSnap.forEach(d=>{
+      const opt = document.createElement("option");
+      opt.value = d.id;
+      opt.textContent = d.id;
+      sel.appendChild(opt);
+    });
+  }
+}
+
+async function saveWhitelist(){
+  if(!perms().canAdmin) return;
+  const box = document.getElementById("whitelistBox");
+  const lines = (box?.value || "").split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  const unique = Array.from(new Set(lines.map(s=>s.toLowerCase())));
+  await setDoc(CFG_SECURITY, { whitelist: unique, updatedAt: serverTimestamp() }, { merge:true });
+  alert("Whitelist gespeichert.");
+}
+
+async function saveRole(){
+  if(!perms().canAdmin) return;
+  const name = (document.getElementById("roleName")?.value || "").trim();
+  if(!name) return alert("Rollenname fehlt.");
+  const canUpload = !!document.getElementById("roleCanUpload")?.checked;
+  const canDownload = !!document.getElementById("roleCanDownload")?.checked;
+  const canAdmin = !!document.getElementById("roleCanAdmin")?.checked;
+  await setDoc(doc(db,"appConfig","global","roles", name), { name, canUpload, canDownload, canAdmin, updatedAt: serverTimestamp() }, { merge:true });
+  alert("Rolle gespeichert.");
+  await loadAdminUI();
+}
+
+async function deleteRole(){
+  if(!perms().canAdmin) return;
+  const name = (document.getElementById("roleName")?.value || "").trim();
+  if(!name) return alert("Rollenname fehlt.");
+  if(!confirm("Rolle wirklich löschen?")) return;
+  await deleteDoc(doc(db,"appConfig","global","roles", name));
+  alert("Rolle gelöscht.");
+  await loadAdminUI();
+}
+
+async function setUserRole(){
+  if(!perms().canAdmin) return;
+  const email = (document.getElementById("userRoleEmail")?.value || "").trim().toLowerCase();
+  const role = (document.getElementById("userRoleSelect")?.value || "").trim();
+  if(!email || !email.includes("@")) return alert("Bitte eine gültige E-Mail eingeben.");
+  if(!role) return alert("Bitte Rolle wählen.");
+  await setDoc(doc(db,"appConfig","global","userRoles", email), { email, role, updatedAt: serverTimestamp() }, { merge:true });
+  alert("Benutzerrolle gespeichert.");
+}
+
+
+async function doRegister(){
+  const u = $("authUser").value.trim();
+  const p = $("authPass").value;
+  if(!u || !p) return alert("Bitte Benutzername/Email & Passwort eingeben.");
+  const email = normalizeEmail(u);
+  try{
+    const cred = await createUserWithEmailAndPassword(auth, email, p);
+    // optional: store profile doc
+    await setDoc(doc(db, "users", cred.user.uid), {
+      email,
+      createdAt: serverTimestamp()
+    }, { merge:true });
+    alert("Registriert. Du bist jetzt eingeloggt.");
+  } catch(err){
+    console.error(err);
+    alert("Registrierung fehlgeschlagen: " + explainFirebaseAuthError(err));
+  }
+}
+
+async function doLogin(){
+  const u = $("authUser").value.trim();
+  const p = $("authPass").value;
+  if(!u || !p) return alert("Bitte Benutzername/Email & Passwort eingeben.");
+  const email = normalizeEmail(u);
+  try{
+    await signInWithEmailAndPassword(auth, email, p);
+  } catch(err){
+    console.error(err);
+    alert("Login fehlgeschlagen: " + explainFirebaseAuthError(err));
+  }
+}
+
+async function doLogout(){
+  try{ await signOut(auth); } catch(e){}
+}
+
+// ---------- Branding (fixed) ----------
+const APP_BRAND = { name: "Profil Einstellungen", logo: "LD" };
+function applyBrand(){
+  const n = APP_BRAND.name || "Profil Einstellungen";
+  const l = APP_BRAND.logo || "LD";
+  const nameEl = document.getElementById("appName");
+  const logoEl = document.getElementById("appLogo");
+  if(nameEl) nameEl.textContent = n;
+  if(logoEl) logoEl.textContent = l;
+  // Mirrors
+  const mh = document.getElementById("mhAppName"); if(mh) mh.textContent = n;
+  const dr = document.getElementById("drawerAppName"); if(dr) dr.textContent = n;
+  const dl = document.getElementById("drawerLogo"); if(dl) dl.textContent = l;
+}
+
+// ---------- Firestore paths ----------
+function requireLogin(){
+  if(!state.session?.uid){
+    alert("Bitte zuerst einloggen, damit alles über Firebase gespeichert wird.");
+    throw new Error("not_logged_in");
+  }
+  return state.session.uid;
+}
+function catsCol(uid){ return collection(db, "users", uid, "cats"); }
+function itemsCol(uid){ return collection(db, "users", uid, "items"); }
+function chatCol(roomId){ return collection(db, "chatRooms", roomId || "global", "messages"); }
+function typingCol(roomId){ return collection(db, "chatRooms", roomId || "global", "typing"); }
+function filePath(uid, itemId, filename){ return `users/${uid}/files/${itemId}/${filename}`; }
+
+// ---------- Categories (Firestore, realtime) ----------
+async function ensureDefaultCats(userId){
+  const snap = await getDocs(query(catsCol(userId), orderBy("order","asc")));
+  if(!snap.empty) return;
+  const defaults = [
+    { id:"inbox", name:"Inbox", order: 1 },
+    { id:"docs", name:"Dokumente", order: 2 },
+    { id:"imgs", name:"Bilder", order: 3 },
+    { id:"tours", name:"Tourenpläne", order: 4 },
+    { id:"info", name:"Infos/Notizen", order: 5 },
+  ];
+  for(const c of defaults){
+    await setDoc(doc(db, "users", userId, "cats", c.id), {
+      name: c.name,
+      order: c.order,
+      updatedAt: serverTimestamp()
+    }, { merge:true });
+  }
+}
+
+function watchCats(){
+  if(state.unsubCats) state.unsubCats();
+  const userId = requireLogin();
+  const qCats = query(catsCol(userId), orderBy("order","asc"));
+  state.unsubCats = onSnapshot(qCats, (snap)=>{
+    const arr = [];
+    snap.forEach(d=> arr.push({ id: d.id, ...d.data() }));
+    state.cats = arr.map(c=>({ id:c.id, name:c.name }));
+    renderCats();
+    renderItems();
+  });
+}
+
+async function newCat(){
+  const name = prompt("Kategorie/Ordner Name:");
+  if(!name) return;
+  const userId = requireLogin();
+  await addDoc(catsCol(userId), {
+    name: name.trim(),
+    order: Date.now(),
+    updatedAt: serverTimestamp()
+  });
+}
+
+async function renameCat(id){
+  const cat = state.cats.find(c=>c.id===id);
+  if(!cat) return;
+  const name = prompt("Neuer Name:", cat.name);
+  if(!name) return;
+  const userId = requireLogin();
+  await updateDoc(doc(db, "users", userId, "cats", id), {
+    name: name.trim(),
+    updatedAt: serverTimestamp()
+  });
+}
+
+async function deleteCat(id){
+  if(!confirm("Kategorie löschen? (Items werden auf 'Inbox' gesetzt)")) return;
+  const userId = requireLogin();
+  // move items
+  const qItems = query(itemsCol(userId), where("catId","==",id));
+  const snap = await getDocs(qItems);
+  for(const d of snap.docs){
+    await updateDoc(d.ref, { catId: "inbox", updatedAt: serverTimestamp() });
+  }
+  // delete cat
+  await deleteDoc(doc(db, "users", userId, "cats", id));
+  if(state.selectedCatId === id) state.selectedCatId = "all";
+}
+
+function catName(id){
+  if(id === "all") return "Alle";
+  const c = state.cats.find(x=>x.id===id);
+  return c ? c.name : "Inbox";
+}
+
+function renderCats(){
+  const el = $("catList");
+  if(!el) return;
+  el.innerHTML = "";
+
+  const makeBtn = (label, id) => {
+const b = document.createElement("button");
+    b.className = "btn row";
+    b.textContent = label;
+    if(state.selectedCatId === id){
+      b.style.borderColor = "rgba(77,163,255,.45)";
+      b.style.background = "rgba(77,163,255,.10)";
+    }
+    b.onclick = () => { state.selectedCatId = id; renderCats(); renderItems(); };
+    return b;
+  };
+
+  el.appendChild(makeBtn("Alle", "all"));
+
+  state.cats.forEach(cat => {
+    const row = document.createElement("div");
+    row.className = "item";
+    row.draggable = true;
+
+    row.addEventListener("dragstart", (e)=> e.dataTransfer.setData("text/cat", cat.id));
+    row.addEventListener("dragover", (e)=> { e.preventDefault(); row.style.outline = "2px solid rgba(255,255,255,.12)"; });
+    row.addEventListener("dragleave", ()=> row.style.outline = "none");
+    row.addEventListener("drop", async (e)=> {
+      e.preventDefault(); row.style.outline = "none";
+      const dragged = e.dataTransfer.getData("text/cat");
+      if(!dragged || dragged === cat.id) return;
+      // reordering: swap order field based on timestamp heuristic
+      const from = state.cats.findIndex(c=>c.id===dragged);
+      const to = state.cats.findIndex(c=>c.id===cat.id);
+      if(from<0 || to<0) return;
+      const userId = requireLogin();
+      const fromId = state.cats[from].id;
+      const toId = state.cats[to].id;
+      // set "order" to neighbors
+      const now = Date.now();
+      await updateDoc(doc(db, "users", userId, "cats", fromId), { order: now });
+      // Force refresh; ordering by "order" will change (simple but works)
+    });
+
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    const t = document.createElement("div");
+    t.className = "title";
+    t.textContent = cat.name;
+    const d = document.createElement("div");
+    d.className = "desc";
+    d.textContent = "ID: " + cat.id.slice(0,8);
+    meta.appendChild(t); meta.appendChild(d);
+
+    const chip = document.createElement("div");
+    chip.className = "chip";
+    chip.textContent = "öffnen";
+    chip.style.cursor = "pointer";
+    chip.onclick = () => { state.selectedCatId = cat.id; renderCats(); renderItems(); };
+
+    const menu = document.createElement("div");
+    menu.style.display = "flex";
+    menu.style.gap = "8px";
+const r = document.createElement("button");
+    r.className = "btn small";
+    r.textContent = "✏️";
+    r.title = "Umbenennen";
+    r.onclick = () => renameCat(cat.id);
+const x = document.createElement("button");
+    x.className = "btn small danger";
+    x.textContent = "🗑️";
+    x.title = "Löschen";
+    x.onclick = () => deleteCat(cat.id);
+
+    menu.appendChild(r); menu.appendChild(x);
+
+    row.appendChild(meta);
+    row.appendChild(chip);
+    row.appendChild(menu);
+
+    // allow dropping files onto category row
+    row.addEventListener("dragover", (e)=> {
+      if(e.dataTransfer.types.includes("Files")){ e.preventDefault(); row.style.background="rgba(77,163,255,.08)"; }
+    });
+    row.addEventListener("dragleave", ()=> row.style.background="rgba(0,0,0,.18)");
+    row.addEventListener("drop", async (e)=> {
+      row.style.background="rgba(0,0,0,.18)";
+      if(!e.dataTransfer.files?.length) return;
+      e.preventDefault();
+      await handleFiles(e.dataTransfer.files, cat.id);
+    });
+
+    el.appendChild(row);
+  });
+}
+
+// ---------- Items (Firestore metadata + Storage blobs) ----------
+function guessType(file){
+  const t = (file.type || "").toLowerCase();
+  if(t.startsWith("image/")) return "img";
+  return "doc";
+}
+
+function watchItems(){
+  if(state.unsubItems) state.unsubItems();
+  const userId = requireLogin();
+  const qItems = query(itemsCol(userId), orderBy("createdAt","desc"));
+  state.unsubItems = onSnapshot(qItems, (snap)=>{
+    const arr = [];
+    snap.forEach(d=> {
+      const data = d.data();
+      arr.push({
+        id: d.id,
+        ...data,
+        // createdAt can be Firestore Timestamp
+        createdAt: data.createdAt?.toMillis ? data.createdAt.toMillis() : (data.createdAt || Date.now())
+      });
+    });
+    state.items = arr;
+    renderItems();
+  });
+}
+
+async function handleFiles(fileList, catId){
+  if(STORAGE_DISABLED){
+    return alert("Uploads sind deaktiviert, weil Firebase Storage im Spark Plan nicht verfügbar ist. (Admin: Upgrade auf Blaze oder externes File-Hosting nutzen)");
+  }
+  if(!perms().canUpload){
+    return alert("Du hast keine Upload-Rechte (Rolle).");
+  }
+  const userId = requireLogin();
+  const files = Array.from(fileList);
+  for(const f of files){
+    const itemId = uid();
+    const path = filePath(userId, itemId, f.name);
+        const item = {
+      kind: "file",
+      type: guessType(f),
+      name: f.name,
+      mime: f.type || "application/octet-stream",
+      size: f.size,
+      catId: catId || (state.selectedCatId !== "all" ? state.selectedCatId : "inbox"),
+      createdAt: serverTimestamp(),
+      notes: "",
+      storagePath: null
+    };
+    await setDoc(doc(db, "users", userId, "items", itemId), item, { merge:true });
+  }
+}
+
+async function createNote(){
+  const userId = requireLogin();
+  const title = prompt("Titel der Info/Notiz:");
+  if(!title) return;
+  const text = prompt("Inhalt (kurz):") || "";
+  const itemId = uid();
+  await setDoc(doc(db, "users", userId, "items", itemId), {
+    kind: "note",
+    type: "note",
+    name: title.trim(),
+    mime: "text/plain",
+    size: text.length,
+    catId: state.selectedCatId !== "all" ? state.selectedCatId : "info",
+    createdAt: serverTimestamp(),
+    notes: text,
+    storagePath: null
+  }, { merge:true });
+}
+
+function matchesSearch(item, q){
+  if(!q) return true;
+  q = q.toLowerCase();
+  return [
+    item.name,
+    item.notes || "",
+    item.mime || "",
+    item.type || "",
+    catName(item.catId)
+  ].some(v => (v || "").toLowerCase().includes(q));
+}
+
+function matchesFilter(item){
+  if(state.selectedCatId !== "all" && item.catId !== state.selectedCatId) return false;
+  if(state.typeFilter === "all") return true;
+  if(state.typeFilter === "doc") return item.kind === "file" && item.type === "doc";
+  if(state.typeFilter === "img") return item.kind === "file" && item.type === "img";
+  return true;
+}
+
+function renderItems(){
+  const grid = $("fileGrid");
+  const q = state.search.trim();
+  const filtered = (state.items||[])
+    .filter(it => matchesFilter(it))
+    .filter(it => matchesSearch(it, q));
+
+  grid.innerHTML = "";
+
+  if(!filtered.length){
+    const empty = document.createElement("div");
+    empty.className = "fileCard";
+    empty.style.gridColumn = "1 / -1";
+    empty.innerHTML = `
+      <div class="name">Keine Treffer</div>
+      <div class="small">${state.session?.uid ? "Versuche andere Suche/Kategorie oder lade Dateien hoch." : "Bitte einloggen, um Firebase-Daten zu sehen."}</div>
+    `;
+    grid.appendChild(empty);
+    return;
+  }
+
+  filtered.forEach(it => {
+    const card = document.createElement("div");
+    card.className = "fileCard";
+    card.draggable = true;
+
+    card.addEventListener("dragstart", (e)=> e.dataTransfer.setData("text/item", it.id));
+    card.addEventListener("dragover", (e)=> e.preventDefault());
+
+    const top = document.createElement("div");
+    top.className = "row";
+    const name = document.createElement("div");
+    name.className = "name";
+    name.textContent = it.kind === "note" ? "📝 " + it.name : (it.type === "img" ? "🖼️ " : "📄 ") + it.name;
+    const badge = document.createElement("div");
+    badge.className = "chip";
+    badge.textContent = catName(it.catId);
+    top.appendChild(name);
+    top.appendChild(badge);
+
+    const mid = document.createElement("div");
+    mid.className = "small";
+    if(it.kind === "note"){
+      mid.textContent = (it.notes || "").slice(0, 90) || "—";
+    } else {
+      const kb = (Number(it.size||0)/1024).toFixed(1);
+      mid.textContent = `${it.mime} • ${kb} KB • ${fmtDate(it.createdAt)}`;
+    }
+
+    const actions = document.createElement("div");
+    actions.className = "actions";
+
+const btnOpen = document.createElement("button");
+    btnOpen.className = "btn small primary";
+    btnOpen.textContent = it.kind === "note" ? "Ansehen" : "Öffnen";
+    btnOpen.onclick = () => openItem(it);
+
+const btnMove = document.createElement("button");
+    btnMove.className = "btn small";
+    btnMove.textContent = "Verschieben";
+    btnMove.onclick = () => moveItem(it);
+
+const btnNote = document.createElement("button");
+    btnNote.className = "btn small";
+    btnNote.textContent = "Notiz";
+    btnNote.onclick = () => editNotes(it);
+
+const btnDel = document.createElement("button");
+    btnDel.className = "btn small danger";
+    btnDel.textContent = "Löschen";
+    btnDel.onclick = async () => {
+      if(!confirm("Wirklich löschen?")) return;
+      const userId = requireLogin();
+            await deleteDoc(doc(db, "users", userId, "items", it.id));
+    };
+
+    actions.appendChild(btnOpen);
+    actions.appendChild(btnMove);
+    actions.appendChild(btnNote);
+    actions.appendChild(btnDel);
+
+    card.appendChild(top);
+    card.appendChild(mid);
+    card.appendChild(actions);
+
+    grid.appendChild(card);
+  });
+}
+
+async function openItem(it){
+  if(it.kind === "note"){
+    alert(`${it.name}\n\n${it.notes || ""}`);
+    return;
+  }
+  if(!perms().canDownload){
+    return alert("Du hast keine Download-Rechte (Rolle).");
+  }
+  if(STORAGE_DISABLED){
+    return alert("Download ist deaktiviert (kein Firebase Storage im Spark Plan).");
+  }
+  return alert("Datei-Download ist aktuell nicht eingerichtet.");
+}
+
+async function moveItem(it){
+  const options = state.cats.map(c=> `${c.id}:${c.name}`).join("\n");
+  const dest = prompt("Ziel-Kategorie ID eingeben:\n" + options, it.catId);
+  if(!dest) return;
+  const userId = requireLogin();
+  await updateDoc(doc(db, "users", userId, "items", it.id), {
+    catId: dest.trim(),
+    updatedAt: serverTimestamp()
+  });
+}
+
+async function editNotes(it){
+  const val = prompt("Notiz/Info (für Suche hilfreich):", it.notes || "");
+  if(val === null) return;
+  const userId = requireLogin();
+  await updateDoc(doc(db, "users", userId, "items", it.id), {
+    notes: val,
+    updatedAt: serverTimestamp()
+  });
+}
+
+// ---------- Drag & Drop Upload zone ----------
+function setupDropzone(){
+  const dz = $("dropzone");
+  dz.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dz.classList.add("drag");
+  });
+  dz.addEventListener("dragleave", () => dz.classList.remove("drag"));
+  dz.addEventListener("drop", async (e) => {
+    e.preventDefault();
+    dz.classList.remove("drag");
+    if(e.dataTransfer.files?.length){
+      try{ await handleFiles(e.dataTransfer.files); } catch(_e){}
+    }
+  });
+}
+
+// ---------- Search ----------
+function setupSearch(){
+  $("searchInput").addEventListener("input", (e) => {
+    state.search = e.target.value;
+    renderItems();
+  });
+  $("typeFilter").addEventListener("change", (e) => {
+    state.typeFilter = e.target.value;
+    renderItems();
+  });
+}
+
+
+function scrollChatBottom(force=false){
+  const log = document.getElementById("chatLog");
+  if(!log) return;
+  if(force || shouldAutoScroll(log)) scrollToBottom(log);
+}
+
+// ---------- Chat (Firestore realtime) ----------
+function watchChat(){
+  if(state.unsubChat) state.unsubChat();
+    if(state.unsubTyping) state.unsubTyping();
+  const userId = requireLogin();
+  const roomId = state.chatRoom || "global";
+  const qChat = query(chatCol(roomId), orderBy("at","asc"));
+  state.unsubChat = onSnapshot(qChat, (snap)=>{
+    const log = $("chatLog");
+    if(!log) return;
+    const keepBottom = shouldAutoScroll(log);
+    log.innerHTML = "";
+
+    let lastDateKey = null;
+
+    snap.docs.slice(-200).forEach(d=>{
+      const m = d.data() || {};
+      const atMs = m.at?.toMillis ? m.at.toMillis() : (m.atMs || m.at || Date.now());
+      const dt = new Date(atMs);
+      const dateKey = dt.toLocaleDateString("de-CH");
+
+      if(dateKey !== lastDateKey){
+        lastDateKey = dateKey;
+        const sep = document.createElement("div");
+        sep.className = "dateSep";
+        sep.textContent = dateKey;
+        log.appendChild(sep);
+      }
+
+      const b = document.createElement("div");
+      b.className = "bubble " + ((m.uid && m.uid === userId) ? "me" : "");
+      b.innerHTML = `<div>${escapeHtml(m.text)}</div><div class="t">${escapeHtml(m.user || "User")} • ${fmtDate(atMs)}</div>`;
+
+      var canDelete = perms().canAdmin || (m.uid && m.uid === userId);
+      if(canDelete){
+        const del = document.createElement("button");
+        del.className = "delMsgBtn";
+        del.type = "button";
+        del.textContent = "Löschen";
+        del.addEventListener("click", async (ev)=>{
+          ev.stopPropagation();
+          if(!confirm("Nachricht wirklich löschen?")) return;
+          try{
+            await deleteDoc(doc(db, "chatRooms", roomId, "messages", d.id));
+          }catch(e){
+            console.error(e);
+            alert("Löschen fehlgeschlagen: " + (e?.message||e));
+          }
+        });
+        b.appendChild(del);
+      }
+
+      log.appendChild(b);
+    });
+
+    if(keepBottom){
+      scrollToBottom(log);
+    }
+  });
+}
+
+
+function watchTyping(){
+  if(state.unsubTyping) state.unsubTyping();
+  const userId = requireLogin();
+  const roomId = state.chatRoom || "global";
+  const qT = query(typingCol(roomId), where("typing","==",true));
+  state.unsubTyping = onSnapshot(qT, (snap)=>{
+    const line = document.getElementById("typingLine");
+    if(!line) return;
+    const now = Date.now();
+    const names = [];
+    snap.forEach(docu=>{
+      const t = docu.data() || {};
+      if(t.uid === userId) return;
+      const atMs = t.at?.toMillis ? t.at.toMillis() : (t.atMs || 0);
+      if(atMs && (now - atMs) > 12_000) return; // stale
+      names.push(t.user || t.displayName || t.email || "User");
+    });
+    const uniq = Array.from(new Set(names)).slice(0, 3);
+    if(!uniq.length){
+      line.classList.add("hidden");
+      return;
+    }
+    line.classList.remove("hidden");
+    if(uniq.length === 1) line.textContent = `🟢 ${uniq[0]} tippt…`;
+    else line.textContent = `🟢 ${uniq.length} Personen tippen…`;
+  });
+}
+
+async function setMyTyping(isTyping){
+  if(!state.session?.uid) return;
+  const roomId = state.chatRoom || "global";
+  const ref = doc(db, "chatRooms", roomId, "typing", state.session.uid);
+  const user = state.session?.user || state.profile?.displayName || displayNameFromEmail(state.session?.email);
+  await setDoc(ref, {
+    uid: state.session.uid,
+    user,
+    email: state.session.email || "",
+    typing: !!isTyping,
+    at: serverTimestamp(),
+    atMs: Date.now()
+  }, { merge:true });
+}
+
+function bindTypingUI(){
+  const inp = document.getElementById("chatText");
+  if(!inp) return;
+
+  const bump = ()=>{
+    // mark typing true, then schedule auto-off
+    setMyTyping(true).catch(()=>{});
+    if(state.typingTimer) clearTimeout(state.typingTimer);
+    state.typingTimer = setTimeout(()=> setMyTyping(false).catch(()=>{}), 4000);
+  };
+
+  inp.addEventListener("input", bump);
+  inp.addEventListener("keydown", (e)=>{ if(e.key.length === 1) bump(); });
+  inp.addEventListener("blur", ()=> setMyTyping(false).catch(()=>{}));
+}
+
+async function sendChat(){
+  const text = $("chatText").value.trim();
+  if(!text) return;
+  const userId = requireLogin();
+  const roomId = state.chatRoom || "global";
+  const user = state.session?.user || "User";
+
+  // 1) write message to Firestore
+  await addDoc(chatCol(roomId), {
+    text,
+    user,
+    uid: userId,
+    at: serverTimestamp(),
+    atMs: Date.now()
+  });
+
+  // 2) trigger push via Netlify Function (best-effort, non-blocking)
+  try{
+    const cur = auth.currentUser;
+    const idToken = cur ? await cur.getIdToken() : null;
+
+    fetch("/.netlify/functions/push_chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(idToken ? { "Authorization": "Bearer " + idToken } : {})
+      },
+      body: JSON.stringify({
+        roomId,
+        text,
+        user,
+        uid: userId
+      })
+    }).catch(()=>{});
+  }catch(_e){}
+
+  $("chatText").value = "";
+  setMyTyping(false).catch(()=>{});
+  scrollChatBottom(true);
+}
+
+// ---------- Rangliste (Firestore realtime) ----------
+
+// ---------- Fälle + Rangliste (Firestore realtime) ----------
+// Global collection for cases. Each document represents one reported case.
+const CASES_COL = collection(db, "cases");
+// Per-user subcollection for services ("Dienste")
+function servicesCol(uid){ return collection(db, "users", uid, "services"); }
+ 
+// doc fields: { reporterUid, reporterEmail, reporterName, place, occurredAt, createdAt }
+
+function toLocalDateTimeStr(ms){
+  try{
+    const d = new Date(ms);
+    const ds = d.toLocaleDateString("de-CH");
+    const ts = d.toLocaleTimeString("de-CH", { hour:"2-digit", minute:"2-digit" });
+    return `${ds} • ${ts}`;
+  }catch(_e){ return ""; }
+}
+
+function computeRankingFromCases(casesArr){
+  const map = new Map(); // key: reporterUid (fallback reporterName)
+  for(const c of (casesArr||[])){
+    const key = c.reporterUid || c.reporterName || "unknown";
+    const cur = map.get(key) || {
+      reporterUid: c.reporterUid || "",
+      reporterName: c.reporterName || "Unbekannt",
+      reporterEmail: (c.reporterEmail || "").toLowerCase(),
+      count: 0,
+      lastAt: 0
+    };
+    cur.count += 1;
+    const at = c.occurredAtMs || 0;
+    if(at > (cur.lastAt||0)) cur.lastAt = at;
+    // prefer non-empty name/email
+    if(c.reporterName) cur.reporterName = c.reporterName;
+    if(c.reporterEmail) cur.reporterEmail = (c.reporterEmail || "").toLowerCase();
+    map.set(key, cur);
+  }
+  const rows = Array.from(map.values());
+  rows.sort((a,b)=> (b.count||0) - (a.count||0) || (b.lastAt||0) - (a.lastAt||0));
+  return rows;
+}
+
+function renderRanking(){
+  const list = document.getElementById("rankingList");
+  if(!list) return;
+
+  list.innerHTML = "";
+
+  if(!state.session?.uid){
+    list.innerHTML = `<div class="fileCard"><div class="name">Bitte einloggen</div><div class="small">Rangliste wird nach Login live aus Firebase geladen.</div></div>`;
+    return;
+  }
+
+  const rows = state.rankings || [];
+  if(!rows.length){
+    list.innerHTML = `<div class="fileCard"><div class="name">Noch keine Fälle</div><div class="small">Sobald jemand Fälle einträgt, erscheinen hier Name & Anzahl.</div></div>`;
+    return;
+  }
+
+  rows.forEach((r, i)=>{
+    const card = document.createElement("div");
+    card.className = "item";
+    card.style.padding = "12px";
+    const subtitle = r.lastAt ? ("Letzter Fall: " + escapeHtml(toLocalDateTimeStr(r.lastAt))) : "";
+    card.innerHTML = `
+      <div class="meta" style="min-width:0; flex:1;">
+        <div class="title">${i+1}. ${escapeHtml(r.reporterName || "User")}</div>
+        <div class="desc">${escapeHtml(r.reporterEmail || subtitle || "")}</div>
+      </div>
+      <div class="chip" style="font-weight:900; color: var(--text);">${Number(r.count||0)} Fälle</div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function renderMyCases(){
+  const list = document.getElementById("caseList");
+  if(!list) return;
+
+  list.innerHTML = "";
+
+  if(!state.session?.uid){
+    list.innerHTML = `<div class="fileCard"><div class="name">Bitte einloggen</div><div class="small">Fälle werden erst nach Login gespeichert.</div></div>`;
+    return;
+  }
+
+  const rows = (state.cases || []).filter(c => c.reporterUid === state.session.uid);
+  if(!rows.length){
+    list.innerHTML = `<div class="fileCard"><div class="name">Noch keine Fälle gespeichert</div><div class="small">Trage oben einen Fall ein und klicke „Speichern“.</div></div>`;
+    return;
+  }
+
+  rows.forEach((c)=>{
+    const card = document.createElement("div");
+    card.className = "item";
+    card.style.padding = "12px";
+    const when = c.occurredAtMs ? toLocalDateTimeStr(c.occurredAtMs) : "";
+    card.innerHTML = `
+  <div class="caseMeta">
+    <div class="caseTitle">${escapeHtml(c.place || "—")}</div>
+    <div class="caseSub">${escapeHtml(when)}${c.reporterName ? " • " + escapeHtml(c.reporterName) : ""}</div>
+  </div>
+  <button class="btn small danger" type="button" aria-label="Fall löschen" title="Fall löschen">🗑️</button>
+`;
+const btnDel = card.querySelector("button");
+    btnDel.onclick = async ()=>{
+      if(!confirm("Fall wirklich löschen?")) return;
+      try{
+        requireLogin();
+        // Only allow deleting own cases client-side
+        if(c.reporterUid !== state.session.uid) return alert("Du kannst nur deine eigenen Fälle löschen.");
+        await deleteDoc(doc(db, "cases", c.id));
+      }catch(e){
+        console.error(e);
+        alert("Löschen fehlgeschlagen: " + (e?.message||e));
+      }
+    };
+    list.appendChild(card);
+  });
+}
+
+function watchCases(){
+  if(state.unsubCases) state.unsubCases();
+      if(state.unsubMyProfile) state.unsubMyProfile();
+// global -> needs login
+  requireLogin();
+
+  const qCases = query(CASES_COL, orderBy("occurredAt","desc"));
+  state.unsubCases = onSnapshot(qCases, (snap)=>{
+    const arr = [];
+    snap.forEach(d=>{
+      const data = d.data() || {};
+      const occurredAtMs = data.occurredAt?.toMillis ? data.occurredAt.toMillis() : (data.occurredAt || 0);
+      arr.push({ id: d.id, ...data, occurredAtMs });
+    });
+    state.cases = arr;
+    state.rankings = computeRankingFromCases(arr);
+
+    renderMyCases();
+    renderRanking();
+  }, (err)=>{
+    console.error(err);
+  });
+}
+
+// ---------- Dienste (Service Start/Ende) ----------
+let serviceStartMs = 0;
+let serviceTimer = null;
+
+function pad2(n){ return String(n).padStart(2,"0"); }
+function msToHHMM(ms){
+  const d = new Date(ms);
+  return pad2(d.getHours()) + ":" + pad2(d.getMinutes());
+}
+function hhmmToDate(dateStr, hhmm){
+  // dateStr: YYYY-MM-DD, hhmm: HH:MM
+  const iso = `${dateStr}T${hhmm}:00`;
+  const dt = new Date(iso);
+  return isNaN(dt.getTime()) ? null : dt;
+}
+function durationStr(sec){
+  sec = Math.max(0, Number(sec||0));
+  const h = Math.floor(sec/3600);
+  const m = Math.floor((sec%3600)/60);
+  const s = Math.floor(sec%60);
+  return `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
+}
+
+function renderServices(){
+  const list = document.getElementById("serviceList");
+  if(!list) return;
+
+  list.innerHTML = "";
+
+  if(!state.session?.uid){
+    list.innerHTML = `<div class="fileCard"><div class="name">Bitte einloggen</div><div class="small">Dienste werden erst nach Login gespeichert.</div></div>`;
+    return;
+  }
+
+  const rows = (state.services || []);
+  if(!rows.length){
+    list.innerHTML = `<div class="fileCard"><div class="name">Noch keine Dienste</div><div class="small">Oben Dienstbeginn/Dienstende erfassen und speichern.</div></div>`;
+    return;
+  }
+
+  rows.forEach((s)=>{
+    const card = document.createElement("div");
+    card.className = "item";
+    card.style.padding = "12px";
+
+    const date = s.date || "";
+    const pn = s.personalNumber || "—";
+    const name = s.name || "—";
+    const start = s.startAtMs ? msToHHMM(s.startAtMs) : (s.startTime || "—");
+    const end = s.endAtMs ? msToHHMM(s.endAtMs) : (s.endTime || "—");
+    const dur = (s.durationSec != null) ? durationStr(s.durationSec) : "—";
+
+    card.innerHTML = `
+      <div class="meta" style="min-width:0; flex:1;">
+        <div class="title">${escapeHtml(date)} • ${escapeHtml(name)} (${escapeHtml(pn)})</div>
+        <div class="desc">Beginn: ${escapeHtml(start)} • Ende: ${escapeHtml(end)} • Dauer: ${escapeHtml(dur)}</div>
+      </div>
+      <button class="btn small danger" type="button" aria-label="Dienst löschen" title="Dienst löschen">🗑️</button>
+    `;
+
+    const btnDel = card.querySelector("button");
+    btnDel.onclick = async ()=>{
+      if(!confirm("Diesen Dienst wirklich löschen?")) return;
+      try{
+        const uid = requireLogin();
+        await deleteDoc(doc(db, "users", uid, "services", s.id));
+      }catch(e){
+        console.error(e);
+        alert("Löschen fehlgeschlagen: " + (e?.message||e));
+      }
+    };
+
+    list.appendChild(card);
+  });
+}
+
+function watchServices(){
+  if(state.unsubServices) state.unsubServices();
+  const uid = requireLogin();
+  const qS = query(servicesCol(uid), orderBy("startAt","desc"));
+  state.unsubServices = onSnapshot(qS, (snap)=>{
+    const arr = [];
+    snap.forEach(d=>{
+      const data = d.data() || {};
+      const startAtMs = data.startAt?.toMillis ? data.startAt.toMillis() : (data.startAtMs || 0);
+      const endAtMs = data.endAt?.toMillis ? data.endAt.toMillis() : (data.endAtMs || 0);
+      arr.push({ id: d.id, ...data, startAtMs, endAtMs });
+    });
+    state.services = arr;
+    renderServices();
+  }, (err)=> console.error(err));
+}
+
+function stopServiceTimer(){
+  if(serviceTimer) clearInterval(serviceTimer);
+  serviceTimer = null;
+}
+
+function updateServiceRunningLine(){
+  const line = document.getElementById("serviceRunningLine");
+  if(!line) return;
+  if(!serviceStartMs){
+    line.textContent = "—";
+    return;
+  }
+  const sec = Math.floor((Date.now() - serviceStartMs) / 1000);
+  line.textContent = "Läuft: " + durationStr(sec);
+}
+
+function clearServiceForm(){
+  const now = new Date();
+  const d = now.toISOString().slice(0,10);
+
+  const dateEl = document.getElementById("serviceDate");
+  const pnEl = document.getElementById("servicePN");
+  const nameEl = document.getElementById("serviceName");
+  const startEl = document.getElementById("serviceStartTime");
+  const endWrap = document.getElementById("serviceEndWrap");
+  const endEl = document.getElementById("serviceEndTime");
+
+  if(dateEl) dateEl.value = d;
+  if(pnEl) pnEl.value = (pnEl.value || "").trim(); // keep if user already typed
+  if(nameEl) nameEl.value = (state.profile?.displayName || state.session?.user || displayNameFromEmail(state.session?.email) || "");
+  if(startEl) startEl.value = "";
+  if(endEl) endEl.value = "";
+
+  if(endWrap) endWrap.classList.add("hidden");
+
+  serviceStartMs = 0;
+  stopServiceTimer();
+  updateServiceRunningLine();
+
+  // buttons
+  const bStart = document.getElementById("btnServiceStart");
+  const bEnd = document.getElementById("btnServiceEnd");
+  const bSave = document.getElementById("btnServiceSave");
+  if(bStart) bStart.disabled = false;
+  if(bEnd) bEnd.disabled = true;
+  if(bSave) bSave.disabled = true;
+
+  const hint = document.getElementById("serviceStatusHint");
+  if(hint) hint.textContent = "Tipp: Dienstbeginn starten → danach Dienstende setzen → speichern.";
+}
+
+function startService(){
+  requireLogin();
+
+  const date = (document.getElementById("serviceDate")?.value || "").trim();
+  const pn = (document.getElementById("servicePN")?.value || "").trim();
+  const name = (document.getElementById("serviceName")?.value || "").trim();
+  if(!date) return alert("Bitte Datum wählen.");
+  if(!pn) return alert("Bitte Personalnummer eingeben.");
+  if(!name) return alert("Bitte Name eingeben.");
+
+  serviceStartMs = Date.now();
+
+  const startEl = document.getElementById("serviceStartTime");
+  if(startEl){
+    startEl.value = msToHHMM(serviceStartMs);
+  }
+
+  // show UI state
+  document.getElementById("btnServiceStart").disabled = true;
+  document.getElementById("btnServiceEnd").disabled = false;
+  document.getElementById("btnServiceSave").disabled = true;
+  document.getElementById("serviceEndWrap")?.classList.add("hidden");
+
+  const hint = document.getElementById("serviceStatusHint");
+  if(hint) hint.textContent = "Dienst läuft… Drücke „Dienstende“, wenn du fertig bist.";
+
+  updateServiceRunningLine();
+  stopServiceTimer();
+  serviceTimer = setInterval(updateServiceRunningLine, 1000);
+}
+
+function endService(){
+  if(!serviceStartMs) return;
+  const now = Date.now();
+  const endWrap = document.getElementById("serviceEndWrap");
+  const endEl = document.getElementById("serviceEndTime");
+  if(endWrap) endWrap.classList.remove("hidden");
+  if(endEl && !endEl.value){
+    endEl.value = msToHHMM(now);
+  }
+
+  document.getElementById("btnServiceEnd").disabled = true;
+  document.getElementById("btnServiceSave").disabled = false;
+
+  const hint = document.getElementById("serviceStatusHint");
+  if(hint) hint.textContent = "Dienstende prüfen/ändern → dann „Speichern“.";
+}
+
+async function saveService(){
+  requireLogin();
+
+  const date = (document.getElementById("serviceDate")?.value || "").trim();
+  const pn = (document.getElementById("servicePN")?.value || "").trim();
+  const name = (document.getElementById("serviceName")?.value || "").trim();
+  const startHH = (document.getElementById("serviceStartTime")?.value || "").trim();
+  const endHH = (document.getElementById("serviceEndTime")?.value || "").trim();
+
+  if(!date) return alert("Bitte Datum wählen.");
+  if(!pn) return alert("Bitte Personalnummer eingeben.");
+  if(!name) return alert("Bitte Name eingeben.");
+  if(!serviceStartMs || !startHH) return alert("Bitte zuerst „Dienstbeginn“ drücken.");
+  if(!endHH) return alert("Bitte Dienstende (Zeit) eingeben.");
+
+  const startDt = hhmmToDate(date, startHH);
+  const endDt = hhmmToDate(date, endHH);
+  if(!startDt || !endDt) return alert("Datum/Zeit ist ungültig.");
+
+  // If end is before start, assume it ended next day
+  let endMs = endDt.getTime();
+  const startMs = startDt.getTime();
+  if(endMs < startMs){
+    endMs += 24*60*60*1000;
+  }
+  const durationSec = Math.round((endMs - startMs)/1000);
+
+  const uid = state.session.uid;
+  await addDoc(servicesCol(uid), {
+    date,
+    personalNumber: pn,
+    name,
+    startTime: startHH,
+    endTime: endHH,
+    startAt: Timestamp.fromDate(new Date(startMs)),
+    endAt: Timestamp.fromDate(new Date(endMs)),
+    durationSec,
+    createdAt: serverTimestamp()
+  });
+
+  
+  // Trigger Power Automate -> Teams (Adaptive Card)
+  notifyTeamsDienstzeit({
+    datum: date,
+    personalnummer: pn,
+    name: name,
+    dienstbeginn: startHH,
+    dienstende: endHH
+  });
+clearServiceForm();
+  alert("Dienst gespeichert.");
+}
+
+function clearCaseForm(){
+  const now = new Date();
+  const d = now.toISOString().slice(0,10);
+  const t = now.toTimeString().slice(0,5);
+  const nameEl = document.getElementById("caseName");
+  const placeEl = document.getElementById("casePlace");
+  const dateEl = document.getElementById("caseDate");
+  const timeEl = document.getElementById("caseTime");
+
+  if(nameEl) nameEl.value = state.profile?.displayName || state.session?.user || displayNameFromEmail(state.session?.email) || "";
+  if(placeEl) placeEl.value = "";
+  if(dateEl) dateEl.value = d;
+  if(timeEl) timeEl.value = t;
+}
+
+async function saveCase(){
+  requireLogin();
+
+  const name = (document.getElementById("caseName")?.value || "").trim();
+  const place = (document.getElementById("casePlace")?.value || "").trim();
+  const date = (document.getElementById("caseDate")?.value || "").trim();
+  const time = (document.getElementById("caseTime")?.value || "").trim();
+
+  if(!name) return alert("Bitte Name eingeben.");
+  if(!place) return alert("Bitte Ort eingeben.");
+  if(!date) return alert("Bitte Datum wählen.");
+  if(!time) return alert("Bitte Zeit wählen.");
+
+  const iso = `${date}T${time}:00`;
+  const dt = new Date(iso);
+  if(isNaN(dt.getTime())) return alert("Datum/Zeit ist ungültig.");
+
+  const payload = {
+    reporterUid: state.session.uid,
+    reporterEmail: (state.session.email || "").toLowerCase(),
+    reporterName: name,
+    place,
+    occurredAt: Timestamp.fromDate(dt),
+    createdAt: serverTimestamp()
+  };
+
+  await addDoc(CASES_COL, payload);
+  clearCaseForm();
+  alert("Fall gespeichert.");
+}
+
+// ---------- Notifications (Web) ----------
+async function notify(){
+  if(!("Notification" in window)){
+    alert("Notifications werden vom Browser nicht unterstützt.");
+    return;
+  }
+  const perm = await Notification.requestPermission();
+  if(perm !== "granted"){
+    alert("Benachrichtigungen nicht erlaubt.");
+    return;
+  }
+  new Notification($("appName").textContent || "Profil Einstellungen", {
+    body: "Benachrichtigung (lokal) – später auch via Server/SMS möglich.",
+  });
+}
+
+// ---------- Mobile Tabs ----------
+
+function setMobileView(view){
+  const isMobile = window.matchMedia("(max-width: 980px)").matches;
+  // Auf Desktop nutzen wir ebenfalls „Single-View“, damit es übersichtlich ist.
+  const compact = !isMobile;
+  state.mobileView = view;
+
+  const sidebar = document.querySelector(".sidebar");
+  const main = document.querySelector(".main");
+  const rightbar = document.querySelector(".rightbar");
+  const startPanel = document.getElementById("startPanel");
+  const rankingPanel = document.getElementById("rankingPanel");
+  const casePanel = document.getElementById("casePanel");
+
+  // Immer erst alles aus
+  if(startPanel) startPanel.style.display = "none";
+  if(rankingPanel) rankingPanel.style.display = "none";
+  if(casePanel) casePanel.style.display = "none";
+  sidebar.style.display = "none";
+  main.style.display = "none";
+  rightbar.style.display = "none";
+
+  // Drawer states (mobile)
+  ["navStart","navFiles","navRanking","navCase","navChat","navSettings"].forEach(id=>{
+    const b = document.getElementById(id);
+    if(b) b.classList.remove("active");
+  });
+
+  // Desktop tab states
+  ["dnavStart","dnavFiles","dnavRanking","dnavCase","dnavChat","dnavSettings","dnavAdmin"].forEach(id=>{
+    const b = document.getElementById(id);
+    if(b) b.classList.remove("active");
+  });
+
+  if(view === "start"){
+    if(startPanel) startPanel.style.display = "flex";
+    document.getElementById("navStart")?.classList.add("active");
+    document.getElementById("dnavStart")?.classList.add("active");
+  } else if(view === "files"){
+    main.style.display = "flex";
+    document.getElementById("navFiles")?.classList.add("active");
+    document.getElementById("dnavFiles")?.classList.add("active");
+  } else if(view === "ranking"){
+    if(rankingPanel) rankingPanel.style.display = "flex";
+    document.getElementById("navRanking")?.classList.add("active");
+    document.getElementById("dnavRanking")?.classList.add("active");
+  } else if(view === "case"){
+    if(casePanel) casePanel.style.display = "flex";
+    document.getElementById("navCase")?.classList.add("active");
+    document.getElementById("dnavCase")?.classList.add("active");
+} else if(view === "chat"){
+    rightbar.style.display = "flex";
+    // ensure latest message is visible
+    scrollChatBottom();
+    document.getElementById("navChat")?.classList.add("active");
+    document.getElementById("dnavChat")?.classList.add("active");
+  } else if(view === "settings"){
+    sidebar.style.display = "flex";
+    document.getElementById("navSettings")?.classList.add("active");
+    document.getElementById("dnavSettings")?.classList.add("active");
+  }
+
+  // Mobile Header nur auf Mobile anzeigen
+  document.getElementById("mobileHeader")?.classList.toggle("hidden", !isMobile);
+
+  // Desktop Nav nur auf Desktop anzeigen
+  document.getElementById("desktopNavBar")?.classList.toggle("hidden", isMobile);
+}
+
+
+function closeDrawer(){
+  document.getElementById("drawer")?.classList.add("hidden");
+  document.getElementById("drawerOverlay")?.classList.add("hidden");
+}
+
+function openDrawer(){
+  document.getElementById("drawer")?.classList.remove("hidden");
+  document.getElementById("drawerOverlay")?.classList.remove("hidden");
+}
+
+function bindMobileMenu(){
+  // Hamburger
+  document.getElementById("btnHamburger")?.addEventListener("click", openDrawer);
+  document.getElementById("btnCloseDrawer")?.addEventListener("click", closeDrawer);
+  document.getElementById("drawerOverlay")?.addEventListener("click", closeDrawer);
+
+  // Drawer navigation
+  const go = (view)=>{ setMobileView(view); closeDrawer(); };
+  document.getElementById("navStart")?.addEventListener("click", ()=>go("start"));
+  document.getElementById("navFiles")?.addEventListener("click", ()=>go("files"));
+  document.getElementById("navRanking")?.addEventListener("click", ()=>go("ranking"));
+  document.getElementById("navCase")?.addEventListener("click", ()=>go("case"));
+  document.getElementById("navChat")?.addEventListener("click", ()=>go("chat"));
+document.getElementById("navAdmin")?.addEventListener("click", ()=>{ closeDrawer(); openAdmin(); });
+  document.getElementById("navSettings")?.addEventListener("click", ()=>go("settings"));
+
+
+  // Desktop navigation (PC) – gleiche Views wie Mobile
+  const goDesktop = (view)=>{ setMobileView(view); };
+  document.getElementById("dnavStart")?.addEventListener("click", ()=>goDesktop("start"));
+  document.getElementById("dnavFiles")?.addEventListener("click", ()=>goDesktop("files"));
+  document.getElementById("dnavRanking")?.addEventListener("click", ()=>goDesktop("ranking"));
+  document.getElementById("dnavCase")?.addEventListener("click", ()=>goDesktop("case"));
+  document.getElementById("dnavChat")?.addEventListener("click", ()=>goDesktop("chat"));
+document.getElementById("dnavSettings")?.addEventListener("click", ()=>goDesktop("settings"));
+  document.getElementById("dnavAdmin")?.addEventListener("click", ()=>openAdmin());
+  document.getElementById("dnavLogout")?.addEventListener("click", ()=>doLogout());
+
+  // Start quick buttons
+  document.getElementById("startGoFiles")?.addEventListener("click", ()=>go("files"));
+  document.getElementById("startGoRanking")?.addEventListener("click", ()=>go("ranking"));
+  document.getElementById("startGoCase")?.addEventListener("click", ()=>go("case"));
+  document.getElementById("startGoChat")?.addEventListener("click", ()=>go("chat"));
+  document.getElementById("startGoSettings")?.addEventListener("click", ()=>go("settings"));
+
+  // Logout in drawer
+  document.getElementById("drawerLogout")?.addEventListener("click", ()=>doLogout());
+
+  // Default view
+  const isMobile = window.matchMedia("(max-width: 980px)").matches;
+  setMobileView(isMobile ? "start" : "files");
+
+  // Update date line
+  const updateDate = ()=>{
+    const d = new Date();
+    const dateStr = d.toLocaleDateString("de-CH", { weekday:"long", year:"numeric", month:"2-digit", day:"2-digit" });
+    const timeStr = d.toLocaleTimeString("de-CH", { hour:"2-digit", minute:"2-digit" });
+    { const el = document.getElementById("mhDateLine"); if(el) el.textContent = dateStr + " • " + timeStr; }
+    { const el = document.getElementById("startDate"); if(el) el.textContent = dateStr + " • " + timeStr; }
+    { const el = document.getElementById("startRoom"); if(el) el.textContent = (state.chatRoom || "global"); }
+  };
+  updateDate();
+  setInterval(updateDate, 30_000);
+
+  // Breakpoint handling (ignore keyboard resize)
+  let _lastIsMobile = window.matchMedia("(max-width: 980px)").matches;
+  window.addEventListener("resize", () => {
+    const nowMobile = window.matchMedia("(max-width: 980px)").matches;
+    if(nowMobile !== _lastIsMobile){
+      _lastIsMobile = nowMobile;
+      setMobileView(state.mobileView || (nowMobile ? "start" : "files"));
+      closeDrawer();
+    }
+  });
+}
+
+// ---------- UI Bindings ----------
+function bindUI(){
+  const click = (id, fn) => { const el = document.getElementById(id); if(el) el.addEventListener("click", fn); };
+  const change = (id, fn) => { const el = document.getElementById(id); if(el) el.addEventListener("change", fn); };
+
+  // Main actions (null-safe, so fehlende Buttons killen nicht den Login)
+  click("btnNewCat", () => newCat().catch(()=>{}));
+  click("btnPickFiles", () => document.getElementById("filePicker")?.click());
+  change("filePicker", async (e) => {
+    if(e.target.files?.length){
+      try{ await handleFiles(e.target.files); } catch(_e){}
+    }
+    e.target.value = "";
+  });
+  click("btnCreateNote", () => createNote().catch(()=>{}));
+
+  // Auth
+  click("btnDoRegister", () => doRegister());
+  click("btnDoLogin", () => doLogin());
+  ["authUser","authPass"].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.addEventListener("keydown", (e)=>{
+      if(e.key === "Enter"){
+        e.preventDefault();
+        document.getElementById("btnDoLogin")?.click();
+      }
+    });
+  });
+  click("btnLogout", () => doLogout());
+  click("btnLoginOpen", () => { const t=document.getElementById("authTitle"); if(t) t.textContent="Login"; document.getElementById("authUser")?.focus(); });
+  click("btnRegisterOpen", () => { const t=document.getElementById("authTitle"); if(t) t.textContent="Registrierung"; document.getElementById("authUser")?.focus(); });
+
+  // Chat
+  click("btnSend", () => sendChat().catch(()=>{}));
+
+  // Profil
+  click("btnSaveProfile", () => saveMyProfile().catch((e)=>{ console.error(e); alert("Profil speichern fehlgeschlagen: " + (e?.message||e)); }));
+
+  // Admin
+  click("btnOpenAdmin", () => openAdmin());
+  click("navAdmin", () => openAdmin());
+  click("btnCloseAdmin", () => closeAdmin());
+  click("btnSaveWhitelist", () => saveWhitelist().catch((e)=>{ console.error(e); alert("Whitelist speichern fehlgeschlagen: " + (e?.message||e)); }));
+  click("btnSaveRole", () => saveRole().catch((e)=>{ console.error(e); alert("Rolle speichern fehlgeschlagen: " + (e?.message||e)); }));
+  click("btnDeleteRole", () => deleteRole().catch((e)=>{ console.error(e); alert("Rolle löschen fehlgeschlagen: " + (e?.message||e)); }));
+  click("btnAssignRole", () => assignRoleToEmail().catch((e)=>{ console.error(e); alert("User Rolle setzen fehlgeschlagen: " + (e?.message||e)); }));
+
+  // Fälle
+  click("btnSaveCase", () => saveCase().catch((e)=>{ console.error(e); alert("Fall speichern fehlgeschlagen: " + (e?.message||e)); }));
+  click("btnClearCase", () => clearCaseForm());
+
+  // Dienste
+  click("btnServiceStart", () => startService());
+  click("btnServiceEnd", () => endService());
+  click("btnServiceSave", () => saveService().catch((e)=>{ console.error(e); alert("Dienst speichern fehlgeschlagen: " + (e?.message||e)); }));
+  click("btnServiceReset", () => clearServiceForm());
+
+  // Close overlays on ESC
+  document.addEventListener("keydown", (e)=>{
+    if(e.key === "Escape"){
+      closeAdmin();
+    }
+  });
+}
+
+
+// ---------- Init ----------
+(async function init(){
+  applyBrand();
+  bindUI();
+  bindTypingUI();
+  bindMobileMenu();
+  setupDropzone();
+  setupSearch();
+
+  // Init default values for case form
+  clearCaseForm();
+  // Init Dienst-Erfassung
+  clearServiceForm();
+
+  applySessionUI();
+  renderCats();
+  renderItems();
+
+  onAuthStateChanged(auth, async (user)=>{
+    // cleanup old listeners
+    if(state.unsubCats) state.unsubCats();
+    if(state.unsubItems) state.unsubItems();
+    if(state.unsubChat) state.unsubChat();
+    if(state.unsubCases) state.unsubCases();
+
+    if(user){
+      state.session = {
+        uid: user.uid,
+        email: user.email || "",
+        user: displayNameFromEmail(user.email || "")
+      };
+
+      // Ensure base config exists (security + roles)
+      await ensureDefaultDocs().catch(()=>{});
+
+      // Whitelist check (if not allowed -> sign out)
+      const allowed = await isEmailAllowed(user.email || "").catch(()=>true);
+      if(!allowed){
+        alert("Diese E-Mail ist für die App nicht freigeschaltet (Whitelist).");
+        await doLogout();
+        return;
+      }
+
+      // Load profile + role, then UI
+      await loadMyProfile(user.uid).catch(()=>{});
+      watchMyProfile(user.uid);
+      await loadMyRole(user.email || "", user.uid).catch(()=>{});
+      // session name should reflect profile
+      if(state.profile.displayName) state.session.user = state.profile.displayName;
+
+      applySessionUI();
+      applyPermsUI();
+      
+
+      // Presence
+      watchPresence();
+      startPresence();
+
+      await ensureDefaultCats(user.uid);
+      watchCats();
+      watchItems();
+      watchChatEnhanced();
+      watchTyping();
+      watchCases();
+      watchServices();
+      clearCaseForm();
+      clearServiceForm();
+      renderRanking();
+    } else {
+      // Cleanup listeners/timers
+      stopPresence();
+      if(state.unsubPresence) state.unsubPresence();
+      state.unsubPresence = null;
+      state.onlineUsers = [];
+      renderPresenceBar();
+
+      
+      
+      state.rankings = [];
+      renderRanking();
+
+      state.session = null;
+      state.cats = [];
+      state.items = [];
+      applySessionUI();
+      renderCats();
+      renderItems();
+      // Cleanup cases
+      if(state.unsubCases) state.unsubCases();
+      state.unsubCases = null;
+      state.cases = [];
+      state.rankings = [];
+      renderMyCases();
+      renderRanking();
+      // Cleanup services
+      if(state.unsubServices) state.unsubServices();
+      state.unsubServices = null;
+      state.services = [];
+      renderServices();
+      clearServiceForm();
+      // clear chat UI
+      $("chatLog").innerHTML = "";
+    }
+  });
+})();
+
+/*
+==========================================
+Beispiel Firestore Rules (sehr wichtig!)
+==========================================
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    // optional user profile
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+
+==========================================
+Beispiel Storage Rules
+==========================================
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /users/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+*/
+
+// --- Mobile anti-jump (Android/iOS WebView/Safari):
+(function(){
+  let lastY = 0;
+  const isInput = (el)=> el && (el.tagName==="INPUT"||el.tagName==="TEXTAREA"||el.isContentEditable);
+  document.addEventListener("touchstart", ()=>{ lastY = window.scrollY; }, {passive:true});
+  document.addEventListener("focusin", (e)=>{
+    if(!isInput(e.target)) return;
+    lastY = window.scrollY;
+    // Some browsers jump to top on focus; restore shortly after.
+    setTimeout(()=>{ 
+      if(window.scrollY === 0 && lastY > 0) window.scrollTo(0, lastY);
+    }, 50);
+    setTimeout(()=>{ 
+      if(window.scrollY === 0 && lastY > 0) window.scrollTo(0, lastY);
+    }, 250);
+  });
+  window.addEventListener("resize", ()=>{
+    // keyboard open/close can trigger a scroll reset
+    setTimeout(()=>{ 
+      if(window.scrollY === 0 && lastY > 0) window.scrollTo(0, lastY);
+    }, 60);
+  });
+})();
+
+
+// ===== Chat Enhancements v31 =====
+var CHAT_LIMIT = window.CHAT_LIMIT || 500;
+window.CHAT_LIMIT = CHAT_LIMIT;
+window.shouldAutoScroll = window.shouldAutoScroll || function(container, threshold = 80){
+  return (container.scrollHeight - container.scrollTop - container.clientHeight) < threshold;
+}
+var newMsgCount = window.newMsgCount || 0;
+window.newMsgCount = newMsgCount;
+var newMsgBtn = window.newMsgBtn || document.getElementById('newMsgBtn') || document.createElement('button');
+window.newMsgBtn = newMsgBtn;
+if(!newMsgBtn.id) newMsgBtn.id = 'newMsgBtn';
+newMsgBtn.textContent = '⬇ Neue Nachrichten';
+newMsgBtn.style.position = 'fixed';
+newMsgBtn.style.right = '16px';
+newMsgBtn.style.bottom = '96px';
+newMsgBtn.style.display = 'none';
+newMsgBtn.className = 'btn primary';
+if(!document.getElementById('newMsgBtn')) document.body.appendChild(newMsgBtn);
+newMsgBtn.onclick = ()=>{
+  const log = document.getElementById('chatLog');
+  if(log){ log.scrollTop = log.scrollHeight; }
+  newMsgCount = 0;
+  newMsgBtn.style.display = 'none';
+};
+const _oldWatchChat = watchChat;
+watchChat = function(){
+  if(state.unsubChat) state.unsubChat();
+  const userId = requireLogin();
+  const roomId = state.chatRoom || 'global';
+  const qChat = query(chatCol(roomId), orderBy('at','asc'));
+  state.unsubChat = onSnapshot(qChat, (snap)=>{
+    const log = document.getElementById('chatLog');
+    if(!log) return;
+    const auto = shouldAutoScroll(log);
+    log.innerHTML = '';
+    let lastDate = '';
+    snap.docs.slice(-CHAT_LIMIT).forEach(d=>{
+      const m = d.data();
+      const at = m.at?.toMillis ? m.at.toMillis() : Date.now();
+      const dstr = new Date(at).toLocaleDateString('de-CH');
+      if(dstr !== lastDate){
+        const sep = document.createElement('div');
+        sep.style.textAlign='center';
+        sep.style.opacity='0.6';
+        sep.style.margin='10px 0';
+        sep.textContent = '📅 ' + dstr;
+        log.appendChild(sep);
+        lastDate = dstr;
+      }
+      const b = document.createElement('div');
+      b.className = 'bubble ' + ((m.uid && m.uid===userId)?'me':'');
+      if(m.type==='system'){
+        b.style.opacity='0.7';
+        b.innerHTML = '<em>'+escapeHtml(m.text)+'</em>';
+      }else{
+        let reply = '';
+        if(m.replyToText){
+          reply = '<div style="font-size:11px;opacity:.7;border-left:2px solid #7c5cff;padding-left:6px;margin-bottom:4px">'+escapeHtml(m.replyToText)+'</div>';
+        }
+        b.innerHTML = reply + '<div>'+escapeHtml(m.text)+'</div><div class="t">'+escapeHtml(m.user||'User')+' • '+new Date(at).toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'})+'</div>';
+      }
+      log.appendChild(b);
+    });
+    if(auto){
+      requestAnimationFrame(()=>{ log.scrollTop = log.scrollHeight; });
+    }else{
+      newMsgCount++;
+      newMsgBtn.style.display = 'block';
+      newMsgBtn.textContent = '⬇ Neue Nachrichten ('+newMsgCount+')';
+    }
+  });
+};
+
+
+
+// ===== Chat Enhancements v39 (No Reply/Reactions, Clear fix, Roles, Cleanup) =====
+var CHAT_LIMIT = window.CHAT_LIMIT || 500;
+window.CHAT_LIMIT = CHAT_LIMIT;
+
+// helper (keep existing if already defined)
+var shouldAutoScroll = window.shouldAutoScroll || function(container, threshold = 80){
+  return (container.scrollHeight - container.scrollTop - container.clientHeight) < threshold;
+};
+window.shouldAutoScroll = shouldAutoScroll;
+
+// New messages indicator button
+var newMsgCount = window.newMsgCount || 0;
+window.newMsgCount = newMsgCount;
+var newMsgBtn = window.newMsgBtn || document.getElementById("newMsgBtn");
+window.newMsgBtn = newMsgBtn;
+if(!newMsgBtn){
+newMsgBtn = window.newMsgBtn || document.createElement("button");
+  newMsgBtn.id = "newMsgBtn";
+  newMsgBtn.textContent = "⬇ Neue Nachrichten";
+  newMsgBtn.style.position = "fixed";
+  newMsgBtn.style.right = "16px";
+  newMsgBtn.style.bottom = "96px";
+  newMsgBtn.style.display = "none";
+  newMsgBtn.className = "btn primary";
+  if(!document.getElementById('newMsgBtn')) document.body.appendChild(newMsgBtn);
+}
+newMsgBtn.onclick = ()=>{
+  const log = document.getElementById("chatLog");
+  if(log) log.scrollTop = log.scrollHeight;
+  newMsgCount = 0;
+  newMsgBtn.style.display = "none";
+};
+
+// Sound + Notification
+let _chatBootstrapped = false;
+let _lastChatDocId = null;
+let _lastChatAt = 0;
+
+function playBeep(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "sine";
+    o.frequency.value = 740;
+    g.gain.value = 0.03;
+    o.connect(g); g.connect(ctx.destination);
+    o.start();
+    setTimeout(()=>{ o.stop(); ctx.close().catch(()=>{}); }, 110);
+  }catch(_e){}
+}
+async function maybeNotifyNewMessage(m){
+  if(!m) return;
+  if(m.uid && m.uid === state.session?.uid) return;
+  if(document.visibilityState !== "hidden") return;
+  if(!("Notification" in window)) return;
+
+  if(Notification.permission === "default"){
+    try{ await Notification.requestPermission(); }catch(_e){}
+  }
+  if(Notification.permission === "granted"){
+    try{
+      new Notification("Projekt TAS – Chat", { body: `${m.user || "User"}: ${m.text || ""}`.slice(0, 160) });
+    }catch(_e){}
+  }
+}
+
+// Moderation (mute + clear)
+const CHAT_MOD_DOC = doc(db, "appConfig", "global", "chatModeration", "state"); // { muted: [strings] }
+let mutedList = [];
+async function loadModeration(){
+  const s = await getDoc(CHAT_MOD_DOC).catch(()=>null);
+  mutedList = (s?.data()?.muted || []).map(x=>String(x||"").trim()).filter(Boolean);
+}
+function isMuted(){
+  const uid = (state.session?.uid || "").toLowerCase();
+  const email = (state.session?.email || "").toLowerCase();
+  const set = new Set((mutedList||[]).map(x=>String(x||"").toLowerCase()));
+  return set.has(uid) || set.has(email);
+}
+async function saveMutedFromUI(){
+  if(!perms().canAdmin) return alert("Keine Admin-Rechte.");
+  const box = document.getElementById("mutedBox");
+  const lines = (box?.value || "").split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  const unique = Array.from(new Set(lines.map(s=>s.toLowerCase())));
+  await setDoc(CHAT_MOD_DOC, { muted: unique, updatedAt: serverTimestamp() }, { merge:true });
+  mutedList = unique;
+  alert("Muted gespeichert.");
+}
+async function clearChatLast500(){
+  if(!perms().canAdmin) return alert("Keine Admin-Rechte.");
+  if(!confirm("Wirklich die letzten 500 Chat-Nachrichten löschen?")) return;
+  const roomId = state.chatRoom || "global";
+  const snap = await getDocs(query(chatCol(roomId), orderBy("at","desc"), limit(500))).catch(()=>null);
+  const docs = (snap?.docs || []);
+  for(const d of docs){
+    await deleteDoc(d.ref).catch((e)=>console.error("delete failed", e));
+  }
+  alert("Chat geleert (letzte 500).");
+}
+async function clearSystemLast500(){
+  if(!perms().canAdmin) return alert("Keine Admin-Rechte.");
+  if(!confirm("Wirklich Systemmeldungen (letzte 500) löschen?")) return;
+  const roomId = state.chatRoom || "global";
+  const snap = await getDocs(query(chatCol(roomId), orderBy("at","desc"), limit(500))).catch(()=>null);
+  const docs = (snap?.docs || []).filter(d => (d.data()?.type === "system"));
+  for(const d of docs){
+    await deleteDoc(d.ref).catch(()=>{});
+  }
+  alert("Systemmeldungen gelöscht.");
+}
+
+// Chat roles
+const CHAT_ROLES_COL = collection(db, "appConfig", "global", "chatRoles"); // doc id = email (lowercase) -> {email, role}
+chatRoles = window.chatRoles || chatRoles || {}; window.chatRoles = chatRoles;
+let unsubChatRoles = null;
+
+function roleIcon(role){
+  if(role === "admin") return "🛡️";
+  if(role === "mod") return "🧩";
+  return "";
+}
+function getRoleForMessage(m){
+  const email = (m.email || "").toLowerCase();
+  return chatRoles[email] || "user";
+}
+function watchChatRoles(){
+  if(unsubChatRoles) unsubChatRoles();
+  unsubChatRoles = onSnapshot(CHAT_ROLES_COL, (snap)=>{
+    const map = {};
+    snap.forEach(d=>{
+      const data = d.data() || {};
+      const email = String(data.email || d.id || "").toLowerCase();
+      if(email) map[email] = String(data.role || "user");
+    });
+    chatRoles = map;
+    // Update textarea if admin menu open
+    const box = document.getElementById("chatRolesBox");
+    if(box){
+      const lines = Object.entries(chatRoles).sort((a,b)=>a[0].localeCompare(b[0])).map(([e,r])=>`${e} = ${r}`);
+      box.value = lines.join("\n");
+    }
+  });
+}
+async function setChatRole(){
+  if(!perms().canAdmin) return alert("Keine Admin-Rechte.");
+  const email = (document.getElementById("chatRoleEmail")?.value || "").trim().toLowerCase();
+  const role = (document.getElementById("chatRoleSelect")?.value || "user").trim();
+  if(!email || !email.includes("@")) return alert("Bitte gültige E-Mail eingeben.");
+  await setDoc(doc(db,"appConfig","global","chatRoles", email), { email, role, updatedAt: serverTimestamp() }, { merge:true });
+  alert("Chat-Rolle gespeichert.");
+}
+async function deleteChatRole(){
+  if(!perms().canAdmin) return alert("Keine Admin-Rechte.");
+  const email = (document.getElementById("chatRoleEmail")?.value || "").trim().toLowerCase();
+  if(!email || !email.includes("@")) return alert("Bitte gültige E-Mail eingeben.");
+  await deleteDoc(doc(db,"appConfig","global","chatRoles", email));
+  alert("Chat-Rolle gelöscht.");
+}
+
+// Bind admin moderation buttons (safe even if not admin)
+(function(){
+  document.getElementById("btnSaveMuted")?.addEventListener("click", ()=> saveMutedFromUI().catch(e=>alert(e?.message||e)));
+  document.getElementById("btnClearChat")?.addEventListener("click", ()=> clearChatLast500().catch(e=>alert(e?.message||e)));
+  document.getElementById("btnClearSystem")?.addEventListener("click", ()=> clearSystemLast500().catch(e=>alert(e?.message||e)));
+  document.getElementById("btnSetChatRole")?.addEventListener("click", ()=> setChatRole().catch(e=>alert(e?.message||e)));
+  document.getElementById("btnDeleteChatRole")?.addEventListener("click", ()=> deleteChatRole().catch(e=>alert(e?.message||e)));
+})();
+
+// Patch sendChat: add email field + mute check
+sendChat = async function(){
+  await loadModeration().catch(()=>{});
+  if(isMuted()){
+    alert("Du bist aktuell gemutet und kannst keine Nachrichten senden.");
+    return;
+  }
+  const text = document.getElementById("chatText")?.value?.trim() || "";
+  if(!text) return;
+  const userId = requireLogin();
+  const roomId = state.chatRoom || "global";
+  const user = state.session?.user || "User";
+  const email = state.session?.email || "";
+  await addDoc(chatCol(roomId), { text, user, uid: userId, email, at: serverTimestamp() });
+  document.getElementById("chatText").value = "";
+  try{ scrollChatBottom(true); }catch(_e){ const log=document.getElementById("chatLog"); if(log) log.scrollTop = log.scrollHeight; }
+
+};
+
+// Enhanced watcher (forced by v37)
+
+function watchChatEnhanced(){
+  if(state.unsubChat) state.unsubChat();
+  const userId = requireLogin();
+  const roomId = state.chatRoom || "global";
+
+  // Ensure chat roles watcher running
+  try{ watchChatRoles(); }catch(_e){}
+
+  const qChat = query(chatCol(roomId), orderBy("at","asc"));
+  state.unsubChat = onSnapshot(qChat, async (snap)=>{
+    const log = document.getElementById("chatLog");
+    if(!log) return;
+
+    const auto = shouldAutoScroll(log);
+    const docs = snap.docs.slice(-CHAT_LIMIT);
+
+    // identify last for notifications/sound
+    const last = docs[docs.length - 1];
+    const lastData = last?.data?.() || null;
+    const lastAt = lastData?.at?.toMillis ? lastData.at.toMillis() : 0;
+    const lastId = last?.id || null;
+
+    log.innerHTML = "";
+    let lastDate = "";
+
+    // helper: can current user delete message?
+    const canDeleteMsg = (m)=> (perms().canAdmin || (m.uid && m.uid === userId));
+
+    // helper: swipe-to-delete (mobile)
+    const bindSwipeToDelete = (el, docRef, m)=>{
+      if(!el) return;
+      if(!canDeleteMsg(m)) return;
+
+      let x0 = 0, y0 = 0, dx = 0, active = false, locked = false;
+      const threshold = 78;     // px to trigger delete
+      const lockRatio = 1.2;    // horizontal dominance
+
+      const onStart = (e)=>{
+        const t = e.touches?.[0];
+        if(!t) return;
+        x0 = t.clientX; y0 = t.clientY;
+        dx = 0; active = true; locked = false;
+        el.style.transition = "none";
+      };
+
+      const onMove = (e)=>{
+        if(!active) return;
+        const t = e.touches?.[0];
+        if(!t) return;
+
+        const mx = t.clientX - x0;
+        const my = t.clientY - y0;
+
+        // decide direction once
+        if(!locked){
+          if(Math.abs(mx) < 6 && Math.abs(my) < 6) return;
+          locked = true;
+          // only handle left swipe, and only if horizontal dominates
+          if(!(mx < 0 && Math.abs(mx) > Math.abs(my) * lockRatio)){
+            active = false;
+            el.style.transition = "";
+            el.style.transform = "";
+            el.parentElement?.classList?.remove("showDel");
+            return;
+          }
+        }
+
+        // prevent scroll while swiping
+        e.preventDefault();
+
+        dx = Math.max(mx, -140); // cap
+        el.style.transform = `translateX(${dx}px)`;
+
+        const wrap = el.parentElement;
+        if(wrap){
+          wrap.classList.toggle("showDel", dx < -24);
+        }
+      };
+
+      const onEnd = async ()=>{
+        if(!active) return;
+        active = false;
+        el.style.transition = "transform .12s ease";
+        el.style.transform = "";
+        el.parentElement?.classList?.remove("showDel");
+
+        if(dx <= -threshold){
+          if(!confirm("Nachricht löschen?")) return;
+          await deleteDoc(docRef).catch(()=>{});
+        }
+      };
+
+      // use non-passive move to allow preventDefault
+      el.addEventListener("touchstart", onStart, {passive:true});
+      el.addEventListener("touchmove", onMove, {passive:false});
+      el.addEventListener("touchend", onEnd, {passive:true});
+      el.addEventListener("touchcancel", onEnd, {passive:true});
+    };
+
+    for(const d of docs){
+      const m = d.data() || {};
+      const at = m.at?.toMillis ? m.at.toMillis() : Date.now();
+      const dateKey = new Date(at).toLocaleDateString("de-CH");
+
+      if(dateKey !== lastDate){
+        const sep = document.createElement("div");
+        sep.className = "dateSep";
+        sep.textContent = dateKey;
+        log.appendChild(sep);
+        lastDate = dateKey;
+      }
+
+      // system messages
+      if(m.type === "system"){
+        const sys = document.createElement("div");
+        sys.className = "bubble";
+        sys.style.opacity = "0.75";
+        sys.innerHTML = `<em>${escapeHtml(m.text || "")}</em>`;
+        log.appendChild(sys);
+        continue;
+      }
+
+      // wrapper enables swipe delete hint background
+      const wrap = document.createElement("div");
+      const isMe = (m.uid && m.uid === userId);
+      wrap.className = "chatSwipeBg" + (isMe ? " me" : "");
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble " + ((m.uid && m.uid === userId) ? "me" : "");
+
+      // Header line (role icon + name + time) like Signal
+      const role = getRoleForMessage(m);
+      const icon = roleIcon(role);
+      const timeStr = new Date(at).toLocaleTimeString("de-CH",{hour:"2-digit",minute:"2-digit"});
+
+      // Show name only for other people's messages
+      const nameLine = `${icon ? icon + " " : ""}${escapeHtml(m.user || "User")}`;
+      const metaLine = `${timeStr}`;
+
+      bubble.innerHTML = `
+        ${((m.uid && m.uid !== userId) ? `<div class="u">${nameLine}</div>` : "")}
+        <div>${escapeHtml(m.text || "")}</div>
+        <div class="t"><span>${metaLine}</span></div>
+      `;
+
+      // swipe-to-delete binding
+      bindSwipeToDelete(bubble, d.ref, m);
+
+      wrap.appendChild(bubble);
+      log.appendChild(wrap);
+    }
+
+    if(auto || (lastData && lastData.uid && lastData.uid === userId)){
+      requestAnimationFrame(()=>{ log.scrollTop = log.scrollHeight; });
+      newMsgCount = 0;
+      if(newMsgBtn) newMsgBtn.style.display = "none";
+    } else {
+      if(_chatBootstrapped && lastId && lastId !== _lastChatDocId){
+        newMsgCount++;
+        if(newMsgBtn){
+          newMsgBtn.style.display = "block";
+          newMsgBtn.textContent = `⬇ Neue Nachrichten (${newMsgCount})`;
+        }
+      }
+    }
+
+    // Notifications + sound (keep behavior)
+    if(!_chatBootstrapped){
+      _chatBootstrapped = true;
+      _lastChatDocId = lastId;
+      _lastChatAt = lastAt;
+      return;
+    }
+    if(lastId && lastId !== _lastChatDocId && lastAt >= _lastChatAt){
+      _lastChatDocId = lastId;
+      _lastChatAt = lastAt;
+      playBeep();
+      await maybeNotifyNewMessage(lastData).catch(()=>{});
+    }
+  });
+}
+
+
+// Fix: JS uses true not True
+
+
+watchChat = watchChatEnhanced;
+
+// Hook: when Admin overlay opens, preload mute list into textarea
+const _origLoadAdminUI = loadAdminUI;
+loadAdminUI = async function(){
+  await _origLoadAdminUI();
+  if(!perms().canAdmin) return;
+  await loadModeration().catch(()=>{});
+  const box = document.getElementById("mutedBox");
+  if(box) box.value = (mutedList || []).join("\n");
+  // v39: preload moderation + chat roles
+  try{
+    await loadModeration().catch(()=>{});
+    const mb = document.getElementById("mutedBox");
+    if(mb) mb.value = (mutedList || []).join("\n");
+  }catch(_e){}
+  try{
+    const box = document.getElementById("chatRolesBox");
+    if(box){
+      const lines = Object.entries(chatRoles||{}).sort((a,b)=>a[0].localeCompare(b[0])).map(([e,r])=>`${e} = ${r}`);
+      box.value = lines.join("\n");
+    }
+  }catch(_e){}
+
+};
+
+
+// Request Notification permission from Settings button (optional)
+document.getElementById("navSettings")?.addEventListener("click", async ()=>{
+  if("Notification" in window && Notification.permission === "default"){
+    try{ await Notification.requestPermission(); }catch(_e){}
+  }
+});
+
+// v32: ensure latest chat renderer is active
+try{ setTimeout(()=>{ if(state?.session?.uid){ watchChatEnhanced(); } }, 0); }catch(_e){}
+
+
+// v36: ensure enhanced chat renderer binds after login (even if auth completes later)
+try{
+  let __rebound = false;
+  const __t = setInterval(()=>{
+    if(__rebound) return;
+    if(state?.session?.uid){
+      __rebound = true;
+      try{ watchChatEnhanced(); }catch(_e){}
+      clearInterval(__t);
+    }
+  }, 250);
+  setTimeout(()=>{ if(!__rebound){ clearInterval(__t); } }, 15000);
+}catch(_e){}
+
+
+// ===== Mobile Setup bindings v48 =====
+function setMobileTabActive(view){
+  const map = {
+    start: "mbStart",
+    files: "mbDocs",
+    ranking: "mbRank",
+    case: "mbCase",
+    chat: "mbChat",
+    settings: "mbSettings",
+    admin: null
+  };
+  document.querySelectorAll("#mobileBottomNav .mbtn").forEach(b=>b.classList.remove("active"));
+  const id = map[view];
+  if(id){
+    const el = document.getElementById(id);
+    if(el) el.classList.add("active");
+  }
+}
+
+// Hook into setMobileView to also update bottom nav active state
+const _setMobileView_v48 = setMobileView;
+setMobileView = function(view){
+  if(view === "docs") view = "files"; // normalize legacy name
+  _setMobileView_v48(view);
+  setMobileTabActive(view);
+};
+
+// Bind bottom nav clicks (no out-of-scope go())
+(function(){
+  const bind = (id, view)=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.addEventListener("click", ()=> setMobileView(view));
+  };
+  bind("mbStart","start");
+  bind("mbDocs","files");
+  bind("mbRank","ranking");
+  bind("mbCase","case");
+  bind("mbChat","chat");
+  bind("mbSettings","settings");
+})();
+
+// ===== Notifications v49 =====
+async function requestNotifPermission(){
+  if(!("Notification" in window)) return "unsupported";
+  if(Notification.permission === "granted") return "granted";
+  try{
+    const p = await Notification.requestPermission();
+    return p;
+  }catch(e){
+    console.warn("Notification permission failed", e);
+    return "denied";
+  }
+}
+function canShowNotif(){
+  return ("Notification" in window) && Notification.permission === "granted";
+}
+function showChatNotif(title, body){
+  if(!canShowNotif()) return;
+  try{
+    const n = new Notification(title, { body: (body||"").slice(0, 180) });
+    setTimeout(()=>{ try{ n.close(); }catch(_){} }, 6000);
+  }catch(e){
+    console.warn("Notification failed", e);
+  }
+}
+// Optional: small in-app toast (works on mobile too)
+function toast(msg){
+  let t = document.getElementById("toast");
+  if(!t){
+    t = document.createElement("div");
+    t.id = "toast";
+    t.style.position="fixed";
+    t.style.left="50%";
+    t.style.bottom="92px";
+    t.style.transform="translateX(-50%)";
+    t.style.padding="10px 12px";
+    t.style.borderRadius="14px";
+    t.style.border="1px solid var(--border)";
+    t.style.background="rgba(0,0,0,.65)";
+    t.style.color="var(--text)";
+    t.style.zIndex="60";
+    t.style.maxWidth="92vw";
+    t.style.textAlign="center";
+    t.style.fontSize="13px";
+    t.style.display="none";
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.display="block";
+  clearTimeout(window.__toastT);
+  window.__toastT = setTimeout(()=>{ t.style.display="none"; }, 2600);
+}
+// Bind settings buttons
+(function(){
+  const b = document.getElementById("btnEnableNotif");
+  const t = document.getElementById("btnTestNotif");
+  const hint = document.getElementById("notifHint");
+  if(b){
+    b.addEventListener("click", async ()=>{
+      const p = await requestNotifPermission();
+      if(hint) hint.textContent = (p==="granted")
+        ? "✅ Benachrichtigungen sind aktiviert."
+        : (p==="denied" ? "❌ Benachrichtigungen abgelehnt (Browser-Einstellungen prüfen)." : "⚠️ Benachrichtigungen nicht verfügbar.");
+      if(p==="granted") showChatNotif("Projekt TAS", "Benachrichtigungen sind aktiv ✅");
+    });
+  }
+  if(t){
+    t.addEventListener("click", async ()=>{
+      const p = await requestNotifPermission();
+      if(p==="granted") showChatNotif("Projekt TAS – Test", "Wenn du das siehst, klappt es ✅");
+      else toast("Benachrichtigungen nicht aktiv (erst erlauben).");
+    });
+  }
+})();
+
+// Patch maybeNotifyNewMessage to trigger more reliably:
+// - when tab hidden OR window not focused
+if(typeof maybeNotifyNewMessage === "function"){
+  const _maybe = maybeNotifyNewMessage;
+  maybeNotifyNewMessage = async function(m){
+    // keep old behavior if exists
+    try{ await _maybe(m); }catch(_e){}
+    if(!m) return;
+    if(m.uid && m.uid === state.session?.uid) return;
+    const notFocused = (document.visibilityState !== "visible") || (typeof document.hasFocus==="function" && !document.hasFocus());
+    if(!notFocused) return;
+    // ensure permission (cannot auto-request without gesture)
+    if(!canShowNotif()) return;
+    showChatNotif("Projekt TAS – Chat", `${m.user || "User"}: ${m.text || ""}`);
+  };
+}
+
+
+// ===== Chat UX: keep input visible on focus (mobile) =====
+(function(){
+  const inp = document.getElementById("chatText");
+  if(!inp) return;
+  inp.addEventListener("focus", ()=>{
+    try{ scrollChatBottom(true); }catch(_e){}
+    setTimeout(()=>{ try{ scrollChatBottom(true); }catch(_e){} }, 120);
+  });
+})();
+
+
+// ===== Mobile Keyboard Offset (VisualViewport) =====
+(function(){
+  function setKb(){
+    try{
+      const vv = window.visualViewport;
+      let kb = 0;
+      if(vv){
+        kb = Math.max(0, (window.innerHeight - vv.height - vv.offsetTop));
+      }
+      document.documentElement.style.setProperty("--kb", kb + "px");
+    }catch(_e){}
+  }
+  setKb();
+  if(window.visualViewport){
+    window.visualViewport.addEventListener("resize", setKb);
+    window.visualViewport.addEventListener("scroll", setKb);
+  }
+  window.addEventListener("resize", setKb);
+  window.addEventListener("orientationchange", ()=> setTimeout(setKb, 150));
+})();
+
+
+// ===== Ensure chat stays pinned to bottom when entering chat view =====
+(function(){
+  const _orig = window.setMobileView;
+  if(typeof _orig !== "function") return;
+  window.setMobileView = function(view){
+    _orig(view);
+    if(view === "chat"){
+      setTimeout(()=>{ try{ scrollChatBottom(true); }catch(_e){} }, 50);
+      setTimeout(()=>{ try{ scrollChatBottom(true); }catch(_e){} }, 180);
+    }
+  };
+})();
+
+
+// ===== Scoped scroll: lock page only on chat tab =====
+(function(){
+  const orig = window.setMobileView;
+  if(typeof orig !== "function") return;
+  window.setMobileView = function(view){
+    try{
+      document.body.classList.toggle("view-chat", view === "chat");
+    }catch(_e){}
+    return orig(view);
+  };
+  // initial state (in case chat is default)
+  try{
+    const chatShown = !!document.querySelector(".rightbar") && (document.querySelector(".rightbar").style.display || "").includes("flex");
+    if(chatShown) document.body.classList.add("view-chat");
+  }catch(_e){}
+})();
+
+
+// ===== Prevent page scroll in chat view (allow only chatLog) =====
+(function(){
+  const vp = document.querySelector(".viewport");
+  const isInsideChatLog = (t)=> !!(t && (t.closest && t.closest("#chatLog")));
+  function shouldBlock(e){
+    if(!document.body.classList.contains("view-chat")) return false;
+    return !isInsideChatLog(e.target);
+  }
+  function onWheel(e){
+    if(shouldBlock(e)) e.preventDefault();
+  }
+  function onTouchMove(e){
+    if(shouldBlock(e)) e.preventDefault();
+  }
+  if(vp){
+    vp.addEventListener("wheel", onWheel, {passive:false});
+    vp.addEventListener("touchmove", onTouchMove, {passive:false});
+  }
+})();
+
+
+// ===== Measure chat input height and reserve space in chatLog =====
+(function(){
+  function update(){
+    if(!document.body.classList.contains("view-chat")) return;
+    const inp = document.querySelector(".rightbar .chatInput");
+    if(!inp) return;
+    const h = Math.max(56, Math.round(inp.getBoundingClientRect().height));
+    document.documentElement.style.setProperty("--chatInputH", h + "px");
+  }
+  // run on load and on resize
+  window.addEventListener("resize", ()=> setTimeout(update, 50));
+  window.addEventListener("orientationchange", ()=> setTimeout(update, 120));
+
+  // observe size changes (button text wrapping etc.)
+  try{
+    const ro = new ResizeObserver(()=> update());
+    const hook = ()=>{
+      const inp = document.querySelector(".rightbar .chatInput");
+      if(inp) ro.observe(inp);
+      update();
+    };
+    hook();
+    // also re-hook when switching tabs
+    const orig = window.setMobileView;
+    if(typeof orig === "function"){
+      window.setMobileView = function(view){
+        const r = orig(view);
+        setTimeout(()=>{ update(); }, 60);
+        setTimeout(()=>{ update(); }, 180);
+        return r;
+      };
+    }
+  }catch(_e){
+    setInterval(update, 800);
+  }
+
+  // initial
+  setTimeout(update, 100);
+})();
+
+
+// ===== Mobile view classes (for headbar + side columns control) =====
+(function(){
+  const orig = window.setMobileView;
+  if(typeof orig !== "function") return;
+
+  function apply(view){
+    const views = ["start","files","rank","case","chat","settings"];
+    for(const v of views) document.body.classList.toggle("view-"+v, view === v);
+  }
+
+  window.setMobileView = function(view){
+    apply(view);
+    return orig(view);
+  };
+
+  // initial: guess based on which panel is visible
+  try{
+    const map = [
+      ["start","startPanel"],
+      ["files","filesPanel"],
+      ["rank","rankingPanel"],
+      ["case","casePanel"],
+      ["chat","chatPanel"],
+      ["settings","settingsPanel"]
+    ];
+    let current = "start";
+    for(const [v,id] of map){
+      const el = document.getElementById(id);
+      if(el && (getComputedStyle(el).display !== "none")){
+        current = v; break;
+      }
+    }
+    apply(current);
+  }catch(_e){}
+})();
+
+
+// ===== Google Drive integration (open folder) =====
+const DRIVE_FOLDER_URL = "https://drive.google.com/drive/folders/1tsABJ9d963_-8WTqCkvmsEYHKanj3Tx-?usp=sharing";
+
+(function(){
+  const b = document.getElementById("btnOpenDrive");
+  if(!b) return;
+  b.addEventListener("click", ()=>{
+    if(DRIVE_FOLDER_URL.includes("PASTE_YOUR_FOLDER_ID_HERE")){
+      alert("Bitte DRIVE_FOLDER_URL im Code setzen (Google Drive Ordner-Link).");
+      return;
+    }
+    window.open(DRIVE_FOLDER_URL, "_blank", "noopener");
+  });
+})();
+
+</script>
+
+<!-- Mobile Bottom Navigation -->
+<nav id="mobileBottomNav">
+  <button class="mbtn" id="mbStart" type="button"><span>🏠</span>Home</button>
+  <button class="mbtn" id="mbDocs" type="button"><span>📁</span>Infos</button>
+  <button class="mbtn" id="mbRank" type="button"><span>🏆</span>Rang</button>
+  <button class="mbtn" id="mbCase" type="button"><span>📝</span>Fall</button>
+  <button class="mbtn" id="mbChat" type="button"><span>💬</span>Chat</button>
+  <button class="mbtn" id="mbSettings" type="button"><span>⚙️</span>Settings</button>
+</nav>
+
+</body>
+</html>

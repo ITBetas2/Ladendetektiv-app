@@ -74,7 +74,7 @@ exports.handler = async (event) => {
     }
 
 
-    const title = "Projekt TAS – Chat";
+    const title = "Ladendetektiv – Chat";
     const safeText = String(text || "");
     const preview = safeText.length > 140 ? (safeText.slice(0,137) + "...") : safeText;
     const body = preview ? ((user || "Jemand") + ": " + preview) : ((user || "Jemand") + " hat geschrieben");

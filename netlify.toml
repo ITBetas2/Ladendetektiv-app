@@ -1,0 +1,4 @@
+[build]
+  base = "LadendetektivApp"
+  publish = "."
+  functions = "netlify/functions"

@@ -70,16 +70,14 @@ exports.handler = async (event) => {
     tokens = tokens.filter(t => !senderTokens.has(t));
     tokens = [...new Set(tokens)];
     if(tokens.length === 0){
-      return { statusCode: 200, body: JSON.stringify({ ok:true, sent:0 }) };
+      return { statusCode: 200, body: JSON.stringify({ ok:true, sent:0, reason:"no_tokens" }) };
     }
 
-    const title = "Chat";
-    const preview = text.length > 140 ? (text.slice(0,137) + "...") : text;
-    const body = preview ? `${user || "Jemand"}: ${preview}` : `${user || "Jemand"} hat geschrieben`;
 
     const title = "Projekt TAS – Chat";
-    const preview = text.length > 140 ? (text.slice(0,137) + "...") : text;
-    const body = preview ? `${user || "Jemand"}: ${preview}` : `${user || "Jemand"} hat geschrieben`;
+    const safeText = String(text || "");
+    const preview = safeText.length > 140 ? (safeText.slice(0,137) + "...") : safeText;
+    const body = preview ? ((user || "Jemand") + ": " + preview) : ((user || "Jemand") + " hat geschrieben");
     const link = "/#chat"; // open chat tab on click (frontend should handle hash)
 
     // IMPORTANT:
@@ -91,7 +89,7 @@ exports.handler = async (event) => {
         roomId: String(roomId || "global"),
         title,
         body,
-        icon: "/icons/icon-192x192.png",
+        icon: "/icons/icon-192.png",
         link
       },
       webpush: {

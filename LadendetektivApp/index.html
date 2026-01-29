@@ -1912,17 +1912,6 @@ input, textarea, select { scroll-margin-top: 90px; }
     <button class="btn small hidden" id="btnOpenAdmin" type="button">Admin</button>
   </div>
 
-  <!-- Push Notifications (FCM Web Push) -->
-  <div class="section" style="margin-top:12px; padding:10px; background:rgba(0,0,0,.18); border:1px solid rgba(255,255,255,.10); border-radius:14px;">
-    <div style="font-weight:900; margin-bottom:6px;">🔔 Push Benachrichtigungen</div>
-    <div class="hint" id="pushStatusLine">Status: —</div>
-    <div class="row2" style="margin-top:10px;">
-      <button class="btn small primary" id="btnEnablePush" type="button">Push aktivieren</button>
-      <button class="btn small" id="btnDisablePush" type="button">Push deaktivieren</button>
-    </div>
-    <div class="hint" style="margin-top:8px;">Hinweis: Auf Samsung/Android musst du auch <b>Benachrichtigungen für die App</b> erlauben (Systemeinstellungen).</div>
-  </div>
-
   <div class="hint" style="margin-top:10px;">
     Hinweis: Upload/Download-Rechte hängen von deiner Rolle ab.
   </div>
@@ -2111,6 +2100,24 @@ input, textarea, select { scroll-margin-top: 90px; }
 </div>
 </div>
 <script type="module">
+
+// ===== PWA Push: Service Worker registration (must be from root) =====
+const SW_URL = "/firebase-messaging-sw.js";
+const swReady = (async () => {
+  if (!("serviceWorker" in navigator)) return null;
+  try{
+    // Register ASAP on load
+    const reg = await navigator.serviceWorker.register(SW_URL);
+    // Ensure it's active
+    await navigator.serviceWorker.ready;
+    console.log("✅ Service Worker registriert:", reg.scope);
+    return reg;
+  }catch(e){
+    console.error("❌ Service Worker konnte nicht registriert werden:", e);
+    return null;
+  }
+})();
+
 /**
  * Projekt TAS – Firebase Edition (Single-File)
  * - Firebase Auth (Email/Pass; "Benutzername" ohne @ wird zu @tas.local gemappt)
@@ -2147,13 +2154,7 @@ import {
   Timestamp,
   deleteField,
   limit} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-import {
-  getMessaging,
-  getToken,
-  onMessage,
-  isSupported as isMessagingSupported
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-messaging.js";
+import { getMessaging, getToken, deleteToken, onMessage, isSupported as messagingIsSupported } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-messaging.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAU-gtZxzBOCIDYrqQ82Su8qslcWAcOE9o",
@@ -2172,126 +2173,6 @@ if (location.protocol === "file:") {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-
-// ---------- Push (FCM Web Push) ----------
-// IMPORTANT: This is the VAPID key from Firebase Console -> Cloud Messaging -> Web Push certificates
-const VAPID_KEY = "BM4ge6OlpY_fY9n0P5yIBlwb9TlFomqrqPF1ZE-LScjUIXqydXU8P_6zDNq7RGGkctkFmg0Bd4rqgOoRxplYqB8";
-
-let _messaging = null;
-let _swReg = null;
-
-async function ensureMessagingReady(){
-  if(_messaging && _swReg) return { messaging:_messaging, reg:_swReg };
-  const supported = await isMessagingSupported().catch(()=>false);
-  if(!supported) throw new Error("FCM wird in diesem Browser nicht unterstützt.");
-  if(!('serviceWorker' in navigator)) throw new Error("Service Worker wird nicht unterstützt.");
-
-  // Register SW at site root so it controls the whole origin
-  _swReg = await navigator.serviceWorker.register('/firebase-messaging-sw.js').catch((e)=>{
-    throw new Error("Service Worker konnte nicht registriert werden: " + (e?.message||e));
-  });
-  _messaging = getMessaging(app);
-
-  // Foreground message handler (optional) – updates UI & uses beep logic already present
-  try{
-    onMessage(_messaging, (payload)=>{
-      console.log("FCM foreground message:", payload);
-    });
-  }catch(_e){}
-
-  return { messaging:_messaging, reg:_swReg };
-}
-
-function setPushStatus(txt){
-  const el = document.getElementById('pushStatusLine');
-  if(el) el.textContent = "Status: " + txt;
-}
-
-function getStoredToken(){
-  try{ return localStorage.getItem('tas_fcm_token') || ""; }catch(_e){ return ""; }
-}
-
-function setStoredToken(t){
-  try{
-    if(t) localStorage.setItem('tas_fcm_token', t);
-    else localStorage.removeItem('tas_fcm_token');
-  }catch(_e){}
-}
-
-async function saveTokenToProfile(uid, token){
-  if(!uid || !token) return;
-  await setDoc(doc(db, 'users', uid), {
-    fcmTokens: { [token]: true },
-    fcmUpdatedAt: serverTimestamp()
-  }, { merge:true });
-}
-
-async function removeTokenFromProfile(uid, token){
-  if(!uid || !token) return;
-  await updateDoc(doc(db, 'users', uid), {
-    [`fcmTokens.${token}`]: deleteField(),
-    fcmUpdatedAt: serverTimestamp()
-  });
-}
-
-async function enablePush(){
-  const uid = requireLogin();
-
-  if(!('Notification' in window)){
-    return alert('Benachrichtigungen werden in diesem Browser nicht unterstützt.');
-  }
-
-  // Request permission
-  let perm = Notification.permission;
-  if(perm !== 'granted'){
-    try{ perm = await Notification.requestPermission(); }catch(_e){}
-  }
-  if(perm !== 'granted'){
-    setPushStatus('❌ nicht erlaubt');
-    return alert('Bitte Benachrichtigungen erlauben (Browser + Android Einstellungen).');
-  }
-
-  setPushStatus('… wird eingerichtet');
-  const { messaging, reg } = await ensureMessagingReady();
-  const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: reg }).catch((e)=>{
-    throw new Error('Token konnte nicht erstellt werden: ' + (e?.message||e));
-  });
-  if(!token) throw new Error('Kein Token erhalten.');
-
-  setStoredToken(token);
-  await saveTokenToProfile(uid, token);
-  setPushStatus('✅ aktiv');
-  alert('Push ist aktiv. (Token gespeichert)');
-}
-
-async function disablePush(){
-  const uid = requireLogin();
-  const token = getStoredToken();
-  if(token){
-    await removeTokenFromProfile(uid, token).catch(()=>{});
-    setStoredToken('');
-  }
-  setPushStatus('aus');
-  alert('Push deaktiviert (Token entfernt).');
-}
-
-async function refreshPushStatus(){
-  if(!state?.session?.uid){
-    setPushStatus('— (nicht eingeloggt)');
-    return;
-  }
-  if(!('Notification' in window)){
-    setPushStatus('nicht unterstützt');
-    return;
-  }
-  const perm = Notification.permission;
-  const token = getStoredToken();
-  if(perm !== 'granted'){
-    setPushStatus(perm === 'denied' ? '❌ abgelehnt' : '⚠️ nicht erlaubt');
-    return;
-  }
-  setPushStatus(token ? '✅ aktiv' : '⚠️ erlaubt, aber kein Token gespeichert');
-}
 
 // ---------- Power Automate Webhook (Dienstzeit -> Teams) ----------
 const FLOW_URL_DIENSTZEIT = 'https://default37df5520fb854c58aa126bafbea273.f4.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/0ce4602e433446ee87e52dd7494e76a0/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=NOVErBbD9Q2_hBUiVaf6eMxMaiUstp5rVhU4DN42WJc';
@@ -3967,6 +3848,7 @@ async function saveCase(){
   alert("Fall gespeichert.");
 }
 
+
 // ---------- Notifications (Web) ----------
 async function notify(){
   if(!("Notification" in window)){
@@ -3982,6 +3864,142 @@ async function notify(){
     body: "Benachrichtigung (lokal) – später auch via Server/SMS möglich.",
   });
 }
+
+// ---------- PUSH (FCM) ----------
+const VAPID_PUBLIC_KEY = "BM4ge6OlpY_fY9n0P5yIBlwb9TlFomqrqPF1ZE-LScjUIXqydXU8P_6zDNq7RGGkctkFmg0Bd4rqgOoRxplYqB8";
+
+function $(id){ return document.getElementById(id); } // (safety if not defined yet)
+
+function setPushUiStatus(msg, ok=true){
+  const el = document.getElementById("pushStatus");
+  if(el){
+    el.textContent = msg;
+    el.style.color = ok ? "var(--good, #8ff0a4)" : "var(--bad, #ff6b6b)";
+  }
+}
+
+async function getMyUid(){
+  // requireLogin exists in your code – keep using it if present
+  if(typeof requireLogin === "function") return requireLogin();
+  // fallback: if auth is in scope
+  try{ return auth?.currentUser?.uid || null; }catch(_){ return null; }
+}
+
+async function enablePushFCM(){
+  // Must be triggered by user click
+  if(!("Notification" in window)){
+    alert("Browser unterstützt keine Benachrichtigungen.");
+    return;
+  }
+
+  const perm = await Notification.requestPermission();
+  if(perm !== "granted"){
+    setPushUiStatus("Benachrichtigungen nicht erlaubt.", false);
+    return;
+  }
+
+  const uid = await getMyUid();
+  if(!uid){
+    alert("Bitte zuerst einloggen.");
+    return;
+  }
+
+  const supported = await (async()=>{ try{ return await messagingIsSupported(); }catch(_){ return true; } })();
+  if(!supported){
+    setPushUiStatus("Push wird auf diesem Gerät/Browser nicht unterstützt.", false);
+    return;
+  }
+
+  const reg = await swReady;
+  if(!reg){
+    setPushUiStatus("Service Worker nicht aktiv (404/Redirect). Prüfe Netlify + Datei im Root.", false);
+    return;
+  }
+
+  try{
+    const messaging = getMessaging();
+    const token = await getToken(messaging, {
+      vapidKey: VAPID_PUBLIC_KEY,
+      serviceWorkerRegistration: reg
+    });
+
+    if(!token){
+      setPushUiStatus("Kein Token erhalten (getToken = null).", false);
+      return;
+    }
+
+    // Save token in Firestore: users/{uid}.fcmTokens[token]=true
+    if(typeof setDoc !== "function" || typeof doc !== "function"){
+      setPushUiStatus("Firestore Funktionen nicht verfügbar.", false);
+      return;
+    }
+
+    await setDoc(doc(db, "users", uid), {
+      fcmTokens: { [token]: TrueIfPossible() }
+    }, { merge: true });
+
+    // store in local for quick display
+    const tokEl = document.getElementById("pushTokenPreview");
+    if(tokEl) tokEl.value = token;
+
+    setPushUiStatus("✅ Push aktiviert. Token gespeichert.", true);
+    console.log("FCM token saved:", token);
+  }catch(e){
+    console.error(e);
+    setPushUiStatus("Push aktivieren fehlgeschlagen: " + (e?.message || e), false);
+  }
+}
+
+// helper to avoid python capitalizing boolean
+function TrueIfPossible(){ return true; }
+
+async function disablePushFCM(){
+  try{
+    const uid = await getMyUid();
+    if(!uid){ alert("Bitte zuerst einloggen."); return; }
+
+    const supported = await (async()=>{ try{ return await messagingIsSupported(); }catch(_){ return true; } })();
+    if(!supported){
+      setPushUiStatus("Push wird auf diesem Gerät/Browser nicht unterstützt.", false);
+      return;
+    }
+
+    const reg = await swReady;
+    const messaging = getMessaging();
+    // deleteToken removes current token from browser
+    const ok = await deleteToken(messaging);
+    console.log("deleteToken:", ok);
+
+    // Best-effort: cannot know which token was deleted unless we stored it.
+    const tokEl = document.getElementById("pushTokenPreview");
+    const prev = tokEl ? tokEl.value.trim() : "";
+    if(prev){
+      try{
+        await setDoc(doc(db, "users", uid), {
+          fcmTokens: { [prev]: null }
+        }, { merge: true });
+      }catch(_){}
+      if(tokEl) tokEl.value = "";
+    }
+
+    setPushUiStatus("Push deaktiviert (Token im Browser entfernt).", true);
+  }catch(e){
+    console.error(e);
+    setPushUiStatus("Push deaktivieren fehlgeschlagen: " + (e?.message || e), false);
+  }
+}
+
+// Optional: foreground message handler (shows toast when app open)
+try{
+  const messaging = getMessaging();
+  onMessage(messaging, (payload)=>{
+    console.log("[FCM] foreground message", payload);
+    const t = payload?.data?.title || payload?.notification?.title || "Neue Nachricht";
+    const b = payload?.data?.body || payload?.notification?.body || "";
+    if(typeof toast === "function") toast(`${t}: ${b}`);
+  });
+}catch(_){}
+
 
 // ---------- Mobile Tabs ----------
 
@@ -4169,13 +4187,6 @@ function bindUI(){
   // Profil
   click("btnSaveProfile", () => saveMyProfile().catch((e)=>{ console.error(e); alert("Profil speichern fehlgeschlagen: " + (e?.message||e)); }));
 
-  // Push (Settings)
-  click("btnEnablePush", () => enablePush().catch((e)=>{ console.error(e); alert("Push aktivieren fehlgeschlagen: " + (e?.message||e)); }));
-  click("btnDisablePush", () => disablePush().catch((e)=>{ console.error(e); alert("Push deaktivieren fehlgeschlagen: " + (e?.message||e)); }));
-
-  // Test notification (local)
-  click("btnNotify", () => notify().catch(()=>{}));
-
   // Admin
   click("btnOpenAdmin", () => openAdmin());
   click("navAdmin", () => openAdmin());
@@ -4256,9 +4267,6 @@ function bindUI(){
 
       applySessionUI();
       applyPermsUI();
-
-      // Update push status line in Settings
-      refreshPushStatus().catch(()=>{});
       
 
       // Presence
@@ -4282,8 +4290,6 @@ function bindUI(){
       state.unsubPresence = null;
       state.onlineUsers = [];
       renderPresenceBar();
-
-      refreshPushStatus().catch(()=>{});
 
       
       
@@ -4915,6 +4921,14 @@ setMobileView = function(view){
   bind("mbChat","chat");
   bind("mbSettings","settings");
 })();
+
+
+
+  // Push buttons in Settings panel
+  const ep = document.getElementById("btnEnablePush");
+  if(ep) ep.addEventListener("click", ()=> enablePushFCM());
+  const dp = document.getElementById("btnDisablePush");
+  if(dp) dp.addEventListener("click", ()=> disablePushFCM());
 
 // ===== Notifications v49 =====
 async function requestNotifPermission(){

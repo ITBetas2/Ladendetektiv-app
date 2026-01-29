@@ -1916,6 +1916,23 @@ input, textarea, select { scroll-margin-top: 90px; }
     Hinweis: Upload/Download-Rechte hängen von deiner Rolle ab.
   </div>
 </div>
+
+  <hr style="border:0; border-top:1px solid rgba(255,255,255,.12); margin:14px 0;">
+  <div class="hint" style="margin-top:0; font-weight:800;">Push Benachrichtigungen</div>
+  <div class="hint" style="margin-top:6px;">
+    Damit du im Hintergrund Benachrichtigungen bekommst, musst du Push einmal aktivieren.
+  </div>
+
+  <div class="row2" style="margin-top:10px;">
+    <button class="btn small" id="btnEnablePush" type="button">🔔 Push aktivieren</button>
+    <button class="btn small" id="btnDisablePush" type="button">🔕 Push deaktivieren</button>
+  </div>
+
+  <div class="hint" id="pushStatus" style="margin-top:10px; opacity:.9;">
+    Push Status: (noch nicht geprüft)
+  </div>
+  <textarea id="pushTokenPreview" style="width:100%; min-height:80px; margin-top:8px; border-radius:12px; padding:10px; background:rgba(0,0,0,.25); color:var(--text); border:1px solid rgba(255,255,255,.12);" readonly placeholder="Token wird nach Aktivierung angezeigt..."></textarea>
+
 </aside>
 <!-- START (MOBILE) -->
 <section class="card startPanel" id="startPanel" style="display:none;">
@@ -2100,20 +2117,17 @@ input, textarea, select { scroll-margin-top: 90px; }
 </div>
 </div>
 <script type="module">
-
-// ===== PWA Push: Service Worker registration (must be from root) =====
+// ===== Push/FCM: Service Worker Registrierung (muss im Root liegen) =====
 const SW_URL = "/firebase-messaging-sw.js";
 const swReady = (async () => {
   if (!("serviceWorker" in navigator)) return null;
-  try{
-    // Register ASAP on load
+  try {
     const reg = await navigator.serviceWorker.register(SW_URL);
-    // Ensure it's active
     await navigator.serviceWorker.ready;
-    console.log("✅ Service Worker registriert:", reg.scope);
+    console.log("✅ SW ready:", reg.scope);
     return reg;
-  }catch(e){
-    console.error("❌ Service Worker konnte nicht registriert werden:", e);
+  } catch (e) {
+    console.error("❌ SW register failed:", e);
     return null;
   }
 })();
@@ -3848,8 +3862,137 @@ async function saveCase(){
   alert("Fall gespeichert.");
 }
 
-
 // ---------- Notifications (Web) ----------
+
+// ---------- PUSH (FCM) ----------
+const VAPID_PUBLIC_KEY = "BM4ge6OlpY_fY9n0P5yIBlwb9TlFomqrqPF1ZE-LScjUIXqydXU8P_6zDNq7RGGkctkFmg0Bd4rqgOoRxplYqB8";
+
+function setPushUiStatus(msg, ok=true){
+  const el = $("pushStatus");
+  if(!el) return;
+  el.textContent = msg;
+  el.style.color = ok ? "rgba(150,255,190,.95)" : "rgba(255,130,130,.95)";
+}
+
+async function enablePushFCM(){
+  if(!("Notification" in window)) {
+    alert("Benachrichtigungen werden vom Browser nicht unterstützt.");
+    return;
+  }
+
+  const perm = await Notification.requestPermission();
+  if(perm !== "granted") {
+    setPushUiStatus("Benachrichtigungen nicht erlaubt.", false);
+    return;
+  }
+
+  const uid = (typeof requireLogin === "function") ? requireLogin() : (auth?.currentUser?.uid || null);
+  if(!uid) {
+    alert("Bitte zuerst einloggen.");
+    return;
+  }
+
+  let supported = true;
+  try{ supported = await messagingIsSupported(); }catch(_){
+    supported = true;
+  }
+  if(!supported) {
+    setPushUiStatus("Push wird auf diesem Gerät/Browser nicht unterstützt.", false);
+    return;
+  }
+
+  const reg = await swReady;
+  if(!reg) {
+    setPushUiStatus("Service Worker nicht aktiv. Prüfe, ob /firebase-messaging-sw.js erreichbar ist.", false);
+    return;
+  }
+
+  try {
+    const messaging = getMessaging(app);
+    const token = await getToken(messaging, {
+      vapidKey: VAPID_PUBLIC_KEY,
+      serviceWorkerRegistration: reg
+    });
+
+    if(!token) {
+      setPushUiStatus("Kein Token erhalten (getToken = null).", false);
+      return;
+    }
+
+    await setDoc(doc(db, "users", uid), {
+      fcmTokens: { [token]: true },
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+
+    localStorage.setItem("fcmToken:last:" + uid, token);
+    const t = $("pushTokenPreview");
+    if(t) t.value = token;
+
+    setPushUiStatus("✅ Push aktiviert & Token gespeichert.", true);
+  } catch(e) {
+    console.error(e);
+    setPushUiStatus("Push aktivieren fehlgeschlagen: " + (e?.message || e), false);
+  }
+}
+
+async function disablePushFCM(){
+  try {
+    const uid = (typeof requireLogin === "function") ? requireLogin() : (auth?.currentUser?.uid || null);
+    if(!uid) { alert("Bitte zuerst einloggen."); return; }
+
+    let supported = true;
+    try{ supported = await messagingIsSupported(); }catch(_){
+      supported = true;
+    }
+    if(!supported) {
+      setPushUiStatus("Push wird auf diesem Gerät/Browser nicht unterstützt.", false);
+      return;
+    }
+
+    const messaging = getMessaging(app);
+    await deleteToken(messaging);
+
+    const last = localStorage.getItem("fcmToken:last:" + uid) || "";
+    localStorage.removeItem("fcmToken:last:" + uid);
+    const t = $("pushTokenPreview");
+    if(t) t.value = "";
+
+    setPushUiStatus("Push deaktiviert (Token im Browser gelöscht).", true);
+
+    if(last) {
+      try {
+        await updateDoc(doc(db, "users", uid), {
+          ["fcmTokens." + last]: deleteField(),
+          updatedAt: serverTimestamp()
+        });
+      } catch(_) {}
+    }
+  } catch(e) {
+    console.error(e);
+    setPushUiStatus("Push deaktivieren fehlgeschlagen: " + (e?.message || e), false);
+  }
+}
+
+(async ()=>{
+  try {
+    let supported = true;
+    try{ supported = await messagingIsSupported(); }catch(_){
+      supported = true;
+    }
+    if(!supported) return;
+    const messaging = getMessaging(app);
+    onMessage(messaging, (payload)=>{
+      console.log("[FCM foreground]", payload);
+    });
+  } catch(_) {}
+})();
+
+document.addEventListener("DOMContentLoaded", ()=>{
+  const ep = $("btnEnablePush"); if(ep) ep.addEventListener("click", enablePushFCM);
+  const dp = $("btnDisablePush"); if(dp) dp.addEventListener("click", disablePushFCM);
+});
+
+
 async function notify(){
   if(!("Notification" in window)){
     alert("Notifications werden vom Browser nicht unterstützt.");
@@ -3864,139 +4007,6 @@ async function notify(){
     body: "Benachrichtigung (lokal) – später auch via Server/SMS möglich.",
   });
 }
-
-// ---------- PUSH (FCM) ----------
-const VAPID_PUBLIC_KEY = "BM4ge6OlpY_fY9n0P5yIBlwb9TlFomqrqPF1ZE-LScjUIXqydXU8P_6zDNq7RGGkctkFmg0Bd4rqgOoRxplYqB8";
-
-
-function setPushUiStatus(msg, ok=true){
-  const el = document.getElementById("pushStatus");
-  if(el){
-    el.textContent = msg;
-    el.style.color = ok ? "var(--good, #8ff0a4)" : "var(--bad, #ff6b6b)";
-  }
-}
-
-async function getMyUid(){
-  // requireLogin exists in your code – keep using it if present
-  if(typeof requireLogin === "function") return requireLogin();
-  // fallback: if auth is in scope
-  try{ return auth?.currentUser?.uid || null; }catch(_){ return null; }
-}
-
-async function enablePushFCM(){
-  // Must be triggered by user click
-  if(!("Notification" in window)){
-    alert("Browser unterstützt keine Benachrichtigungen.");
-    return;
-  }
-
-  const perm = await Notification.requestPermission();
-  if(perm !== "granted"){
-    setPushUiStatus("Benachrichtigungen nicht erlaubt.", false);
-    return;
-  }
-
-  const uid = await getMyUid();
-  if(!uid){
-    alert("Bitte zuerst einloggen.");
-    return;
-  }
-
-  const supported = await (async()=>{ try{ return await messagingIsSupported(); }catch(_){ return true; } })();
-  if(!supported){
-    setPushUiStatus("Push wird auf diesem Gerät/Browser nicht unterstützt.", false);
-    return;
-  }
-
-  const reg = await swReady;
-  if(!reg){
-    setPushUiStatus("Service Worker nicht aktiv (404/Redirect). Prüfe Netlify + Datei im Root.", false);
-    return;
-  }
-
-  try{
-    const messaging = getMessaging();
-    const token = await getToken(messaging, {
-      vapidKey: VAPID_PUBLIC_KEY,
-      serviceWorkerRegistration: reg
-    });
-
-    if(!token){
-      setPushUiStatus("Kein Token erhalten (getToken = null).", false);
-      return;
-    }
-
-    // Save token in Firestore: users/{uid}.fcmTokens[token]=true
-    if(typeof setDoc !== "function" || typeof doc !== "function"){
-      setPushUiStatus("Firestore Funktionen nicht verfügbar.", false);
-      return;
-    }
-
-    await setDoc(doc(db, "users", uid), {
-      fcmTokens: { [token]: true }
-    }, { merge: true });
-
-    // store in local for quick display
-    const tokEl = document.getElementById("pushTokenPreview");
-    if(tokEl) tokEl.value = token;
-
-    setPushUiStatus("✅ Push aktiviert. Token gespeichert.", true);
-    console.log("FCM token saved:", token);
-  }catch(e){
-    console.error(e);
-    setPushUiStatus("Push aktivieren fehlgeschlagen: " + (e?.message || e), false);
-  }
-}
-
-
-async function disablePushFCM(){
-  try{
-    const uid = await getMyUid();
-    if(!uid){ alert("Bitte zuerst einloggen."); return; }
-
-    const supported = await (async()=>{ try{ return await messagingIsSupported(); }catch(_){ return true; } })();
-    if(!supported){
-      setPushUiStatus("Push wird auf diesem Gerät/Browser nicht unterstützt.", false);
-      return;
-    }
-
-    const reg = await swReady;
-    const messaging = getMessaging();
-    // deleteToken removes current token from browser
-    const ok = await deleteToken(messaging);
-    console.log("deleteToken:", ok);
-
-    // Best-effort: cannot know which token was deleted unless we stored it.
-    const tokEl = document.getElementById("pushTokenPreview");
-    const prev = tokEl ? tokEl.value.trim() : "";
-    if(prev){
-      try{
-        await setDoc(doc(db, "users", uid), {
-          fcmTokens: { [prev]: null }
-        }, { merge: true });
-      }catch(_){}
-      if(tokEl) tokEl.value = "";
-    }
-
-    setPushUiStatus("Push deaktiviert (Token im Browser entfernt).", true);
-  }catch(e){
-    console.error(e);
-    setPushUiStatus("Push deaktivieren fehlgeschlagen: " + (e?.message || e), false);
-  }
-}
-
-// Optional: foreground message handler (shows toast when app open)
-try{
-  const messaging = getMessaging();
-  onMessage(messaging, (payload)=>{
-    console.log("[FCM] foreground message", payload);
-    const t = payload?.data?.title || payload?.notification?.title || "Neue Nachricht";
-    const b = payload?.data?.body || payload?.notification?.body || "";
-    if(typeof toast === "function") toast(`${t}: ${b}`);
-  });
-}catch(_){}
-
 
 // ---------- Mobile Tabs ----------
 
@@ -4918,14 +4928,6 @@ setMobileView = function(view){
   bind("mbChat","chat");
   bind("mbSettings","settings");
 })();
-
-
-
-  // Push buttons in Settings panel
-  const ep = document.getElementById("btnEnablePush");
-  if(ep) ep.addEventListener("click", ()=> enablePushFCM());
-  const dp = document.getElementById("btnDisablePush");
-  if(dp) dp.addEventListener("click", ()=> disablePushFCM());
 
 // ===== Notifications v49 =====
 async function requestNotifPermission(){

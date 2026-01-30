@@ -1686,6 +1686,28 @@ input, textarea, select { scroll-margin-top: 90px; }
 }
 </style>
 
+
+<style id="settings-scroll-fix">
+/* Fix: Settings screen must be scrollable on mobile (body is sometimes locked to avoid outer scroll) */
+@media (max-width: 980px){
+  body.view-settings { overflow: hidden; }
+  /* allow the visible panel to scroll */
+  body.view-settings .viewport,
+  body.view-settings .app,
+  body.view-settings .sidebar {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* ensure sidebar has a scrollable height above bottom nav */
+  body.view-settings .sidebar{
+    max-height: calc(100dvh - var(--mobile-header-h, 0px) - var(--bottom-nav-h, 86px) - env(safe-area-inset-bottom) - 16px) !important;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 12px) !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div id="authOverlay" class="authOverlay">
@@ -4031,7 +4053,12 @@ function setMobileView(view){
   const compact = !isMobile;
   state.mobileView = view;
 
-  const sidebar = document.querySelector(".sidebar");
+  
+
+  // --- View CSS helper classes (for mobile scrolling rules etc.) ---
+  document.body.classList.remove("view-start","view-files","view-ranking","view-case","view-chat","view-settings");
+  document.body.classList.add("view-" + view);
+const sidebar = document.querySelector(".sidebar");
   const main = document.querySelector(".main");
   const rightbar = document.querySelector(".rightbar");
   const startPanel = document.getElementById("startPanel");

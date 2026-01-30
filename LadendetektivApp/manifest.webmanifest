@@ -62,8 +62,25 @@
       "sizes": "64x64",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "icons/badge-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "badge"
+    },
+    {
+      "src": "icons/mono-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "monochrome"
+    },
+    {
+      "src": "icons/mono-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "monochrome"
     }
   ],
-  "id": "https://ladendetektiv.netlify.app/",
-  "gcm_sender_id": "103953800507"
+  "id": "https://ladendetektiv.netlify.app/"
 }

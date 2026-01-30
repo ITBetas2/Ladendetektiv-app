@@ -1999,7 +1999,10 @@ input, textarea, select { scroll-margin-top: 90px; }
   <div class="hint" id="pushStatus" style="margin-top:10px; opacity:.9;">
     Push Status: (noch nicht geprüft)
   </div>
+
+  <div id="pushTokenAdminWrap" class="hidden">
   <textarea id="pushTokenPreview" style="width:100%; min-height:80px; margin-top:8px; border-radius:12px; padding:10px; background:rgba(0,0,0,.25); color:var(--text); border:1px solid rgba(255,255,255,.12);" readonly placeholder="Token wird nach Aktivierung angezeigt..."></textarea>
+  </div>
 
 </aside>
 <!-- START (MOBILE) -->
@@ -2521,6 +2524,45 @@ function perms(){
   return state.role || { canUpload:false, canDownload:true, canAdmin:false };
 }
 
+
+
+function isAdminUser(){
+  const isFixedAdmin = !!(state.session?.uid && (state.session.uid === FIXED_ADMIN.uid || String(state.session.email||"").toLowerCase() === FIXED_ADMIN.email));
+  return !!(perms().canAdmin || isFixedAdmin);
+}
+
+function applyPushUiVisibility(){
+  const wrap = document.getElementById("pushTokenAdminWrap");
+  const t = document.getElementById("pushTokenPreview");
+  const admin = isAdminUser();
+  if(wrap){
+    wrap.classList.toggle("hidden", !admin);
+  }
+  if(t && !admin){
+    t.value = "";
+    t.placeholder = "Token (nur Admin sichtbar)";
+  }
+}
+
+function checkPushState(){
+  const uid = state.session?.uid;
+  if(!uid){
+    setPushUiStatus("Push Status: (bitte einloggen)", false);
+    return;
+  }
+  const last = localStorage.getItem("fcmToken:last:" + uid) || "";
+  if(last){
+    setPushUiStatus("✅ Push aktiv (Token gespeichert).", true);
+  } else {
+    setPushUiStatus("🔕 Push deaktiviert.", true);
+  }
+  const t = document.getElementById("pushTokenPreview");
+  if(t){
+    if(isAdminUser()) t.value = last || "";
+    else t.value = "";
+  }
+}
+
 function applyPermsUI(){
   const p = perms();
   const isFixedAdmin = !!(state.session?.uid && (state.session.uid === FIXED_ADMIN.uid || String(state.session.email||"").toLowerCase() === FIXED_ADMIN.email));
@@ -2555,6 +2597,9 @@ function applyPermsUI(){
     navAdmin?.classList.add("hidden");
     dnavAdmin?.classList.add("hidden");
   }
+
+  // Push token preview: nur Admin sichtbar
+  try{ applyPushUiVisibility(); }catch(_e){}
 }
 
 function roleDefaults(){
@@ -4110,10 +4155,13 @@ async function enablePushFCM(){
     }, { merge: true });
 
     localStorage.setItem("fcmToken:last:" + uid, token);
+
+    // Token nur für Admin anzeigen
     const t = $("pushTokenPreview");
-    if(t) t.value = token;
+    if(t && isAdminUser()) t.value = token;
 
     setPushUiStatus("✅ Push aktiviert & Token gespeichert.", true);
+    try{ applyPushUiVisibility(); checkPushState(); }catch(_e){}
   } catch(e) {
     console.error(e);
     setPushUiStatus("Push aktivieren fehlgeschlagen: " + (e?.message || e), false);
@@ -4143,6 +4191,7 @@ async function disablePushFCM(){
     if(t) t.value = "";
 
     setPushUiStatus("Push deaktiviert (Token im Browser gelöscht).", true);
+    try{ applyPushUiVisibility(); checkPushState(); }catch(_e){}
 
     if(last) {
       try {

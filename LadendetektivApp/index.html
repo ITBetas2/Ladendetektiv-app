@@ -860,6 +860,15 @@ input, textarea, select { scroll-margin-top: 90px; }
   border-color: var(--border) !important;
   color: var(--text) !important;
 }
+
+
+/* --- Aktiv im Dienst (Infos) --- */
+.active-duty-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:12px}
+.active-duty-item{display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)}
+.active-duty-avatar{width:56px;height:56px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)}
+.active-duty-name{font-size:12px;color:var(--text);text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.active-duty-empty{margin-top:10px;color:var(--muted);font-size:13px}
+
 </style>
 
 <!-- ===== MOBILE VISIBILITY FIX (Chat + Settings) ===== -->
@@ -2116,6 +2125,14 @@ input, textarea, select { scroll-margin-top: 90px; }
   </div>
 </div>
 
+<div class="dropzone" id="activeDutyZone">
+  <div style="font-weight:900; font-size:16px; color:var(--text);">🟢 Aktiv im Dienst</div>
+  <div class="hint" style="margin-top:6px;">
+    Hier siehst du alle, die auf <b>Dienstbeginn</b> gedrückt haben und noch nicht <b>Dienstende + Speichern</b> gemacht haben.
+  </div>
+  <div class="active-duty-grid" id="activeDutyGrid"></div>
+</div>
+
 <div class="grid hidden" id="fileGrid"></div>
 
 </main>
@@ -2641,6 +2658,77 @@ async function saveMyProfile(){
 // ---------- Presence ----------
 const PRESENCE_COL = collection(db, "presence");
 
+// --- Aktiv im Dienst (Presence) ---
+async function setInService(flag){
+    requireLogin();
+    const uid = state.session.uid;
+    const u = state.session;
+
+    // IMPORTANT:
+    // - Beim Start: inService=true + serviceStartedAt setzen, serviceEndedAt entfernen
+    // - Beim Stop (nach Speichern): inService=false + serviceEndedAt setzen
+    // - serviceStartedAt NICHT wieder auf null setzen (sonst kann man den Dienststatus nicht mehr sauber auswerten)
+    const base = {
+      uid,
+      displayName: u.displayName || u.user || "User",
+      email: u.email || "",
+      photoURL: u.photoURL || u.avatarDataUrl || ""
+    };
+
+    if(flag){
+      await setDoc(doc(db, "presence", uid), {
+        ...base,
+        inService: true,
+        serviceStartedAt: serverTimestamp(),
+        serviceEndedAt: deleteField(),
+        serviceUpdatedAt: serverTimestamp(),
+      }, { merge: true });
+    } else {
+      await setDoc(doc(db, "presence", uid), {
+        ...base,
+        inService: false,
+        serviceEndedAt: serverTimestamp(),
+        serviceUpdatedAt: serverTimestamp(),
+      }, { merge: true });
+    }
+  }
+
+let unsubActiveDuty = null;
+function watchActiveDuty(){
+  try{
+    if(unsubActiveDuty){ unsubActiveDuty(); unsubActiveDuty=null; }
+    const grid = document.getElementById('activeDutyGrid');
+    if(!grid) return;
+    const q = query(PRESENCE_COL, where('inService','==',true), orderBy('serviceStartedAt','desc'), limit(4));
+    unsubActiveDuty = onSnapshot(q, (snap)=>{
+      const items = [];
+      snap.forEach(d=>items.push({id:d.id, ...d.data()}));
+      renderActiveDuty(items);
+    }, (err)=>{
+      console.warn('watchActiveDuty snapshot error', err);
+    });
+  }catch(e){
+    console.warn('watchActiveDuty failed', e);
+  }
+}
+
+function renderActiveDuty(list){
+  const grid = document.getElementById('activeDutyGrid');
+  if(!grid) return;
+  if(!list || list.length===0){
+    grid.innerHTML = `<div class=\"active-duty-empty\">Aktuell ist niemand aktiv im Dienst.</div>`;
+    return;
+  }
+  grid.innerHTML = list.map(u=>{
+    const name = (u.displayName || u.user || u.email || 'User');
+    const src = u.avatarDataUrl || u.photoURL || u.photoUrl || '';
+    const initials = (name||'U').trim().slice(0,1).toUpperCase();
+    const img = src ? `<img class=\"active-duty-avatar\" src=\"${src}\" alt=\"${name}\"/>` : `<div class=\"active-duty-avatar\" style=\"display:flex;align-items:center;justify-content:center;font-weight:900;\">${initials}</div>`;
+    return `<div class=\"active-duty-item\">${img}<div class=\"active-duty-name\">${name}</div></div>`;
+  }).join('');
+}
+
+
 async function upsertPresence(){
   if(!state.session?.uid) return;
   const uid = state.session.uid;
@@ -2959,7 +3047,7 @@ function catName(id){
   return c ? c.name : "Inbox";
 }
 
-function renderCats(){
+async function renderCats(){
   const el = $("catList");
   if(!el) return;
   el.innerHTML = "";
@@ -3148,7 +3236,7 @@ function matchesFilter(item){
   return true;
 }
 
-function renderItems(){
+async function renderItems(){
   const grid = $("fileGrid");
   const q = state.search.trim();
   const filtered = (state.items||[])
@@ -3273,7 +3361,7 @@ async function editNotes(it){
 }
 
 // ---------- Drag & Drop Upload zone ----------
-function setupDropzone(){
+async function setupDropzone(){
   const dz = $("dropzone");
   dz.addEventListener("dragover", (e) => {
     e.preventDefault();
@@ -3309,7 +3397,7 @@ function scrollChatBottom(force=false){
 }
 
 // ---------- Chat (Firestore realtime) ----------
-function watchChat(){
+async function watchChat(){
   if(state.unsubChat) state.unsubChat();
     if(state.unsubTyping) state.unsubTyping();
   const userId = requireLogin();
@@ -3538,7 +3626,7 @@ function renderRanking(){
   });
 }
 
-function renderMyCases(){
+async function renderMyCases(){
   const list = document.getElementById("caseList");
   if(!list) return;
 
@@ -3631,7 +3719,7 @@ function durationStr(sec){
   return `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
 }
 
-function renderServices(){
+async function renderServices(){
   const list = document.getElementById("serviceList");
   if(!list) return;
 
@@ -3752,7 +3840,7 @@ function clearServiceForm(){
   if(hint) hint.textContent = "Tipp: Dienstbeginn starten → danach Dienstende setzen → speichern.";
 }
 
-function startService(){
+async function startService(){
   requireLogin();
 
   const date = (document.getElementById("serviceDate")?.value || "").trim();
@@ -3764,6 +3852,7 @@ function startService(){
 
   serviceStartMs = Date.now();
 
+  await setInService(true);
   const startEl = document.getElementById("serviceStartTime");
   if(startEl){
     startEl.value = msToHHMM(serviceStartMs);
@@ -3839,6 +3928,7 @@ async function saveService(){
     durationSec,
     createdAt: serverTimestamp()
   });
+    await setInService(false);
 
   
   // Trigger Power Automate -> Teams (Adaptive Card)
@@ -3850,6 +3940,9 @@ async function saveService(){
     dienstende: endHH
   });
 clearServiceForm();
+      // Cleanup active-duty listener
+      if(state.unsubActiveDuty) state.unsubActiveDuty();
+      state.unsubActiveDuty = null;
   alert("Dienst gespeichert.");
 }
 
@@ -4198,7 +4291,7 @@ document.getElementById("dnavSettings")?.addEventListener("click", ()=>goDesktop
 }
 
 // ---------- UI Bindings ----------
-function bindUI(){
+async function bindUI(){
   const click = (id, fn) => { const el = document.getElementById(id); if(el) el.addEventListener("click", fn); };
   const change = (id, fn) => { const el = document.getElementById(id); if(el) el.addEventListener("change", fn); };
 
@@ -4321,6 +4414,8 @@ function bindUI(){
       // Presence
       watchPresence();
       startPresence();
+
+      watchActiveDuty();
 
       await ensureDefaultCats(user.uid);
       watchCats();
@@ -4713,7 +4808,7 @@ sendChat = async function(){
 
 // Enhanced watcher (forced by v37)
 
-function watchChatEnhanced(){
+async function watchChatEnhanced(){
   if(state.unsubChat) state.unsubChat();
   const userId = requireLogin();
   const roomId = state.chatRoom || "global";

@@ -1717,6 +1717,43 @@ input, textarea, select { scroll-margin-top: 90px; }
 }
 </style>
 
+
+<style>
+.securireport-card{
+  margin-top:16px;
+  padding:16px;
+  border-radius:16px;
+  background:linear-gradient(160deg,#1e2a44,#0f1628);
+  box-shadow:0 10px 30px rgba(0,0,0,.35);
+  text-align:center;
+}
+.securireport-card .card-header{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  font-size:18px;
+  font-weight:600;
+  margin-bottom:8px;
+}
+.securireport-card .icon{font-size:22px;}
+.securireport-card .card-text{
+  font-size:14px;
+  opacity:.9;
+  margin-bottom:14px;
+}
+.securireport-btn{
+  display:inline-block;
+  padding:12px 18px;
+  border-radius:999px;
+  background:linear-gradient(135deg,#4f8cff,#6aa7ff);
+  color:#fff;
+  text-decoration:none;
+  font-weight:600;
+}
+.securireport-btn:active{transform:scale(.97);}
+</style>
+
 </head>
 <body>
 <div id="authOverlay" class="authOverlay">
@@ -2116,7 +2153,7 @@ input, textarea, select { scroll-margin-top: 90px; }
 </div>
 
 <div class="dropzone" id="dropzone">
-  <div style="font-weight:900; font-size:16px; color:var(--text);">📁 Infos &amp; Dokumente</div>
+  <div style="font-weight:900; font-size:16px; color:var(--text);">📁 Dokumente</div>
   <div class="hint" style="margin-top:6px;">
     Alle relevanten Dokumente liegen zentral im Google Drive. Öffne den Ordner über den Button.
   </div>
@@ -2125,6 +2162,23 @@ input, textarea, select { scroll-margin-top: 90px; }
   </div>
 </div>
 
+
+      <div class="dropzone" id="securiReportZone" style="margin-top:14px;">
+        <div class="zoneTitle"> 
+<div class="card securireport-card">
+  <div class="card-header">
+    <span class="icon">🛡️</span>
+    <span class="title">SecuriReport +</span>
+  </div>
+  <p class="card-text">
+    Öffne SecuriReport direkt im Browser.
+  </p>
+  <a class="btn-primary securireport-btn"
+     href="https://securireport3.securitas.ch/securireport/desktop-app/#login"
+     target="_blank" rel="noopener noreferrer">
+     SecuriReport öffnen
+  </a>
+</div>
 <div class="dropzone" id="activeDutyZone">
   <div style="font-weight:900; font-size:16px; color:var(--text);">🟢 Aktiv im Dienst</div>
   <div class="hint" style="margin-top:6px;">
@@ -2699,7 +2753,7 @@ function watchActiveDuty(){
     if(unsubActiveDuty){ unsubActiveDuty(); unsubActiveDuty=null; }
     const grid = document.getElementById('activeDutyGrid');
     if(!grid) return;
-    const q = query(PRESENCE_COL, where('inService','==',true), orderBy('serviceStartedAt','desc'), limit(4));
+    const q = query(PRESENCE_COL, where('inService','==',true), limit(4));
     unsubActiveDuty = onSnapshot(q, (snap)=>{
       const items = [];
       snap.forEach(d=>items.push({id:d.id, ...d.data()}));
@@ -3615,9 +3669,10 @@ function renderRanking(){
     card.className = "item";
     card.style.padding = "12px";
     const subtitle = r.lastAt ? ("Letzter Fall: " + escapeHtml(toLocalDateTimeStr(r.lastAt))) : "";
+    const medal = (i===0 ? "🥇" : i===1 ? "🥈" : i===2 ? "🥉" : (i+1) + ".");
     card.innerHTML = `
       <div class="meta" style="min-width:0; flex:1;">
-        <div class="title">${i+1}. ${escapeHtml(r.reporterName || "User")}</div>
+        <div class="title">${medal} ${escapeHtml(r.reporterName || "User")}</div>
         <div class="desc">${escapeHtml(r.reporterEmail || subtitle || "")}</div>
       </div>
       <div class="chip" style="font-weight:900; color: var(--text);">${Number(r.count||0)} Fälle</div>
@@ -5358,14 +5413,22 @@ const DRIVE_FOLDER_URL = "https://drive.google.com/drive/folders/1tsABJ9d963_-8W
     }
     window.open(DRIVE_FOLDER_URL, "_blank", "noopener");
   });
+})()
+
+/* Infos: SecuriReport */
+(()=>{
+  const SECURIREPORT_URL = "https://securireport3.securitas.ch/securireport/desktop-app/#login";
+  const btn = $('btnOpenSecuriReport');
+  if(btn) btn.addEventListener('click', (e)=>{ try{ e.preventDefault(); e.stopPropagation(); }catch(_){}; window.location.assign(SECURIREPORT_URL); });
 })();
+;
 
 </script>
 
 <!-- Mobile Bottom Navigation -->
 <nav id="mobileBottomNav">
   <button class="mbtn" id="mbStart" type="button"><span>🏠</span>Home</button>
-  <button class="mbtn" id="mbDocs" type="button"><span>📁</span>Infos</button>
+  <button class="mbtn" id="mbDocs" type="button"><span>📋</span>Infos</button>
   <button class="mbtn" id="mbRank" type="button"><span>🏆</span>Rang</button>
   <button class="mbtn" id="mbCase" type="button"><span>📝</span>Fall</button>
   <button class="mbtn" id="mbChat" type="button"><span>💬</span>Chat</button>

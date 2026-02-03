@@ -422,6 +422,122 @@ input, textarea, select { scroll-margin-top: 90px; }
     max-height: 90dvh;
     overflow:auto;
   }
+
+  /* Admin-Menü am Desktop breiter (Mobile bleibt wie bisher) */
+  @media (min-width: 980px){
+    #adminOverlay .authModal{
+      width: min(920px, 96vw);
+    }
+  }
+
+  /* --- Admin UI Refresh (Tabs + Grid) --- */
+  #adminOverlay .adminModal{ padding: 14px 14px 16px; }
+  #adminOverlay .adminHeader{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    position: sticky; top:0;
+    padding: 2px 0 10px;
+    background: linear-gradient(180deg, rgba(17,26,51,.92), rgba(17,26,51,.75));
+    backdrop-filter: blur(10px);
+    z-index: 2;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+
+  #adminOverlay .adminLayout{
+    display:flex; gap:12px;
+    margin-top: 12px;
+    min-height: 0;
+  }
+
+  #adminOverlay .adminNav{
+    display:flex; flex-direction:column; gap:8px;
+    min-width: 170px;
+    position: sticky;
+    top: 56px;
+    align-self:flex-start;
+  }
+  #adminOverlay .adminNavBtn{
+    width:100%;
+    text-align:left;
+    border:1px solid var(--border);
+    background: rgba(255,255,255,.06);
+    color: var(--text);
+    border-radius: 14px;
+    padding: 10px 12px;
+    cursor:pointer;
+    font-weight: 900;
+    font-size: 13px;
+  }
+  #adminOverlay .adminNavBtn.active{
+    background: linear-gradient(135deg, rgba(77,163,255,.28), rgba(124,92,255,.22));
+    border-color: rgba(77,163,255,.35);
+  }
+
+  #adminOverlay .adminContent{ flex:1; min-width:0; }
+  #adminOverlay .adminCard{
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(0,0,0,.18);
+    border-radius: 16px;
+    padding: 14px;
+    box-shadow: var(--shadow);
+  }
+  #adminOverlay .adminCardTitle{
+    font-weight: 950;
+    letter-spacing: .2px;
+    font-size: 14px;
+  }
+  #adminOverlay .adminTextarea{
+    width:100%;
+    min-height:140px;
+    resize: vertical;
+    padding:10px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    background: rgba(0,0,0,.22);
+    color: var(--text);
+    margin-top: 10px;
+  }
+  #adminOverlay .divider{
+    height:1px;
+    background: rgba(255,255,255,.10);
+    margin: 14px 0;
+    border-radius: 999px;
+  }
+  #adminOverlay .adminGrid2{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:12px;
+  }
+  #adminOverlay .adminTableWrap{
+    overflow:auto;
+    max-height: 52dvh;
+    padding-right: 2px;
+  }
+  #adminOverlay .adminTable{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0 8px;
+  }
+
+  /* Mobile: Tabs oben, Inhalte darunter (Handy bleibt kompakt) */
+  @media (max-width: 979px){
+    #adminOverlay .adminLayout{ display:block; }
+    #adminOverlay .adminNav{
+      flex-direction: row;
+      overflow:auto;
+      gap:8px;
+      min-width:0;
+      padding-bottom: 8px;
+      top: 56px;
+    }
+    #adminOverlay .adminNavBtn{
+      white-space:nowrap;
+      width:auto;
+      text-align:center;
+    }
+    #adminOverlay .adminGrid2{ grid-template-columns: 1fr; }
+    #adminOverlay .adminTableWrap{ max-height: 44dvh; }
+  }
+
   .authTitle{ font-weight:900; font-size:18px; margin-bottom:10px; }
   /* Android/iOS Keyboard: verhindert Zoom/Jump */
   .authOverlay input, .authOverlay select, .authOverlay textarea{ font-size:16px; }
@@ -868,6 +984,39 @@ input, textarea, select { scroll-margin-top: 90px; }
 .active-duty-avatar{width:56px;height:56px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)}
 .active-duty-name{font-size:12px;color:var(--text);text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .active-duty-empty{margin-top:10px;color:var(--muted);font-size:13px}
+
+
+/* SecuriReport Link wie Button – ohne Unterstrich */
+.securireport-link,
+.securireport-link:visited,
+.securireport-link:hover,
+.securireport-link:active {
+  text-decoration: none !important;
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.securireport-link:hover {
+  filter: brightness(1.08);
+}
+
+
+/* FINAL FIX: absolut kein Unterstrich für SecuriReport */
+.securireport-link,
+.securireport-link *,
+.securireport-link:visited,
+.securireport-link:hover,
+.securireport-link:active {
+  text-decoration: none !important;
+}
+
+/* Falls der Button ein <button>-Style erbt */
+.securireport-link.btn,
+.securireport-link.btn * {
+  text-decoration: none !important;
+}
 
 </style>
 
@@ -1754,6 +1903,24 @@ input, textarea, select { scroll-margin-top: 90px; }
 .securireport-btn:active{transform:scale(.97);}
 </style>
 
+
+<style>
+/* ===== UI polish: clearer navigation labels ===== */
+.drawerBtn{ text-align:left; }
+.drawerBtn.active{ box-shadow: inset 0 0 0 1px rgba(93,214,255,.35); }
+
+/* ===== Infos (Main) quick link row ===== */
+#activeDutyZone .row2{ gap: 10px; }
+#activeDutyZone #btnOpenSecuriReport{ min-width: 220px; }
+@media (max-width:900px){
+  #activeDutyZone #btnOpenSecuriReport{ width: 100%; min-width: 0; }
+}
+</style>
+
+
+<style>
+.drawerDivider{height:1px;background:rgba(255,255,255,.12);margin:10px 0;}
+</style>
 </head>
 <body>
 <div id="authOverlay" class="authOverlay">
@@ -1761,7 +1928,7 @@ input, textarea, select { scroll-margin-top: 90px; }
     <div class="authTitle" id="authTitle">Login / Registrierung</div>
     <div class="field">
       <label>Benutzername</label>
-      <input id="authUser" placeholder="z.B. bjoern" autocomplete="username"/>
+      <input id="authUser" placeholder="Hier deine E-Mail eingeben" autocomplete="username"/>
     </div>
     <div class="field">
       <label>Passwort</label>
@@ -1777,103 +1944,148 @@ input, textarea, select { scroll-margin-top: 90px; }
   </div>
 </div>
 <div id="adminOverlay" class="authOverlay hidden">
-  <div class="card authModal">
-    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+  <div class="card authModal adminModal">
+    <div class="adminHeader">
       <div class="authTitle" style="margin:0;">Admin Bereich</div>
       <button class="btn small" id="btnCloseAdmin" type="button">Schließen</button>
     </div>
 
-    <div class="section" style="margin-top:12px;">
-      <h3 style="margin:0 0 8px 0; font-size:14px;">App Whitelist (zugelassene E-Mails)</h3>
-      <div class="hint" style="margin-bottom:8px;">Eine E-Mail pro Zeile. Alles wird klein geschrieben gespeichert.</div>
-      <textarea id="whitelistBox" style="width:100%; min-height:140px; resize:vertical; padding:10px; border-radius:12px; border:1px solid var(--border); background:rgba(0,0,0,.22); color:var(--text);"></textarea>
-      <div class="row2" style="margin-top:10px;">
-        <button class="btn primary" id="btnSaveWhitelist" type="button">Whitelist speichern</button>
-        <div></div>
+    <div class="adminLayout">
+      <nav class="adminNav" id="adminNav" aria-label="Admin Navigation">
+        <button class="adminNavBtn active" type="button" data-admin-tab="access">🔐 Zugang</button>
+        <button class="adminNavBtn" type="button" data-admin-tab="roles">🧩 Rollen</button>
+        <button class="adminNavBtn" type="button" data-admin-tab="chat">💬 Chat</button>
+      </nav>
+
+      <div class="adminContent">
+        <!-- Zugang -->
+        <section class="adminPage" data-admin-page="access">
+          <div class="adminCard">
+            <div class="adminCardTitle">App Whitelist</div>
+            <div class="hint" style="margin-top:6px;">Zugelassene E-Mails (eine pro Zeile). Alles wird klein geschrieben gespeichert.</div>
+            <textarea id="whitelistBox" class="adminTextarea"></textarea>
+            <div class="row2" style="margin-top:10px;">
+              <button class="btn primary" id="btnSaveWhitelist" type="button">Whitelist speichern</button>
+              <div></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Rollen -->
+        <section class="adminPage hidden" data-admin-page="roles">
+          <div class="adminGrid2">
+            <div class="adminCard">
+              <div class="adminCardTitle">Rolle anlegen / ändern</div>
+              <div class="hint" style="margin-top:6px;">Name + Rechte setzen, dann speichern.</div>
+
+              <div class="field">
+                <label>Rollenname</label>
+                <input id="roleName" placeholder="z.B. Leitung oder Mitarbeiter"/>
+              </div>
+
+              <div class="row2">
+                <label class="pill"><input type="checkbox" id="roleCanUpload"/> Upload</label>
+                <label class="pill"><input type="checkbox" id="roleCanDownload"/> Download</label>
+              </div>
+              <div class="row2" style="margin-top:8px;">
+                <label class="pill"><input type="checkbox" id="roleCanAdmin"/> Admin</label>
+                <div></div>
+              </div>
+
+              <div class="row2" style="margin-top:10px;">
+                <button class="btn primary" id="btnSaveRole" type="button">Rolle speichern</button>
+                <button class="btn danger" id="btnDeleteRole" type="button">Rolle löschen</button>
+              </div>
+            </div>
+
+            <div class="adminCard">
+              <div class="adminCardTitle">Benutzer Rolle zuweisen</div>
+
+              <div class="field">
+                <label>E-Mail</label>
+                <input id="userRoleEmail" placeholder="user@firma.ch"/>
+              </div>
+              <div class="field">
+                <label>Rolle</label>
+                <select id="userRoleSelect"></select>
+              </div>
+
+              <div class="row2" style="margin-top:10px;">
+                <button class="btn primary" id="btnSetUserRole" type="button">Rolle zuweisen</button>
+                <button class="btn" id="btnRefreshRoleOverview" type="button">Aktualisieren</button>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="adminCardTitle" style="margin-top:2px;">Übersicht</div>
+              <div class="field" style="margin-top:10px;">
+                <label>Suche</label>
+                <input id="roleOverviewSearch" placeholder="E-Mail oder Rolle..." />
+              </div>
+              <div class="hint" id="roleOverviewHint" style="margin-top:6px;">—</div>
+
+              <div class="adminTableWrap" style="margin-top:10px;">
+                <table id="roleOverviewTable" class="adminTable"></table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Chat -->
+        <section class="adminPage hidden" data-admin-page="chat">
+          <div class="adminGrid2">
+            <div class="adminCard">
+              <div class="adminCardTitle">Chat Rollen</div>
+              <div class="hint" style="margin-top:6px;">Damit im Chat ein Admin/Moderator an einem Icon erkennbar ist.</div>
+
+              <div class="field">
+                <label>E-Mail (für Chat-Rolle)</label>
+                <input id="chatRoleEmail" placeholder="user@firma.ch"/>
+              </div>
+              <div class="field">
+                <label>Rolle</label>
+                <select id="chatRoleSelect">
+                  <option value="user">User</option>
+                  <option value="mod">Moderator</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+
+              <div class="row2" style="margin-top:10px;">
+                <button class="btn primary" id="btnSetChatRole" type="button">Chat-Rolle speichern</button>
+                <button class="btn danger" id="btnDeleteChatRole" type="button">Chat-Rolle löschen</button>
+              </div>
+
+              <div class="hint" style="margin-top:12px;">Aktuelle Chat-Rollen (read-only)</div>
+              <textarea id="chatRolesBox" class="adminTextarea" readonly></textarea>
+            </div>
+
+            <div class="adminCard">
+              <div class="adminCardTitle">Chat Moderation</div>
+              <div class="hint" style="margin-top:6px;">Nutzer muten (UIDs oder E-Mails, je Zeile) und Chat/Systemmeldungen bereinigen.</div>
+
+              <div class="field">
+                <label>Muted (eine UID oder E-Mail pro Zeile)</label>
+                <textarea id="mutedBox" class="adminTextarea" style="min-height:140px;"></textarea>
+              </div>
+
+              <div class="row2" style="margin-top:10px;">
+                <button class="btn primary" id="btnSaveMuted" type="button">Muted speichern</button>
+                <button class="btn danger" id="btnClearChat" type="button">Chat leeren (letzte 500)</button>
+              </div>
+              <div class="row2" style="margin-top:10px;">
+                <button class="btn danger" id="btnClearSystem" type="button">Systemmeldungen löschen (letzte 500)</button>
+                <div></div>
+              </div>
+              <div class="hint" style="margin-top:8px;">Hinweis: Mute blockiert das Senden. Lesen bleibt erlaubt.</div>
+            </div>
+          </div>
+        </section>
+
       </div>
     </div>
-
-    <div class="section">
-      <h3 style="margin:0 0 8px 0; font-size:14px;">Rollen</h3>
-      <div class="hint" style="margin-bottom:8px;">Rolle anlegen/ändern: Name + Rechte setzen, dann speichern.</div>
-
-      <div class="field">
-        <label>Rollenname</label>
-        <input id="roleName" placeholder="z.B. Leitung oder Mitarbeiter"/>
-      </div>
-
-      <div class="row2">
-        <label class="pill"><input type="checkbox" id="roleCanUpload"/> Upload</label>
-        <label class="pill"><input type="checkbox" id="roleCanDownload"/> Download</label>
-      </div>
-      <div class="row2" style="margin-top:8px;">
-        <label class="pill"><input type="checkbox" id="roleCanAdmin"/> Admin</label>
-        <div></div>
-      </div>
-
-      <div class="row2" style="margin-top:10px;">
-        <button class="btn primary" id="btnSaveRole" type="button">Rolle speichern</button>
-        <button class="btn danger" id="btnDeleteRole" type="button">Rolle löschen</button>
-      </div>
-    </div>
-
-    <div class="section">
-      <h3 style="margin:0 0 8px 0; font-size:14px;">Benutzer Rolle zuweisen</h3>
-      <div class="field">
-        <label>E-Mail</label>
-        <input id="userRoleEmail" placeholder="user@firma.ch"/>
-      </div>
-      <div class="field">
-        <label>Rolle</label>
-        <select id="userRoleSelect"></select>
-      </div>
-      <button class="btn primary" id="btnSetUserRole" type="button">Rolle zuweisen</button>
-    
-    <div class="section">
-      <h3 style="margin:0 0 8px 0; font-size:14px;">Chat Rollen</h3>
-      <div class="hint" style="margin-bottom:8px;">Damit im Chat ein Admin/Moderator an einem Icon erkennbar ist.</div>
-
-      <div class="field">
-        <label>E-Mail (für Chat-Rolle)</label>
-        <input id="chatRoleEmail" placeholder="user@firma.ch"/>
-      </div>
-      <div class="field">
-        <label>Rolle</label>
-        <select id="chatRoleSelect">
-          <option value="user">User</option>
-          <option value="mod">Moderator</option>
-          <option value="admin">Admin</option>
-        </select>
-      </div>
-      <div class="row2" style="margin-top:10px;">
-        <button class="btn primary" id="btnSetChatRole" type="button">Chat-Rolle speichern</button>
-        <button class="btn danger" id="btnDeleteChatRole" type="button">Chat-Rolle löschen</button>
-      </div>
-
-      <div class="hint" style="margin-top:10px;">Aktuelle Chat-Rollen (read-only)</div>
-      <textarea id="chatRolesBox" style="width:100%; min-height:120px; resize:vertical; padding:10px; border-radius:12px; border:1px solid var(--border); background:rgba(0,0,0,.22); color:var(--text);" readonly></textarea>
-    </div>
-
-    <div class="section">
-      <h3 style="margin:0 0 8px 0; font-size:14px;">Chat Moderation</h3>
-      <div class="hint" style="margin-bottom:8px;">Admin: Nutzer muten (UIDs oder E-Mails, je Zeile) und Chat/Systemmeldungen bereinigen.</div>
-
-      <div class="field">
-        <label>Muted (eine UID oder E-Mail pro Zeile)</label>
-        <textarea id="mutedBox" style="width:100%; min-height:120px; resize:vertical; padding:10px; border-radius:12px; border:1px solid var(--border); background:rgba(0,0,0,.22); color:var(--text);"></textarea>
-      </div>
-
-      <div class="row2" style="margin-top:10px;">
-        <button class="btn primary" id="btnSaveMuted" type="button">Muted speichern</button>
-        <button class="btn danger" id="btnClearChat" type="button">Chat leeren (letzte 500)</button>
-      </div>
-      <div class="row2" style="margin-top:10px;">
-        <button class="btn danger" id="btnClearSystem" type="button">Systemmeldungen löschen (letzte 500)</button>
-        <div></div>
-      </div>
-      <div class="hint" style="margin-top:8px;">Hinweis: Mute blockiert das Senden. Lesen bleibt erlaubt.</div>
-    </div>
-
+  </div>
+</div>
 </div>
 
   </div>
@@ -1905,12 +2117,13 @@ input, textarea, select { scroll-margin-top: 90px; }
 
   <div class="drawerList">
     <button class="drawerBtn active" id="navStart" type="button">🏠 Home</button>
-    <button class="drawerBtn" id="navFiles" type="button">📄 Infos/Dokumente</button>
+    <button class="drawerBtn" id="navFiles" type="button">📄 Infos</button>
     <button class="drawerBtn" id="navRanking" type="button">🏆 Rangliste</button>
-    <button class="drawerBtn" id="navCase" type="button">📝 Fall eintragen</button>
+    <button class="drawerBtn" id="navCase" type="button">📝 Fälle</button>
     <button class="drawerBtn" id="navChat" type="button">💬 Chat</button>
+    <div class="drawerDivider"></div>
     <button class="drawerBtn hidden" id="navAdmin" type="button">🛡️ Admin</button>
-<button class="drawerBtn" id="navSettings" type="button">⚙️ Settings</button>
+<button class="drawerBtn" id="navSettings" type="button">⚙️ Einstellungen</button>
   </div>
 
   <div class="drawerFooter">
@@ -1924,9 +2137,9 @@ input, textarea, select { scroll-margin-top: 90px; }
   <div class="desktopNavInner">
     <div class="tabs" id="desktopTabs">
       <button class="tabBtn active" id="dnavStart" type="button">🏠 Home</button>
-      <button class="tabBtn" id="dnavFiles" type="button">📄 Infos/Dokumente</button>
+      <button class="tabBtn" id="dnavFiles" type="button">📄 Infos</button>
       <button class="tabBtn" id="dnavRanking" type="button">🏆 Rangliste</button>
-      <button class="tabBtn" id="dnavCase" type="button">📝 Fall eintragen</button>
+      <button class="tabBtn" id="dnavCase" type="button">📝 Fälle</button>
       <button class="tabBtn" id="dnavChat" type="button">💬 Chat</button>
 <button class="tabBtn" id="dnavSettings" type="button">⚙️ Settings</button>
       <button class="tabBtn hidden" id="dnavAdmin" type="button">🛡️ Admin</button>
@@ -1969,7 +2182,7 @@ input, textarea, select { scroll-margin-top: 90px; }
 
   <div class="field">
     <label>Dein Name</label>
-    <input id="profileName" placeholder="z.B. Björn"/>
+    <input id="profileName" placeholder="z.B. Max Mustermann"/>
   </div>
   <div class="field">
     <label>Profilbild</label>
@@ -2037,7 +2250,7 @@ input, textarea, select { scroll-margin-top: 90px; }
 
     <div class="field" style="margin-top:10px;">
       <label>Name</label>
-      <input id="serviceName" placeholder="z.B. Björn"/>
+      <input id="serviceName" placeholder="z.B.Max Mustermann"/>
     </div>
 
     <div class="row2" style="margin-top:10px; flex-wrap:wrap;">
@@ -2095,7 +2308,7 @@ input, textarea, select { scroll-margin-top: 90px; }
 <section class="card" id="casePanel" style="display:none;">
   <div class="topbar">
     <div>
-      <div style="font-weight:900; font-size:16px;">📝 Fall eintragen</div>
+      <div style="font-weight:900; font-size:16px;">📝 Fälle</div>
       <div class="sub">Speicherung &amp; Liste über Firebase</div>
     </div>
     <div class="chip">Live</div>
@@ -2113,7 +2326,7 @@ input, textarea, select { scroll-margin-top: 90px; }
 
     <div class="field">
       <label>Ort</label>
-      <input id="casePlace" placeholder="z.B. Zürich HB / Filiale XY"/>
+      <input id="casePlace" placeholder="z.B. Migros / Filiale XY"/>
     </div>
 
     <div class="row2" style="margin-top:10px; flex-wrap:wrap;">
@@ -2165,32 +2378,28 @@ input, textarea, select { scroll-margin-top: 90px; }
   </div>
 </div>
 
-
-      <div class="dropzone" id="securiReportZone" style="margin-top:14px;">
-        <div class="zoneTitle"> 
-<div class="card securireport-card">
-  <div class="card-header">
-    <span class="icon">🛡️</span>
-    <span class="title">SecuriReport +</span>
-  </div>
-  <p class="card-text">
-    Öffne SecuriReport direkt im Browser.
-  </p>
-  <a class="btn-primary securireport-btn"
-     href="https://securireport3.securitas.ch/securireport/desktop-app/#login"
-     target="_blank" rel="noopener noreferrer">
-     SecuriReport öffnen
-  </a>
-</div>
-<div class="dropzone" id="activeDutyZone">
+<div class="dropzone" id="activeDutyZone" style="margin-top:14px;">
   <div style="font-weight:900; font-size:16px; color:var(--text);">🟢 Aktiv im Dienst</div>
   <div class="hint" style="margin-top:6px;">
-    Hier siehst du alle, die auf <b>Dienstbeginn</b> gedrückt haben.
+    Hier siehst du alle, die  <b>Aktiv im Dienst</b> sind.
   </div>
   <div class="active-duty-grid" id="activeDutyGrid"></div>
 </div>
 
+<div class="dropzone" id="securiReportZone" style="margin-top:14px;">
+  <div class="securireport-card">
+    <div class="card-header">
+      <span class="icon">🛡️</span>
+      <span class="title">SecuriReport +</span>
+    </div>
+    <p class="card-text">Öffne SecuriReport direkt im Browser.</p>
+    <button class="btn primary" id="btnOpenSecuriReport" type="button" style="margin-top:16px" onclick="(function(){var u='https://securireport3.securitas.ch/securireport/desktop-app/#login'; try{var w=window.open(u, '_blank', 'noopener,noreferrer'); if(!w) window.location.href=u;}catch(e){window.location.href=u;}})()">SecuriReport öffnen</button>
+  </div>
+</div>
+
 <div class="grid hidden" id="fileGrid"></div>
+
+
 
 </main>
 <!-- RIGHT: CHAT + AUTH -->
@@ -2357,7 +2566,7 @@ let state = {
   cats: [],
   items: [],
   session: null, // {uid, email, user}
-  chatRoom: "global",
+  chatRoom: "Raum: Global",
   unsubCats: null,
   unsubItems: null,
   unsubChat: null,
@@ -2452,7 +2661,7 @@ if(dnavLogout){
     dot.classList.add("ok");
     line.textContent = "🟢 angemeldet als " + (state.session.user || state.session.email);
     logoutBtn.classList.remove("hidden");
-    chatMode.textContent = `firebase • ${(state.chatRoom||"global")}`;
+    chatMode.textContent = `${(state.chatRoom||"Raum: Allgemein")}`;
   } else {
     dot.classList.remove("ok");
     line.textContent = "🔴 abgemeldet";
@@ -2686,8 +2895,26 @@ async function loadMyProfile(uid){
   const data = pSnap?.data() || {};
   state.profile.displayName = data.displayName || state.session?.user || "";
   state.profile.photoURL = data.photoURL || data.avatarDataUrl || "";
+
+  // mark loaded + mirror into session so Presence/Dienstbeginn has the avatar immediately
+  state.profileLoaded = true;
+  if(state.session){
+    state.session.photoURL = state.profile.photoURL || "";
+    state.session.avatarDataUrl = state.profile.photoURL || "";
+  }
+
   const nameInp = document.getElementById("profileName");
   if(nameInp) nameInp.value = state.profile.displayName || "";
+
+  // Preload avatar to avoid "late image" when switching to Aktiv im Dienst
+  try{
+    if(state.profile.photoURL){
+      const im = new Image();
+      im.src = state.profile.photoURL;
+      im.decoding = "async";
+      im.loading = "eager";
+    }
+  }catch(_e){}
 }
 
 // Live-profile watcher (fixes avatar/name flipping when multiple tabs/devices are open)
@@ -2703,6 +2930,22 @@ function watchMyProfile(uid){
 
     state.profile.displayName = newName;
     state.profile.photoURL = newPhoto;
+
+    state.profileLoaded = true;
+    if(state.session){
+      state.session.photoURL = state.profile.photoURL || "";
+      state.session.avatarDataUrl = state.profile.photoURL || "";
+    }
+
+    // Preload avatar when it changes
+    try{
+      if(state.profile.photoURL){
+        const im = new Image();
+        im.src = state.profile.photoURL;
+        im.decoding = "async";
+        im.loading = "eager";
+      }
+    }catch(_e){} 
 
     if(state.session?.uid){
       // keep session label consistent
@@ -2754,12 +2997,25 @@ async function saveMyProfile(){
   alert("Profil gespeichert.");
 }
 
+
+// Ensure we have profile (name + avatar) before writing Presence / Dienstbeginn,
+// so the avatar is visible immediately (no "late loading" after Dienstbeginn).
+async function ensureMyProfileLoaded(){
+  try{
+    if(!state.session?.uid) return;
+    if(state.profileLoaded) return;
+    await loadMyProfile(state.session.uid).catch(()=>{});
+    state.profileLoaded = true;
+  }catch(_e){}
+}
+
 // ---------- Presence ----------
 const PRESENCE_COL = collection(db, "presence");
 
 // --- Aktiv im Dienst (Presence) ---
 async function setInService(flag){
     requireLogin();
+    await ensureMyProfileLoaded();
     const uid = state.session.uid;
     const u = state.session;
 
@@ -2771,8 +3027,7 @@ async function setInService(flag){
       uid,
       displayName: u.displayName || u.user || "User",
       email: u.email || "",
-      photoURL: u.photoURL || u.avatarDataUrl || ""
-    };
+      photoURL: state.profile?.photoURL || u.photoURL || u.avatarDataUrl || ""};
 
     if(flag){
       await setDoc(doc(db, "presence", uid), {
@@ -2815,14 +3070,14 @@ function renderActiveDuty(list){
   const grid = document.getElementById('activeDutyGrid');
   if(!grid) return;
   if(!list || list.length===0){
-    grid.innerHTML = `<div class=\"active-duty-empty\">Aktuell ist niemand aktiv im Dienst.</div>`;
+    grid.innerHTML = `<div class=\"active-duty-empty\">Aktuell ist niemand im Dienst.</div>`;
     return;
   }
   grid.innerHTML = list.map(u=>{
     const name = (u.displayName || u.user || u.email || 'User');
     const src = u.avatarDataUrl || u.photoURL || u.photoUrl || '';
     const initials = (name||'U').trim().slice(0,1).toUpperCase();
-    const img = src ? `<img class=\"active-duty-avatar\" src=\"${src}\" alt=\"${name}\"/>` : `<div class=\"active-duty-avatar\" style=\"display:flex;align-items:center;justify-content:center;font-weight:900;\">${initials}</div>`;
+    const img = src ? `<img class=\"active-duty-avatar\" src=\"${src}\" alt=\"${name}\" loading=\"eager\" decoding=\"async\"/>` : `<div class=\"active-duty-avatar\" style=\"display:flex;align-items:center;justify-content:center;font-weight:900;\">${initials}</div>`;
     return `<div class=\"active-duty-item\">${img}<div class=\"active-duty-name\">${name}</div></div>`;
   }).join('');
 }
@@ -2932,13 +3187,129 @@ function stopPresence(){
 }
 
 // ---------- Admin UI ----------
+
+function setupAdminTabs(){
+  const overlay = document.getElementById("adminOverlay");
+  if(!overlay) return;
+
+  const nav = overlay.querySelector("#adminNav");
+  const btns = nav ? Array.from(nav.querySelectorAll("[data-admin-tab]")) : [];
+  const pages = Array.from(overlay.querySelectorAll("[data-admin-page]"));
+  if(!btns.length || !pages.length) return;
+
+  const activate = (key)=>{
+    btns.forEach(b=>b.classList.toggle("active", b.dataset.adminTab === key));
+    pages.forEach(p=>p.classList.toggle("hidden", p.dataset.adminPage !== key));
+    try{ localStorage.setItem("adminTab:last", key); }catch(_e){}
+  };
+
+  // Avoid double binding
+  if(!nav.dataset.bound){
+    nav.dataset.bound = "1";
+    btns.forEach(b=> b.addEventListener("click", ()=> activate(b.dataset.adminTab)));
+  }
+
+  const last = (function(){ try{ return localStorage.getItem("adminTab:last") || "access"; }catch(_e){ return "access"; }})();
+  activate(last);
+}
 function openAdmin(){
   document.getElementById("adminOverlay")?.classList.remove("hidden");
+  setupAdminTabs(); // safe to call multiple times
   loadAdminUI().catch((e)=>{ console.error(e); alert("Admin-UI Fehler: " + (e?.message||e)); });
 }
 function closeAdmin(){
   document.getElementById("adminOverlay")?.classList.add("hidden");
+  stopRoleOverview(); // Listener sauber beenden
 }
+
+
+let _unsubRoleOverviewUsers = null;
+let _unsubRoleOverviewRoles = null;
+
+function stopRoleOverview(){
+  try{ _unsubRoleOverviewUsers?.(); }catch(_e){}
+  try{ _unsubRoleOverviewRoles?.(); }catch(_e){}
+  _unsubRoleOverviewUsers = null;
+  _unsubRoleOverviewRoles = null;
+}
+
+function startRoleOverview(){
+  if(!perms().canAdmin) return;
+
+  // keine doppelten Listener
+  stopRoleOverview();
+
+  const tbl = document.getElementById("roleOverviewTable");
+  const hint = document.getElementById("roleOverviewHint");
+  const searchEl = document.getElementById("roleOverviewSearch");
+  const refreshBtn = document.getElementById("btnRefreshRoleOverview");
+  if(!tbl || !hint) return;
+
+  let rolesMap = {};
+  let userRows = [];
+
+  const paint = () => {
+    const q = (searchEl?.value || "").trim().toLowerCase();
+
+    const rows = userRows
+      .map(u => {
+        const roleId = (u.role || u.roleId || "").trim();
+        const roleMeta = rolesMap[roleId] || {};
+        const label = roleMeta.label || roleMeta.name || roleId || "—";
+        const rights = roleMeta.rights || roleMeta.permissions || roleMeta.perms || {};
+        const rightsTxt = Object.keys(rights).filter(k => rights[k]).join(", ");
+        return { email: u.email, roleId, label, rightsTxt };
+      })
+      .filter(r => {
+        if(!q) return true;
+        return (r.email || "").includes(q) || (r.roleId || "").toLowerCase().includes(q) || (r.label || "").toLowerCase().includes(q);
+      })
+      .sort((a,b) => (a.email||"").localeCompare(b.email||""));
+
+    hint.textContent = `${rows.length} Einträge`;
+
+    // Tabelle rendern
+    const header = `
+      <tr>
+        <th style="text-align:left; font-size:12px; opacity:.8; padding:0 10px;">E-Mail</th>
+        <th style="text-align:left; font-size:12px; opacity:.8; padding:0 10px;">Rolle</th>
+        <th style="text-align:left; font-size:12px; opacity:.8; padding:0 10px;">Rechte</th>
+      </tr>`;
+    const body = rows.map(r => `
+      <tr style="background:rgba(0,0,0,.22); border:1px solid var(--border);">
+        <td style="padding:10px; border-radius:12px 0 0 12px; word-break:break-word;">${escapeHtml(r.email || "—")}</td>
+        <td style="padding:10px; min-width:130px;">${escapeHtml(r.label || r.roleId || "—")}</td>
+        <td style="padding:10px; border-radius:0 12px 12px 0; opacity:.9;">${escapeHtml(r.rightsTxt || "—")}</td>
+      </tr>`).join("");
+
+    tbl.innerHTML = header + body;
+  };
+
+  // UI-Events einmal binden
+  if(searchEl && !searchEl.dataset.bound){
+    searchEl.addEventListener("input", paint);
+    searchEl.dataset.bound = "1";
+  }
+  if(refreshBtn && !refreshBtn.dataset.bound){
+    refreshBtn.addEventListener("click", paint);
+    refreshBtn.dataset.bound = "1";
+  }
+
+  // Live Daten: Rollen + UserRoles
+  _unsubRoleOverviewRoles = onSnapshot(ROLES_COL, (snap) => {
+    rolesMap = {};
+    snap.forEach(d => rolesMap[d.id] = d.data() || {});
+    paint();
+  });
+
+  _unsubRoleOverviewUsers = onSnapshot(USERROLES_COL, (snap) => {
+    userRows = snap.docs.map(d => ({ email: d.id, ...(d.data()||{}) }));
+    paint();
+  });
+
+  paint();
+}
+
 
 async function loadAdminUI(){
   if(!perms().canAdmin) return alert("Keine Admin-Rechte.");
@@ -2961,6 +3332,7 @@ async function loadAdminUI(){
       sel.appendChild(opt);
     });
   }
+  startRoleOverview();
 }
 
 async function saveWhitelist(){
@@ -3904,6 +4276,41 @@ function updateServiceRunningLine(){
   const sec = Math.floor((Date.now() - serviceStartMs) / 1000);
   line.textContent = "Läuft: " + durationStr(sec);
 }
+function updateServicePreviewLine(){
+  const line = document.getElementById("serviceRunningLine");
+  if(!line) return;
+
+  const date = (document.getElementById("serviceDate")?.value || "").trim();
+  const startHH = (document.getElementById("serviceStartTime")?.value || "").trim();
+  const endHH = (document.getElementById("serviceEndTime")?.value || "").trim();
+
+  if(!date || !startHH){
+    line.textContent = "—";
+    return;
+  }
+
+  // If end is not set yet, just show start time
+  if(!endHH){
+    line.textContent = "Beginn: " + startHH;
+    return;
+  }
+
+  const startDt = hhmmToDate(date, startHH);
+  const endDt = hhmmToDate(date, endHH);
+  if(!startDt || !endDt){
+    line.textContent = "—";
+    return;
+  }
+
+  let endMs = endDt.getTime();
+  const startMs = startDt.getTime();
+  if(endMs < startMs){
+    endMs += 24*60*60*1000;
+  }
+  const durationSec = Math.round((endMs - startMs)/1000);
+  line.textContent = "Dauer: " + durationStr(durationSec);
+}
+
 
 function clearServiceForm(){
   const now = new Date();
@@ -3919,8 +4326,8 @@ function clearServiceForm(){
   if(dateEl) dateEl.value = d;
   if(pnEl) pnEl.value = (pnEl.value || "").trim(); // keep if user already typed
   if(nameEl) nameEl.value = (state.profile?.displayName || state.session?.user || displayNameFromEmail(state.session?.email) || "");
-  if(startEl) startEl.value = "";
-  if(endEl) endEl.value = "";
+  if(startEl){ startEl.value = ""; startEl.disabled = true; }
+  if(endEl){ endEl.value = ""; endEl.disabled = false; }
 
   if(endWrap) endWrap.classList.add("hidden");
 
@@ -3956,6 +4363,7 @@ async function startService(){
   const startEl = document.getElementById("serviceStartTime");
   if(startEl){
     startEl.value = msToHHMM(serviceStartMs);
+    startEl.disabled = true;
   }
 
   // show UI state
@@ -3976,17 +4384,28 @@ function endService(){
   if(!serviceStartMs) return;
   const now = Date.now();
   const endWrap = document.getElementById("serviceEndWrap");
+  const startEl = document.getElementById("serviceStartTime");
   const endEl = document.getElementById("serviceEndTime");
+
+  // show end input + set default end time
   if(endWrap) endWrap.classList.remove("hidden");
   if(endEl && !endEl.value){
     endEl.value = msToHHMM(now);
   }
 
+  // stop running timer (from "Dienstbeginn") and allow manual corrections
+  stopServiceTimer();
+  if(startEl) startEl.disabled = false;
+  if(endEl) endEl.disabled = false;
+
   document.getElementById("btnServiceEnd").disabled = true;
   document.getElementById("btnServiceSave").disabled = false;
 
+  // show a preview duration instead of "läuft"
+  updateServicePreviewLine();
+
   const hint = document.getElementById("serviceStatusHint");
-  if(hint) hint.textContent = "Dienstende prüfen/ändern → dann „Speichern“.";
+  if(hint) hint.textContent = "Dienstbeginn & Dienstende prüfen/ändern → dann „Speichern“.";
 }
 
 async function saveService(){
@@ -4440,7 +4859,7 @@ async function bindUI(){
   click("btnSaveWhitelist", () => saveWhitelist().catch((e)=>{ console.error(e); alert("Whitelist speichern fehlgeschlagen: " + (e?.message||e)); }));
   click("btnSaveRole", () => saveRole().catch((e)=>{ console.error(e); alert("Rolle speichern fehlgeschlagen: " + (e?.message||e)); }));
   click("btnDeleteRole", () => deleteRole().catch((e)=>{ console.error(e); alert("Rolle löschen fehlgeschlagen: " + (e?.message||e)); }));
-  click("btnAssignRole", () => assignRoleToEmail().catch((e)=>{ console.error(e); alert("User Rolle setzen fehlgeschlagen: " + (e?.message||e)); }));
+  click("btnSetUserRole", () => setUserRole().catch((e)=>{ console.error(e); alert("User Rolle setzen fehlgeschlagen: " + (e?.message||e)); }));
 
   // Fälle
   click("btnSaveCase", () => saveCase().catch((e)=>{ console.error(e); alert("Fall speichern fehlgeschlagen: " + (e?.message||e)); }));
@@ -4451,6 +4870,22 @@ async function bindUI(){
   click("btnServiceEnd", () => endService());
   click("btnServiceSave", () => saveService().catch((e)=>{ console.error(e); alert("Dienst speichern fehlgeschlagen: " + (e?.message||e)); }));
   click("btnServiceReset", () => clearServiceForm());
+
+  // Dauer-Vorschau updaten, sobald Dienstende gesetzt ist und Zeiten geändert werden
+  const _svcPreviewBump = ()=>{
+    const endWrap = document.getElementById("serviceEndWrap");
+    const saveBtn = document.getElementById("btnServiceSave");
+    if(endWrap && !endWrap.classList.contains("hidden") && saveBtn && !saveBtn.disabled){
+      updateServicePreviewLine();
+    }
+  };
+  const _svcDateEl = document.getElementById("serviceDate");
+  const _svcStartEl = document.getElementById("serviceStartTime");
+  const _svcEndEl = document.getElementById("serviceEndTime");
+  if(_svcDateEl) _svcDateEl.addEventListener("change", _svcPreviewBump);
+  if(_svcStartEl) _svcStartEl.addEventListener("input", _svcPreviewBump);
+  if(_svcEndEl) _svcEndEl.addEventListener("input", _svcPreviewBump);
+
 
   // Close overlays on ESC
   document.addEventListener("keydown", (e)=>{
@@ -5467,8 +5902,37 @@ const DRIVE_FOLDER_URL = "https://drive.google.com/drive/folders/1tsABJ9d963_-8W
 /* Infos: SecuriReport */
 (()=>{
   const SECURIREPORT_URL = "https://securireport3.securitas.ch/securireport/desktop-app/#login";
-  const btn = $('btnOpenSecuriReport');
-  if(btn) btn.addEventListener('click', (e)=>{ try{ e.preventDefault(); e.stopPropagation(); }catch(_){}; window.location.assign(SECURIREPORT_URL); });
+
+  // Some browsers / PWA contexts block location.assign for external URLs.
+  // Use window.open (new tab) and fall back to a direct navigation.
+  function openExternal(url){
+    try{
+      const w = window.open(url, "_blank", "noopener,noreferrer");
+      if(!w) window.location.href = url;
+    }catch(_e){
+      window.location.href = url;
+    }
+  }
+
+  const btn = document.getElementById("btnOpenSecuriReport");
+  if(btn){
+    btn.addEventListener("click", (e)=>{
+      try{ e.preventDefault(); e.stopPropagation(); }catch(_){}
+      openExternal(SECURIREPORT_URL);
+    });
+  }
+
+  // Fallback: if the card itself is clicked, also open
+  const zone = document.getElementById("securiReportZone");
+  if(zone){
+    zone.addEventListener("click", (e)=>{
+      const t = e.target;
+      if(t && (t.id === "btnOpenSecuriReport")) return;
+      // Only open when user clicks inside the card (not while selecting text)
+      if(window.getSelection && String(window.getSelection()).length) return;
+      openExternal(SECURIREPORT_URL);
+    });
+  }
 })();
 ;
 

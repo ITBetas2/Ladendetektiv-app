@@ -43,6 +43,9 @@ try {
 
 // Generic push handler (works for FCM data messages too)
 self.addEventListener("push", (event) => {
+  // Avoid duplicate notifications: when Firebase Messaging is available,
+  // onBackgroundMessage() already calls showNotification().
+  if (_messaging) { return; }
   try {
     const data = event.data ? event.data.json() : {};
 

@@ -4253,23 +4253,49 @@ function bindTypingUI(){
 }
 
 async function sendChat(){
-  const text = $("chatText").value.trim();
+  const inp = $("chatText");
+  const text = (inp?.value || "").trim();
   if(!text) return;
+
   const userId = requireLogin();
   const roomId = state.chatRoom || "global";
   const user = state.session?.user || "User";
-  await addDoc(chatCol(roomId), {
+
+  // 1) Write message to Firestore (keep this awaited for correctness)
+  const writeP = addDoc(chatCol(roomId), {
     text,
     user,
     uid: userId,
     at: serverTimestamp(),
     atMs: Date.now()
   });
-  
-    // 2) trigger push via Netlify Function (best-effort, non-blocking)
+
+  // 2) Trigger push via Netlify Function ASAP (do not wait for Firestore write)
+  //    Also cache the ID token so we don't refresh it on every message (reduces latency).
+  (async ()=>{
     try{
-      const cur = auth.currentUser;
-      const idToken = cur ? await cur.getIdToken() : null;
+      const cur = auth?.currentUser || null;
+      if(!cur) return;
+
+      const now = Date.now();
+      const cache = (window.__idTokenCache ||= { token: null, expMs: 0 });
+      let idToken = cache.token;
+
+      // Refresh if missing or expiring in <60s
+      if(!idToken || (cache.expMs && (cache.expMs - now) < 60_000)){
+        idToken = await cur.getIdToken();
+        // Decode JWT exp (seconds) -> ms
+        try{
+          const b64 = idToken.split(".")[1].replace(/-/g,"+").replace(/_/g,"/");
+          const json = decodeURIComponent(atob(b64).split("").map(c=>"%"+("00"+c.charCodeAt(0).toString(16)).slice(-2)).join(""));
+          const payload = JSON.parse(json);
+          cache.token = idToken;
+          cache.expMs = (payload.exp ? payload.exp*1000 : (now + 45*60*1000));
+        }catch(_e){
+          cache.token = idToken;
+          cache.expMs = now + 45*60*1000; // fallback
+        }
+      }
 
       fetch("/.netlify/functions/push_chat", {
         method: "POST",
@@ -4277,12 +4303,21 @@ async function sendChat(){
           "Content-Type": "application/json",
           ...(idToken ? { "Authorization": "Bearer " + idToken } : {})
         },
-        body: JSON.stringify({ roomId, text, user, uid: userId })
+        body: JSON.stringify({ roomId, text, user, uid: userId }),
+        keepalive: true
       }).catch(()=>{});
-    }catch(e){}
-$("chatText").value = "";
+    }catch(_e){}
+  })();
+
+  // UI cleanup immediately (feels snappy)
+  if(inp) inp.value = "";
   setMyTyping(false).catch(()=>{});
-  scrollChatBottom(true);
+
+  // Keep behavior consistent
+  try{ scrollChatBottom(true); }catch(_e){}
+
+  // Ensure write completes
+  await writeP;
 }
 
 // ---------- Rangliste (Firestore realtime) ----------

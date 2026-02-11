@@ -1,12 +1,12 @@
 /**
- * Netlify Function: push_chat
- * Sends an FCM push notification to ALL users with tokens in Firestore: users/{uid}.fcmTokens
- * Excludes the sender (based on verified Firebase ID token + uid).
+ * Netlify Function: push_chat (optimized)
+ * - Faster token loading (select only fcmTokens)
+ * - Caches token list in warm function instances (reduces Firestore reads)
+ * - Cleans up invalid tokens only for affected users (no 2nd full scan)
+ * - Adds high-urgency webpush / high-priority android + apns (where applicable)
  *
- * Setup on Netlify:
- * 1) Add Environment Variable: FIREBASE_SERVICE_ACCOUNT_JSON  (paste full service account JSON)
- *    - Firebase Console -> Project settings -> Service accounts -> Generate new private key
- * 2) Deploy this file at: netlify/functions/push_chat.js
+ * NOTE: Current token storage is users/{uid}.fcmTokens (map token->true or token->meta).
+ *       For even better scale, move tokens to a dedicated collection (see notes below).
  */
 
 const admin = require("firebase-admin");
@@ -21,6 +21,42 @@ function initAdmin(){
     credential: admin.credential.cert(serviceAccount),
   });
   _inited = true;
+}
+
+/** Simple in-memory cache (works on warm Netlify instances). */
+let _tokenCache = {
+  at: 0,
+  ttlMs: 60 * 1000, // refresh every 60s
+  // tokens excluding sender are computed per-request; cache stores token->ownerUid
+  tokenOwners: new Map(), // token -> uid
+};
+
+async function loadTokenOwners(){
+  const now = Date.now();
+  if(_tokenCache.tokenOwners.size && (now - _tokenCache.at) < _tokenCache.ttlMs){
+    return _tokenCache.tokenOwners;
+  }
+
+  // Only fetch the field we need to reduce payload
+  const snap = await admin.firestore().collection("users").select("fcmTokens").get();
+
+  const map = new Map();
+  snap.forEach((d) => {
+    const u = d.data() || {};
+    const tMap = u.fcmTokens || {};
+    for(const token of Object.keys(tMap)){
+      map.set(token, d.id);
+    }
+  });
+
+  _tokenCache = { ..._tokenCache, at: now, tokenOwners: map };
+  return map;
+}
+
+function chunk(arr, size){
+  const out = [];
+  for(let i=0; i<arr.length; i+=size) out.push(arr.slice(i, i+size));
+  return out;
 }
 
 exports.handler = async (event) => {
@@ -51,24 +87,14 @@ exports.handler = async (event) => {
       return { statusCode: 403, body: "UID mismatch" };
     }
 
-    // Collect all tokens
-    const usersSnap = await admin.firestore().collection("users").get();
-    let tokens = [];
-    let senderTokens = new Set();
+    const tokenOwners = await loadTokenOwners();
 
-    usersSnap.forEach((d) => {
-      const u = d.data() || {};
-      const tMap = u.fcmTokens || {};
-      const tList = Object.keys(tMap);
-      if(d.id === senderUid){
-        tList.forEach((t)=> senderTokens.add(t));
-      } else {
-        tokens.push(...tList);
-      }
+    // Build token list excluding sender's tokens
+    const tokens = [];
+    tokenOwners.forEach((ownerUid, token) => {
+      if(ownerUid !== senderUid) tokens.push(token);
     });
 
-    tokens = tokens.filter(t => !senderTokens.has(t));
-    tokens = [...new Set(tokens)];
     if(tokens.length === 0){
       return { statusCode: 200, body: JSON.stringify({ ok:true, sent:0 }) };
     }
@@ -77,42 +103,78 @@ exports.handler = async (event) => {
     const preview = text.length > 140 ? (text.slice(0,137) + "...") : text;
     const body = preview ? `${user || "Jemand"}: ${preview}` : `${user || "Jemand"} hat geschrieben`;
 
-    const res = await admin.messaging().sendEachForMulticast({
-      tokens,
-      notification: { title, body },
-      data: { roomId: String(roomId || "global") }
-    });
+    // FCM limit: max 500 tokens per multicast request
+    const groups = chunk(tokens, 500);
 
-    // Cleanup invalid tokens
-    const invalid = [];
-    res.responses.forEach((r, i) => {
-      if(!r.success){
-        const code = r.error?.code || "";
-        if(code.includes("registration-token-not-registered") || code.includes("invalid-argument")){
-          invalid.push(tokens[i]);
-        }
-      }
-    });
+    let successCount = 0;
+    const invalidByOwner = new Map(); // ownerUid -> Set(tokens)
 
-    if(invalid.length){
-      const invalidSet = new Set(invalid);
-      const batch = admin.firestore().batch();
-      usersSnap.forEach((d) => {
-        const u = d.data() || {};
-        const tMap = u.fcmTokens || {};
-        let changed = false;
-        for(const bad of invalidSet){
-          if(tMap[bad]){
-            delete tMap[bad];
-            changed = true;
+    for(const group of groups){
+      const res = await admin.messaging().sendEachForMulticast({
+        tokens: group,
+        notification: { title, body },
+        data: { roomId: String(roomId || "global") },
+
+        // Best-effort: request faster delivery
+        android: { priority: "high" },
+        apns: {
+          headers: { "apns-priority": "10" },
+          payload: { aps: { sound: "default" } }
+        },
+        webpush: {
+          headers: {
+            // "high" isn't a standard for WebPush; use Urgency
+            "Urgency": "high",
+            // Reduce caching
+            "TTL": "60"
           }
         }
-        if(changed) batch.set(d.ref, { fcmTokens: tMap }, { merge:true });
       });
+
+      successCount += (res.successCount || 0);
+
+      // Collect invalid tokens for targeted cleanup
+      res.responses.forEach((r, i) => {
+        if(!r.success){
+          const code = r.error?.code || "";
+          if(code.includes("registration-token-not-registered") || code.includes("invalid-argument")){
+            const token = group[i];
+            const ownerUid = tokenOwners.get(token);
+            if(ownerUid){
+              if(!invalidByOwner.has(ownerUid)) invalidByOwner.set(ownerUid, new Set());
+              invalidByOwner.get(ownerUid).add(token);
+            }
+          }
+        }
+      });
+    }
+
+    // Cleanup invalid tokens (only affected users)
+    if(invalidByOwner.size){
+      const batch = admin.firestore().batch();
+      for(const [ownerUid, setTokens] of invalidByOwner.entries()){
+        const ref = admin.firestore().collection("users").doc(ownerUid);
+        const docSnap = await ref.get();
+        const data = docSnap.data() || {};
+        const tMap = data.fcmTokens || {};
+        let changed = false;
+        setTokens.forEach((tok)=>{
+          if(tMap[tok] !== undefined){
+            delete tMap[tok];
+            changed = true;
+          }
+          // also remove from cache
+          tokenOwners.delete(tok);
+          _tokenCache.tokenOwners.delete(tok);
+        });
+        if(changed){
+          batch.set(ref, { fcmTokens: tMap }, { merge:true });
+        }
+      }
       await batch.commit();
     }
 
-    return { statusCode: 200, body: JSON.stringify({ ok:true, sent: res.successCount || 0 }) };
+    return { statusCode: 200, body: JSON.stringify({ ok:true, sent: successCount }) };
   }catch(e){
     console.error(e);
     return { statusCode: 500, body: "Error: " + (e?.message || e) };

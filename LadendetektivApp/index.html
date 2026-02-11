@@ -1258,7 +1258,7 @@ input, textarea, select { scroll-margin-top: 90px; }
     }
 
   /* Chat panel occupies the remaining height above bottom nav */
-  body.view-chat .rightbar{
+
     display: flex !important;
     flex-direction: column !important;
     height: calc(100dvh - var(--navH) - var(--safeBottom)) !important;
@@ -1307,7 +1307,7 @@ input, textarea, select { scroll-margin-top: 90px; }
   :root{ --chatInputH: 72px; }
 
   /* In chat view: rightbar fills space ABOVE bottom nav */
-  body.view-chat .rightbar{
+
     height: calc(100dvh - var(--navH) - var(--safeBottom)) !important;
     max-height: calc(100dvh - var(--navH) - var(--safeBottom)) !important;
   }
@@ -1354,7 +1354,7 @@ input, textarea, select { scroll-margin-top: 90px; }
 
   /* Only show when their tab is active */
   body.view-settings .sidebar{ display:flex !important; }
-  body.view-chat .rightbar{ display:none !important; }
+
 
   /* Headbar for main panels */
   #startPanel .topbar,
@@ -1387,7 +1387,7 @@ input, textarea, select { scroll-margin-top: 90px; }
 
   /* only show in their dedicated view */
   body.view-settings .sidebar{ display:flex !important; }
-  body.view-chat .rightbar{ display:flex !important; }
+
 }
 </style>
 
@@ -1608,7 +1608,7 @@ input, textarea, select { scroll-margin-top: 90px; }
   body.view-start #startPanel{ display:flex !important; flex-direction:column !important; }
   body.view-files .main{ display:flex !important; flex-direction:column !important; }
   body.view-case #casePanel{ display:flex !important; flex-direction:column !important; }
-  body.view-chat .rightbar{ display:flex !important; flex-direction:column !important; }
+
   body.view-settings .sidebar{ display:flex !important; flex-direction:column !important; }
 
   /* Ranking can be either view-rank or view-ranking (some scripts use different names) */
@@ -1690,7 +1690,7 @@ input, textarea, select { scroll-margin-top: 90px; }
 
   /* Some older blocks add padding-bottom to the whole rightbar/card -> remove so input isn't "floating" */
   body.view-chat .rightbar.card,
-  body.view-chat .rightbar{
+
     padding-bottom: 0 !important;
     margin-bottom: 0 !important;
   }
@@ -1965,6 +1965,153 @@ input, textarea, select { scroll-margin-top: 90px; }
   #delinqList .delinqActions{ flex-direction:column; }
 }
 </style>
+
+<style id="mobileChatComposerOverlay">
+@media (max-width: 980px){
+  #mobileChatComposer{
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(var(--navH, 72px) + env(safe-area-inset-bottom, 0px) + 10px);
+    z-index: 99999;
+    display: none; /* only visible in chat view */
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 16px;
+    background: rgba(10,14,28,.92);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 14px 40px rgba(0,0,0,.45);
+  }
+  #mobileChatComposer input{
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 46px;
+  }
+  #mobileChatComposer button{
+    min-width: 96px;
+  }
+  /* Give the chat log space so last messages aren't hidden behind composer */
+  body.view-chat #chatLog{
+    padding-bottom: calc(140px + var(--navH, 72px) + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+@media (min-width: 981px){
+  #mobileChatComposer{ display:none !important; }
+}
+</style>
+
+
+<script id="mobileChatComposerOverlayJs">
+(function(){
+  function isMobile(){ return window.matchMedia && window.matchMedia("(max-width: 980px)").matches; }
+  function inChat(){
+    // primary: body class used by this app
+    if(document.body.classList.contains("view-chat")) return true;
+    // fallback: active button id/class
+    const active = document.querySelector(".tabBtn.active, .mbtn.active, #mobileBottomNav .mbtn.active");
+    const id = active?.id || "";
+    return /chat/i.test(id);
+  }
+
+  function ensure(){
+    let bar = document.getElementById("mobileChatComposer");
+    if(bar) return bar;
+
+    bar = document.createElement("div");
+    bar.id = "mobileChatComposer";
+
+    const inp = document.createElement("input");
+    inp.id = "chatTextMobile";
+    inp.placeholder = "Nachricht eingeben…";
+    inp.autocomplete = "off";
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn primary";
+    btn.textContent = "Senden";
+
+    const send = ()=>{
+      const v = (inp.value || "").trim();
+      if(!v) return;
+      const desktopInp = document.getElementById("chatText");
+      if(desktopInp) desktopInp.value = v;
+      const desktopBtn = document.getElementById("btnSend");
+      if(desktopBtn) desktopBtn.click();
+      else if(typeof window.sendChat === "function") window.sendChat();
+      inp.value = "";
+    };
+
+    btn.addEventListener("click", send);
+    inp.addEventListener("keydown", (e)=>{
+      if(e.key === "Enter"){
+        e.preventDefault();
+        send();
+      }
+    });
+
+    bar.appendChild(inp);
+    bar.appendChild(btn);
+    document.body.appendChild(bar);
+    return bar;
+  }
+
+  function sync(){
+    const bar = document.getElementById("mobileChatComposer");
+    // If not mobile, ensure hidden (and don't create)
+    if(!isMobile()){
+      if(bar) bar.style.display = "none";
+      return;
+    }
+    const b = bar || ensure();
+    b.style.display = (inChat() ? "flex" : "none");
+  }
+
+  // Run ASAP (no timeout delay)
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", sync, { once:true });
+  }else{
+    sync();
+  }
+  window.addEventListener("resize", sync);
+
+  // 1) Observe body class changes (instant show/hide on view switch)
+  try{
+    const mo = new MutationObserver(()=> sync());
+    mo.observe(document.body, { attributes:true, attributeFilter:["class"] });
+  }catch(_){}
+
+  // 2) Hook navigation clicks for immediate UI feedback
+  function bindNavClicks(){
+    const navBtns = document.querySelectorAll(".tabBtn, #mobileBottomNav .mbtn, .mbtn");
+    navBtns.forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        // run on next microtask (after app updates classes)
+        Promise.resolve().then(sync);
+      }, { passive:true });
+    });
+  }
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", bindNavClicks, { once:true });
+  }else{
+    bindNavClicks();
+  }
+
+  // 3) Wrap view-setter functions (if present) without delay
+  const wrap = (fnName)=>{
+    const orig = window[fnName];
+    if(typeof orig !== "function") return;
+    window[fnName] = function(){
+      const r = orig.apply(this, arguments);
+      sync();
+      return r;
+    };
+  };
+  wrap("setView");
+  wrap("setMobileView");
+})();
+</script>
+
 
 </head>
 <body>
@@ -6348,40 +6495,9 @@ async function deleteDelinqById(id){
   <button class="mbtn" id="mbDocs" type="button"><span>📋</span>Infos</button>
   <button class="mbtn" id="mbRank" type="button"><span>🏆</span>Rang</button>
   <button class="mbtn" id="mbCase" type="button"><span>📝</span>Fall</button>
-  <button class="mbtn" id="mbChat" type="button" style="position:relative;"><span>💬</span>Chat<span id="chatBadge" style="position:absolute;top:6px;right:18px;background:red;color:white;border-radius:50%;min-width:18px;height:18px;font-size:11px;display:none;align-items:center;justify-content:center;padding:0 5px;font-weight:bold;">0</span></button>
+  <button class="mbtn" id="mbChat" type="button"><span>💬</span>Chat</button>
   <button class="mbtn" id="mbSettings" type="button"><span>⚙️</span>Settings</button>
 </nav>
-
-
-<script>
-(function(){
-  const badge = document.getElementById("chatBadge");
-  if(!badge) return;
-
-  function updateBadge(){
-    const count = window.newMsgCount || 0;
-    if(count > 0){
-      badge.style.display = "flex";
-      badge.textContent = count;
-    }else{
-      badge.style.display = "none";
-    }
-  }
-
-  setInterval(updateBadge, 500);
-
-  const origSetMobileView = window.setMobileView;
-  if(origSetMobileView){
-    window.setMobileView = function(view){
-      origSetMobileView(view);
-      if(view === "chat"){
-        window.newMsgCount = 0;
-        updateBadge();
-      }
-    }
-  }
-})();
-</script>
 
 </body>
 </html>

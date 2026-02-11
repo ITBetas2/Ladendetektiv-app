@@ -235,7 +235,7 @@
       display:flex; align-items:center; justify-content:space-between; gap:10px;
     }
     .fileCard .name{
-      font-weight:800;
+      font-weight:600;
       font-size:13px;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
@@ -602,7 +602,7 @@ input, textarea, select { scroll-margin-top: 90px; }
       border-radius: 999px;
       padding:8px 12px;
       cursor:pointer;
-      font-weight:800;
+      font-weight:600;
       font-size:12px;
       user-select:none;
     }
@@ -1018,6 +1018,30 @@ input, textarea, select { scroll-margin-top: 90px; }
   text-decoration: none !important;
 }
 
+
+    /* --- Chat Unread Badge --- */
+    .hasBadge{ position:relative; }
+    .tabBadge{
+      position:absolute;
+      top:2px;
+      right:6px;
+      width:12px;
+      height:12px;
+      padding:0;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:4px;
+      font-weight:600;
+      line-height:12px; transform:scale(0.8); transform-origin:center;
+      background: var(--bad);
+      color:#fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,.35);
+      pointer-events:none;
+    }
+    .tabBadge.hidden{ display:none !important; }
+
 </style>
 
 <!-- ===== MOBILE VISIBILITY FIX (Chat + Settings) ===== -->
@@ -1065,7 +1089,7 @@ input, textarea, select { scroll-margin-top: 90px; }
 }
 /* Optional name for others */
 .bubble .u{
-  font-weight:800;
+  font-weight:600;
   font-size:12px;
   opacity:.9;
   margin-bottom:4px;
@@ -2113,6 +2137,61 @@ input, textarea, select { scroll-margin-top: 90px; }
 </script>
 
 
+
+<style id="tabBadgeAutoWidth">
+  .tabBadge:not(.hidden):not(:empty){
+    /* keep small, but allow 2+ chars if needed */
+    min-width: 12px;
+  }
+  .tabBadge:not(.hidden):not(:empty)[data-len="2"],
+  .tabBadge:not(.hidden):not(:empty)[data-len="3"]{
+    width:auto;
+    min-width:14px;
+    padding:0 2px;
+  }
+</style>
+<script id="tabBadgeLen">
+(function(){
+  const ids=["badgeNavChat","badgeDnavChat","badgeMbChat"];
+  const tick=()=>{
+    ids.forEach(id=>{
+      const el=document.getElementById(id);
+      if(!el) return;
+      const t=(el.textContent||"").trim();
+      el.setAttribute("data-len", String(t.length));
+    });
+  };
+  setInterval(tick, 300);
+})();
+</script>
+
+
+<style id="delinqCasesDetails">
+  .delinqCases{ margin-top:8px; }
+  .delinqCases summary{
+    list-style:none;
+    cursor:pointer;
+    user-select:none;
+    font-size:12px;
+    opacity:.9;
+  }
+  .delinqCases summary::-webkit-details-marker{ display:none; }
+  .delinqCasesList{
+    margin-top:8px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .delinqCaseRow{
+    font-size:12px;
+    opacity:.95;
+    padding:6px 8px;
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:12px;
+    background: rgba(255,255,255,.03);
+  }
+</style>
+
 </head>
 <body>
 <div id="authOverlay" class="authOverlay">
@@ -2315,17 +2394,39 @@ input, textarea, select { scroll-margin-top: 90px; }
           <label>Geburtsdatum</label>
           <input id="delinqBirthDate" type="date" />
         </div>
-
-        <div class="field">
-          <label>Geschäft</label>
-          <input id="delinqStore" placeholder="z.B. Migros / Filiale XY" />
-        </div>
-
-        <div class="field" style="margin-top:8px;">
+<div class="field" style="margin-top:8px;">
           <label style="display:flex; gap:10px; align-items:center;">
             <input id="delinqHouseBan" type="checkbox" />
             <span>Hausverbot (Ja)</span>
           </label>
+        </div>
+
+        <!-- Fälle / Vorfälle pro Person (mehrere möglich) -->
+        <div class="card" style="margin-top:12px; padding:10px; border:1px solid rgba(255,255,255,0.08);">
+          <div style="font-weight:900; margin-bottom:8px;">Fälle (optional)</div>
+
+          <div class="row2" style="gap:8px;">
+            <div class="field" style="margin-top:0;">
+              <label>Fall Nr.</label>
+              <input id="delinqCaseNo" placeholder="z.B. 2026-001" />
+            </div>
+            <div class="field" style="margin-top:0;">
+              <label>Datum</label>
+              <input id="delinqCaseDate" type="date" />
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:8px;">
+            <label>Ort</label>
+            <input id="delinqCasePlace" placeholder="z.B. Bahnhof / Filiale / Stadt" />
+          </div>
+
+          <div style="display:flex; gap:8px; margin-top:10px; align-items:center;">
+            <button class="btn" id="btnAddDelinqCase" type="button">+ Fall hinzufügen</button>
+            <div class="hint" style="margin:0;">Fälle werden beim Speichern übernommen.</div>
+          </div>
+
+          <div class="list" id="delinqCaseList" style="margin-top:10px; padding:0; gap:8px;"></div>
         </div>
 
         <div class="row2" style="margin-top:10px;">
@@ -2450,7 +2551,7 @@ input, textarea, select { scroll-margin-top: 90px; }
 </div>
 
   <hr style="border:0; border-top:1px solid rgba(255,255,255,.12); margin:14px 0;">
-  <div class="hint" style="margin-top:0; font-weight:800;">Push Benachrichtigungen</div>
+  <div class="hint" style="margin-top:0; font-weight:600;">Push Benachrichtigungen</div>
   <div class="hint" style="margin-top:6px;">
     Damit du im Hintergrund Benachrichtigungen bekommst, musst du Push einmal aktivieren.
   </div>
@@ -5359,6 +5460,51 @@ service firebase.storage {
 
 
 // ===== Chat Enhancements v31 =====
+
+// ===== Chat Unread Badge (Tabs) =====
+window.chatUnreadCount = window.chatUnreadCount || 0;
+
+function __ensureChatBadges(){
+  const targets = [
+    { btnId: "navChat",  badgeId: "badgeNavChat"  },
+    { btnId: "dnavChat", badgeId: "badgeDnavChat" },
+    { btnId: "mbChat",   badgeId: "badgeMbChat"   },
+  ];
+  targets.forEach(t=>{
+    const btn = document.getElementById(t.btnId);
+    if(!btn) return;
+    btn.classList.add("hasBadge");
+    let b = document.getElementById(t.badgeId);
+    if(!b){
+      b = document.createElement("span");
+      b.id = t.badgeId;
+      b.className = "tabBadge hidden";
+      btn.appendChild(b);
+    }
+  });
+}
+
+function setChatUnreadBadge(count){
+  const n = Math.max(0, Number(count) || 0);
+  window.chatUnreadCount = n;
+  ["badgeNavChat","badgeDnavChat","badgeMbChat"].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(n > 0){
+      el.textContent = (n > 99) ? "99+" : String(n);
+      el.classList.remove("hidden");
+    } else {
+      el.textContent = "";
+      el.classList.add("hidden");
+    }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", ()=>{
+  __ensureChatBadges();
+  setChatUnreadBadge(window.chatUnreadCount || 0);
+});
+
 var CHAT_LIMIT = window.CHAT_LIMIT || 500;
 window.CHAT_LIMIT = CHAT_LIMIT;
 window.shouldAutoScroll = window.shouldAutoScroll || function(container, threshold = 80){
@@ -5391,6 +5537,31 @@ watchChat = function(){
   state.unsubChat = onSnapshot(qChat, (snap)=>{
     const log = document.getElementById('chatLog');
     if(!log) return;
+
+    // --- Unread badge for Chat tabs ---
+    const __curView = (state && state.mobileView) ? state.mobileView : (document.body.classList.contains("view-chat") ? "chat" : "");
+    if(typeof state.__chatSnapInit === "undefined") state.__chatSnapInit = false;
+
+    if(!state.__chatSnapInit){
+      // first snapshot should not create unread counts
+      state.__chatSnapInit = true;
+      if(__curView === "chat") setChatUnreadBadge(0);
+    } else {
+      let __addedFromOthers = 0;
+      try{
+        snap.docChanges().forEach(ch=>{
+          if(ch.type !== "added") return;
+          const m = ch.doc.data() || {};
+          if(m.uid && m.uid === userId) return; // ignore my own messages
+          __addedFromOthers++;
+        });
+      }catch(_e){}
+      if(__curView !== "chat" && __addedFromOthers > 0){
+        setChatUnreadBadge((window.chatUnreadCount || 0) + __addedFromOthers);
+      } else if(__curView === "chat" && (window.chatUnreadCount || 0) > 0){
+        setChatUnreadBadge(0);
+      }
+    }
     const auto = shouldAutoScroll(log);
     log.innerHTML = '';
     let lastDate = '';
@@ -5659,6 +5830,33 @@ async function watchChatEnhanced(){
     const log = document.getElementById("chatLog");
     if(!log) return;
 
+
+    // --- Unread badge for Chat tabs (works even when not on Chat view) ---
+    try{
+      const __curView = (state && state.mobileView) ? state.mobileView : (document.body.classList.contains("view-chat") ? "chat" : "");
+      if(typeof state.__chatSnapInitEnhanced === "undefined") state.__chatSnapInitEnhanced = false;
+
+      if(!state.__chatSnapInitEnhanced){
+        // first snapshot should not count as unread
+        state.__chatSnapInitEnhanced = true;
+        if(__curView === "chat") setChatUnreadBadge(0);
+      } else {
+        let __addedFromOthers = 0;
+        try{
+          snap.docChanges().forEach(ch=>{
+            if(ch.type !== "added") return;
+            const m = ch.doc.data() || {};
+            if(m.uid && m.uid === userId) return; // ignore my own messages
+            __addedFromOthers++;
+          });
+        }catch(_e){}
+        if(__curView !== "chat" && __addedFromOthers > 0){
+          setChatUnreadBadge((window.chatUnreadCount || 0) + __addedFromOthers);
+        } else if(__curView === "chat" && (window.chatUnreadCount || 0) > 0){
+          setChatUnreadBadge(0);
+        }
+      }
+    }catch(_e){}
     const auto = shouldAutoScroll(log);
     const docs = snap.docs.slice(-CHAT_LIMIT);
 
@@ -5910,6 +6108,8 @@ setMobileView = function(view){
   if(view === "docs") view = "files"; // normalize legacy name
   _setMobileView_v48(view);
   setMobileTabActive(view);
+  if(view === "chat"){ try{ setChatUnreadBadge(0); }catch(_e){} }
+
 };
 
 // Bind bottom nav clicks (no out-of-scope go())
@@ -6257,9 +6457,82 @@ function delinqCol(){ return collection(db, "delinquents"); }
 let __unsubDelinq = null;
 let __delinqCache = [];
 let __editingDelinqId = null;
+// Fälle / Vorfälle
+let __delinqCurrentCases = [];   // bereits gespeicherte Fälle (bei Bearbeiten)
+let __delinqPendingCases = [];   // neue, noch nicht gespeicherte Fälle
 
 function __norm(s){ return (s||"").trim(); }
 function __normLower(s){ return __norm(s).toLowerCase(); }
+
+function __safeArr(a){ return Array.isArray(a) ? a : []; }
+
+function __caseSummary(c){
+  const no = __norm(c?.caseNo);
+  const dt = __norm(c?.date);
+  const pl = __norm(c?.place);
+  const parts = [];
+  if(no) parts.push(`#${escapeHtml(no)}`);
+  if(dt) parts.push(`📅 ${escapeHtml(dt)}`);
+  if(pl) parts.push(`📍 ${escapeHtml(pl)}`);
+  return parts.join(" · ") || "(ohne Details)";
+}
+
+function renderDelinqCaseList(){
+  const el = document.getElementById('delinqCaseList');
+  if(!el) return;
+  const existing = __safeArr(__delinqCurrentCases);
+  const pending = __safeArr(__delinqPendingCases);
+  const all = [...existing.map(c=>({c, t:'existing'})), ...pending.map((c,idx)=>({c, t:'pending', idx}))];
+  if(!all.length){
+    el.innerHTML = `<div class="hint" style="padding:8px;">Noch keine Fälle hinzugefügt.</div>`;
+    return;
+  }
+  el.innerHTML = all.map(({c,t,idx})=>{
+    return `
+      <div class="delinqItem" style="padding:10px;">
+        <div class="delinqMeta">
+          <div class="delinqTitle" style="font-size:14px;">${t==='existing' ? '📌 Gespeichert' : '🆕 Neu'}</div>
+          <div class="delinqSub">${__caseSummary(c)}</div>
+        </div>
+        <div class="delinqActions">
+          ${t==='pending' ? `<button class="btn danger" type="button" data-delinqcase-remove="${idx}">Entfernen</button>` : ``}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function clearDelinqCaseInputs(){
+  const a = document.getElementById('delinqCaseNo'); if(a) a.value = '';
+  const b = document.getElementById('delinqCaseDate'); if(b) b.value = '';
+  const c = document.getElementById('delinqCasePlace'); if(c) c.value = '';
+}
+
+function addDelinqCaseFromInputs(){
+  const caseNo = __norm(document.getElementById('delinqCaseNo')?.value);
+  const date = __norm(document.getElementById('delinqCaseDate')?.value);
+  const place = __norm(document.getElementById('delinqCasePlace')?.value);
+
+  if(!caseNo){ alert('Bitte eine Fall Nr. eingeben.'); return; }
+  if(!date){ alert('Bitte ein Datum auswählen.'); return; }
+  if(!place){ alert('Bitte einen Ort eingeben.'); return; }
+
+  // simple Duplicate-Check (CaseNo) innerhalb aktueller + pending
+  const all = [...__safeArr(__delinqCurrentCases), ...__safeArr(__delinqPendingCases)];
+  const exists = all.some(x => __normLower(x?.caseNo) === __normLower(caseNo));
+  if(exists){ toast('⚠️ Diese Fall Nr. existiert bereits.'); return; }
+
+  __delinqPendingCases.push({
+    caseNo,
+    date,
+    place,
+    addedAt: Date.now(),
+    addedByUid: (state?.session?.uid || auth.currentUser?.uid || null),
+    addedByEmail: (auth.currentUser?.email || null)
+  });
+  clearDelinqCaseInputs();
+  renderDelinqCaseList();
+}
 
 function __canDeleteDelinq(d){
   try{
@@ -6295,18 +6568,52 @@ function renderDelinqList(){
     const myUid = state?.session?.uid || auth.currentUser?.uid || null;
     const canEdit = (typeof perms === "function" && perms().canAdmin) || (myUid && d.createdByUid === myUid);
 
-    const sub = [
+    const cases = Array.isArray(d.cases) ? d.cases : [];
+    const caseCount = cases.length;
+    let lastCase = null;
+    if(caseCount){
+      // latest by date-string (YYYY-MM-DD) fallback by addedAt
+      lastCase = cases.slice().sort((a,b)=>{
+        const ad = (a?.date || "");
+        const bd2 = (b?.date || "");
+        if(ad && bd2) return ad.localeCompare(bd2);
+        return (a?.addedAt||0) - (b?.addedAt||0);
+      }).pop();
+    }
+
+    const subParts = [
       `🎂 ${bd}`,
-      store ? `🏬 ${store}` : "",
       hb ? `⛔ Hausverbot: Ja` : `⛔ Hausverbot: Nein`,
-      (d.createdAt?.toDate ? `🕒 ${fmtDateTime(d.createdAt.toDate())}` : ``)
-    ].filter(Boolean).join(" · ");
+      caseCount ? `🧾 Fälle: ${caseCount}` : `🧾 Fälle: 0`,
+      (caseCount && lastCase) ? `🆕 Letzter: ${[lastCase?.date ? `📅 ${escapeHtml(lastCase.date)}` : "", lastCase?.place ? `📍 ${escapeHtml(lastCase.place)}` : ""].filter(Boolean).join(" · ")}` : ""
+    ].filter(Boolean);
+    const sub = subParts.join(" · ");
+
+    const casesHtml = caseCount ? (()=>{
+      const sorted = cases.slice().sort((a,b)=>{
+        const ad = (a?.date || "");
+        const bd2 = (b?.date || "");
+        if(ad && bd2) return bd2.localeCompare(ad); // newest first
+        return (b?.addedAt||0) - (a?.addedAt||0);
+      });
+      const top = sorted.slice(0, 3);
+      const more = Math.max(0, sorted.length - top.length);
+      return `
+        <details class="delinqCases">
+          <summary>📂 Fälle anzeigen (${sorted.length})${more ? ` · +${more} weitere` : ``}</summary>
+          <div class="delinqCasesList">
+            ${top.map(c=>`<div class="delinqCaseRow">🧾 <b>${escapeHtml(c.caseNo || c.caseNr || "")}</b> · ${c.date ? `📅 ${escapeHtml(c.date)}` : ""}${c.place ? ` · 📍 ${escapeHtml(c.place)}` : ""}</div>`).join("")}
+            ${more ? `<div class="hint" style="font-size:12px;opacity:.8;padding:4px 2px;">Weitere Fälle sind vorhanden. Öffne „Bearbeiten“, um alle zu sehen.</div>` : ``}
+          </div>
+        </details>
+      `;
+    })() : ``;
 
     return `
       <div class="delinqItem" data-delinq-id="${escapeHtml(d.id)}">
         <div class="delinqMeta">
           <div class="delinqTitle">${name}</div>
-          <div class="delinqSub">${sub}</div>
+          <div class="delinqSub">${sub}</div>${casesHtml}
         </div>
         <div class="delinqActions">
           ${canEdit ? `<button class="btn" type="button" data-delinq-action="edit">Bearbeiten</button>` : ""}
@@ -6322,6 +6629,9 @@ function openDelinqOverlay(){
   const ov = document.getElementById("delinqOverlay");
   if(!ov) return;
   ov.classList.remove("hidden");
+
+  // Case-Liste initial rendern (damit der Bereich nicht leer wirkt)
+  try{ renderDelinqCaseList(); }catch(_e){}
 
   if(__unsubDelinq) __unsubDelinq();
   const q = query(delinqCol(), orderBy("lastNameLower","asc"), orderBy("firstNameLower","asc"), orderBy("birthDate","asc"));
@@ -6343,8 +6653,13 @@ function clearDelinqForm(){
   const f = document.getElementById("delinqFirstName"); if(f) f.value = "";
   const l = document.getElementById("delinqLastName"); if(l) l.value = "";
   const b = document.getElementById("delinqBirthDate"); if(b) b.value = "";
-  const s = document.getElementById("delinqStore"); if(s) s.value = "";
-  const hb = document.getElementById("delinqHouseBan"); if(hb) hb.checked = false;
+const hb = document.getElementById("delinqHouseBan"); if(hb) hb.checked = false;
+
+  // Fälle zurücksetzen
+  __delinqCurrentCases = [];
+  __delinqPendingCases = [];
+  clearDelinqCaseInputs();
+  renderDelinqCaseList();
 
   __editingDelinqId = null;
   const btn = document.getElementById("btnSaveDelinq");
@@ -6356,31 +6671,28 @@ async function saveDelinq(){
   const firstName = __norm(document.getElementById("delinqFirstName")?.value);
   const lastName  = __norm(document.getElementById("delinqLastName")?.value);
   const birthDate = __norm(document.getElementById("delinqBirthDate")?.value); // YYYY-MM-DD
-  const storeRaw  = __norm(document.getElementById("delinqStore")?.value);
-  const houseBan  = !!document.getElementById("delinqHouseBan")?.checked;
+const houseBan  = !!document.getElementById("delinqHouseBan")?.checked;
 
   if(!firstName || !lastName || !birthDate){
     alert("Bitte Vorname, Nachname und Geburtsdatum ausfüllen.");
     return;
   }
-  if(houseBan && !storeRaw){
-    alert("Wenn Hausverbot = Ja, bitte auch ein Geschäft eintragen.");
-    return;
-  }
-
-  const fnL = __normLower(firstName);
+const fnL = __normLower(firstName);
   const lnL = __normLower(lastName);
-  const stL = __normLower(storeRaw);
+// Fälle: bestehende + neue (pending)
+  const existingCases = __safeArr(__delinqCurrentCases);
+  const pendingCases = __safeArr(__delinqPendingCases);
+  const finalCases = __editingDelinqId ? [...existingCases, ...pendingCases] : [...pendingCases];
+  const casesKey = finalCases.map(c => `${__normLower(c?.caseNo)} ${__normLower(c?.date)} ${__normLower(c?.place)}`).join(" ").trim();
 
-  // Duplikat-Check (nur beim Neuanlegen): gleicher Vorname/Nachname/Geburtsdatum + Geschäft
+  // Duplikat-Check (nur beim Neuanlegen): gleicher Vorname/Nachname/Geburtsdatum
   if(!__editingDelinqId){
     const dupQ = query(
       delinqCol(),
       where("firstNameLower", "==", fnL),
       where("lastNameLower", "==", lnL),
       where("birthDate", "==", birthDate),
-      where("storeLower", "==", stL),
-      limit(1)
+limit(1)
     );
     const dupSnap = await getDocs(dupQ);
     if(!dupSnap.empty){
@@ -6393,16 +6705,17 @@ async function saveDelinq(){
     firstName,
     lastName,
     birthDate,
-
-    store: storeRaw,
-    storeLower: stL,
-    houseBan: houseBan,
+houseBan: houseBan,
 
     firstNameLower: fnL,
     lastNameLower: lnL,
 
-    // Suchtext: Name + Datum + Geschäft + "hausverbot"
-    searchKey: `${lnL} ${fnL} ${birthDate} ${stL} ${houseBan ? "hausverbot" : ""}`.trim(),
+    // Suchtext: Name + Datum + "hausverbot" + Fälle
+    searchKey: `${lnL} ${fnL} ${birthDate} ${houseBan ? "hausverbot" : ""} ${casesKey}`.trim(),
+
+    // Fälle / Vorfälle
+    cases: finalCases,
+    casesCount: (finalCases?.length || 0),
 
     createdAt: serverTimestamp(),
     createdByUid: userId,
@@ -6415,9 +6728,11 @@ async function saveDelinq(){
       // Firestore update: nur Felder, die sich ändern sollen.
       await updateDoc(doc(db, "delinquents", __editingDelinqId), {
         firstName, lastName, birthDate,
-        store: storeRaw, storeLower: stL, houseBan,
-        firstNameLower: fnL, lastNameLower: lnL,
-        searchKey: docData.searchKey
+        houseBan,
+firstNameLower: fnL, lastNameLower: lnL,
+        searchKey: docData.searchKey,
+        cases: finalCases,
+        casesCount: (finalCases?.length || 0)
       });
       toast("✅ Delinquent aktualisiert.");
     }else{
@@ -6455,6 +6770,8 @@ async function deleteDelinqById(id){
   const btnClose = document.getElementById("btnCloseDelinq");
   const btnSave = document.getElementById("btnSaveDelinq");
   const btnClear = document.getElementById("btnClearDelinq");
+  const btnAddCase = document.getElementById("btnAddDelinqCase");
+  const caseList = document.getElementById("delinqCaseList");
   const search = document.getElementById("delinqSearch");
   const list = document.getElementById("delinqList");
 
@@ -6469,7 +6786,20 @@ async function deleteDelinqById(id){
   if(btnClose) btnClose.addEventListener("click", closeDelinqOverlay);
   if(btnSave) btnSave.addEventListener("click", saveDelinq);
   if(btnClear) btnClear.addEventListener("click", clearDelinqForm);
+  if(btnAddCase) btnAddCase.addEventListener("click", addDelinqCaseFromInputs);
   if(search) search.addEventListener("input", renderDelinqList);
+
+  // Pending-Fall entfernen (nur lokal, wird erst bei Speichern geschrieben)
+  if(caseList){
+    caseList.addEventListener('click', (e)=>{
+      const b = e.target?.closest?.('button[data-delinqcase-remove]');
+      if(!b) return;
+      const idx = parseInt(b.getAttribute('data-delinqcase-remove'), 10);
+      if(Number.isNaN(idx)) return;
+      __delinqPendingCases.splice(idx, 1);
+      renderDelinqCaseList();
+    });
+  }
 
   // Edit/Delete delegation (works for dynamically rendered list items)
   if(list){
@@ -6493,8 +6823,15 @@ async function deleteDelinqById(id){
         const f = document.getElementById("delinqFirstName"); if(f) f.value = d.firstName || "";
         const l = document.getElementById("delinqLastName");  if(l) l.value = d.lastName || "";
         const b = document.getElementById("delinqBirthDate"); if(b) b.value = d.birthDate || "";
-        const s = document.getElementById("delinqStore");     if(s) s.value = d.store || "";
+        const s = null;     if(s) s.value = d.store || "";
         const hb = document.getElementById("delinqHouseBan"); if(hb) hb.checked = !!d.houseBan;
+
+        // Fälle laden (bearbeiten) + Liste anzeigen
+        __delinqCurrentCases = __safeArr(d.cases).slice();
+        __delinqPendingCases = [];
+        clearDelinqCaseInputs();
+        renderDelinqCaseList();
+
         const saveBtn = document.getElementById("btnSaveDelinq"); if(saveBtn) saveBtn.textContent = "Aktualisieren";
         try{ f?.focus?.(); }catch(_){}
         return;

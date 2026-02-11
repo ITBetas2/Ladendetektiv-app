@@ -1921,6 +1921,51 @@ input, textarea, select { scroll-margin-top: 90px; }
 <style>
 .drawerDivider{height:1px;background:rgba(255,255,255,.12);margin:10px 0;}
 </style>
+
+<style>
+/* ===== DELINQUENTEN MOBILE LIST V1 ===== */
+#delinqList .delinqItem{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  justify-content:space-between;
+  padding:10px 12px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:14px;
+  background: rgba(0,0,0,.10);
+}
+#delinqList .delinqMeta{ flex:1 1 auto; min-width:0; }
+#delinqList .delinqTitle{
+  font-weight:900;
+  font-size:14px;
+  line-height:1.25;
+  white-space:normal;
+}
+#delinqList .delinqSub{
+  margin-top:4px;
+  font-size:12px;
+  line-height:1.35;
+  color:var(--muted);
+  white-space:normal;
+  word-break:break-word;
+}
+#delinqList .delinqActions{
+  display:flex;
+  gap:8px;
+  flex:0 0 auto;
+}
+#delinqList .delinqActions .btn{
+  width:auto !important;
+  min-width:44px !important;
+  min-height:44px !important;
+  padding:10px 12px !important;
+  border-radius:14px !important;
+}
+@media (max-width: 900px){
+  #delinqList .delinqActions{ flex-direction:column; }
+}
+</style>
+
 </head>
 <body>
 <div id="authOverlay" class="authOverlay">
@@ -1936,12 +1981,8 @@ input, textarea, select { scroll-margin-top: 90px; }
     </div>
     <div class="row2" style="margin-top:10px;">
       <button class="btn primary" id="btnDoLogin" type="button">Login</button>
-      <button class="btn" id="btnDoRegister" type="button">Registrieren</button>
-    </div>
-    <div class="hint" style="margin-top:10px;">
-      Hinweis: Im Prototyp wird ein Benutzername ohne @ automatisch zu <b>@tas.local</b> ergänzt.
-    </div>
-  </div>
+</div>
+</div>
 </div>
 <div id="adminOverlay" class="authOverlay hidden">
   <div class="card authModal adminModal">
@@ -2102,6 +2143,70 @@ input, textarea, select { scroll-margin-top: 90px; }
   </div>
 </div>
 
+<div id="delinqOverlay" class="authOverlay hidden">
+  <div class="card authModal" style="max-width:980px; width:min(980px, 94vw);">
+    <div class="adminHeader" style="margin-bottom:10px;">
+      <div class="authTitle" style="margin:0;">🗃️ Delinquenten Datenbank</div>
+      <button class="btn small" id="btnCloseDelinq" type="button">Schließen</button>
+    </div>
+
+    <div class="row2" style="gap:12px; align-items:flex-start; flex-wrap:wrap;">
+      <div class="card" style="flex:1; min-width:280px; padding:12px;">
+        <div style="font-weight:900; margin-bottom:10px;">Neuen Delinquenten erfassen</div>
+
+        <div class="field">
+          <label>Vorname</label>
+          <input id="delinqFirstName" placeholder="z.B. Max" />
+        </div>
+
+        <div class="field">
+          <label>Nachname</label>
+          <input id="delinqLastName" placeholder="z.B. Mustermann" />
+        </div>
+
+        <div class="field">
+          <label>Geburtsdatum</label>
+          <input id="delinqBirthDate" type="date" />
+        </div>
+
+        <div class="field">
+          <label>Geschäft</label>
+          <input id="delinqStore" placeholder="z.B. Migros / Filiale XY" />
+        </div>
+
+        <div class="field" style="margin-top:8px;">
+          <label style="display:flex; gap:10px; align-items:center;">
+            <input id="delinqHouseBan" type="checkbox" />
+            <span>Hausverbot (Ja)</span>
+          </label>
+        </div>
+
+        <div class="row2" style="margin-top:10px;">
+          <button class="btn primary" id="btnSaveDelinq" type="button">Speichern</button>
+          <button class="btn" id="btnClearDelinq" type="button">Leeren</button>
+        </div>
+
+        <div class="hint" style="margin-top:10px;">
+          Duplikate werden automatisch verhindert (Name + Geburtsdatum).
+        </div>
+      </div>
+
+      <div class="card" style="flex:1.2; min-width:320px; padding:12px;">
+        <div style="font-weight:900; margin-bottom:10px;">Liste</div>
+
+        <div class="field" style="margin-top:0;">
+          <label>Suchen</label>
+          <input id="delinqSearch" placeholder="Name oder Datum (z.B. 1999-01)" />
+        </div>
+
+        <div class="list" id="delinqList" style="padding:0; gap:10px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 <div class="drawerOverlay hidden" id="drawerOverlay"></div>
 <nav class="drawer hidden" id="drawer">
   <div class="drawerTop">
@@ -2172,8 +2277,7 @@ input, textarea, select { scroll-margin-top: 90px; }
 </div>
 <div class="section">
   <div class="row2">
-    <button class="btn small primary" id="btnLoginOpen" type="button">Login</button>
-        <button class="btn small danger hidden" id="btnLogout" type="button">Logout</button>
+<button class="btn small danger hidden" id="btnLogout" type="button">Logout</button>
   </div>
 
   <div class="hint" style="margin-top:10px;">
@@ -2395,6 +2499,19 @@ input, textarea, select { scroll-margin-top: 90px; }
     <p class="card-text">Öffne SecuriReport direkt im Browser.</p>
     <button class="btn primary" id="btnOpenSecuriReport" type="button" style="margin-top:16px" onclick="(function(){var u='https://securireport3.securitas.ch/securireport/desktop-app/#login'; try{var w=window.open(u, '_blank', 'noopener,noreferrer'); if(!w) window.location.href=u;}catch(e){window.location.href=u;}})()">SecuriReport öffnen</button>
   </div>
+</div>
+
+<div class="dropzone" id="delinqZone" style="margin-top:14px;">
+  <div class="securireport-card">
+    <div class="card-header">
+      <span class="icon">🗃️</span>
+      <span class="title">Delinquenten Datenbank</span>
+    </div>
+    <p class="card-text">Liste der eingetragenen Delinquenten (mit Suche &amp; Eintrag).</p>
+    <button class="btn primary" id="btnOpenDelinq" type="button" style="margin-top:16px">Datenbank öffnen</button>
+  </div>
+</div>
+
 </div>
 
 <div class="grid hidden" id="fileGrid"></div>
@@ -5897,8 +6014,7 @@ const DRIVE_FOLDER_URL = "https://drive.google.com/drive/folders/1tsABJ9d963_-8W
     }
     window.open(DRIVE_FOLDER_URL, "_blank", "noopener");
   });
-})()
-
+})();
 /* Infos: SecuriReport */
 (()=>{
   const SECURIREPORT_URL = "https://securireport3.securitas.ch/securireport/desktop-app/#login";
@@ -5936,6 +6052,294 @@ const DRIVE_FOLDER_URL = "https://drive.google.com/drive/folders/1tsABJ9d963_-8W
 })();
 ;
 
+
+
+function fmtDateTime(d){
+  try{
+    const dd = String(d.getDate()).padStart(2,"0");
+    const mm = String(d.getMonth()+1).padStart(2,"0");
+    const yy = d.getFullYear();
+    const hh = String(d.getHours()).padStart(2,"0");
+    const mi = String(d.getMinutes()).padStart(2,"0");
+    return `${dd}.${mm}.${yy} ${hh}:${mi}`;
+  }catch(_){ return ""; }
+}
+
+// ================================
+// Delinquenten Datenbank (Firestore)
+
+
+// ================================
+function delinqCol(){ return collection(db, "delinquents"); }
+
+let __unsubDelinq = null;
+let __delinqCache = [];
+let __editingDelinqId = null;
+
+function __norm(s){ return (s||"").trim(); }
+function __normLower(s){ return __norm(s).toLowerCase(); }
+
+function __canDeleteDelinq(d){
+  try{
+    const uid = state.session?.uid || null;
+    return isAdminUser() || (!!uid && d && d.createdByUid === uid);
+  }catch(_){
+    return false;
+  }
+}
+
+function renderDelinqList(){
+  const listEl = document.getElementById("delinqList");
+  if(!listEl) return;
+
+  const q = __normLower(document.getElementById("delinqSearch")?.value || "");
+  const rows = __delinqCache.filter(d => {
+    if(!q) return true;
+    const hay = (d.searchKey || "").toLowerCase();
+    return hay.includes(q);
+  });
+
+  if(!rows.length){
+    listEl.innerHTML = `<div class="hint" style="padding:10px;">Keine Einträge gefunden.</div>`;
+    return;
+  }
+
+  listEl.innerHTML = rows.map(d => {
+    const name = `${escapeHtml(d.lastName || "")} ${escapeHtml(d.firstName || "")}`.trim();
+    const bd = escapeHtml(d.birthDate || "");
+    const store = escapeHtml(d.store || "");
+    const hb = !!d.houseBan;
+
+    const myUid = state?.session?.uid || auth.currentUser?.uid || null;
+    const canEdit = (typeof perms === "function" && perms().canAdmin) || (myUid && d.createdByUid === myUid);
+
+    const sub = [
+      `🎂 ${bd}`,
+      store ? `🏬 ${store}` : "",
+      hb ? `⛔ Hausverbot: Ja` : `⛔ Hausverbot: Nein`,
+      (d.createdAt?.toDate ? `🕒 ${fmtDateTime(d.createdAt.toDate())}` : ``)
+    ].filter(Boolean).join(" · ");
+
+    return `
+      <div class="delinqItem" data-delinq-id="${escapeHtml(d.id)}">
+        <div class="delinqMeta">
+          <div class="delinqTitle">${name}</div>
+          <div class="delinqSub">${sub}</div>
+        </div>
+        <div class="delinqActions">
+          ${canEdit ? `<button class="btn" type="button" data-delinq-action="edit">Bearbeiten</button>` : ""}
+          ${canEdit ? `<button class="btn danger" type="button" data-delinq-action="delete">Löschen</button>` : ""}
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function openDelinqOverlay(){
+  requireLogin();
+  const ov = document.getElementById("delinqOverlay");
+  if(!ov) return;
+  ov.classList.remove("hidden");
+
+  if(__unsubDelinq) __unsubDelinq();
+  const q = query(delinqCol(), orderBy("lastNameLower","asc"), orderBy("firstNameLower","asc"), orderBy("birthDate","asc"));
+  __unsubDelinq = onSnapshot(q, (snap)=>{
+    const arr = [];
+    snap.forEach(docu => arr.push({ id: docu.id, ...docu.data() }));
+    __delinqCache = arr;
+    renderDelinqList();
+  });
+}
+
+function closeDelinqOverlay(){
+  const ov = document.getElementById("delinqOverlay");
+  if(ov) ov.classList.add("hidden");
+  if(__unsubDelinq){ __unsubDelinq(); __unsubDelinq = null; }
+}
+
+function clearDelinqForm(){
+  const f = document.getElementById("delinqFirstName"); if(f) f.value = "";
+  const l = document.getElementById("delinqLastName"); if(l) l.value = "";
+  const b = document.getElementById("delinqBirthDate"); if(b) b.value = "";
+  const s = document.getElementById("delinqStore"); if(s) s.value = "";
+  const hb = document.getElementById("delinqHouseBan"); if(hb) hb.checked = false;
+
+  __editingDelinqId = null;
+  const btn = document.getElementById("btnSaveDelinq");
+  if(btn) btn.textContent = "Speichern";
+}
+
+async function saveDelinq(){
+  const userId = requireLogin();
+  const firstName = __norm(document.getElementById("delinqFirstName")?.value);
+  const lastName  = __norm(document.getElementById("delinqLastName")?.value);
+  const birthDate = __norm(document.getElementById("delinqBirthDate")?.value); // YYYY-MM-DD
+  const storeRaw  = __norm(document.getElementById("delinqStore")?.value);
+  const houseBan  = !!document.getElementById("delinqHouseBan")?.checked;
+
+  if(!firstName || !lastName || !birthDate){
+    alert("Bitte Vorname, Nachname und Geburtsdatum ausfüllen.");
+    return;
+  }
+  if(houseBan && !storeRaw){
+    alert("Wenn Hausverbot = Ja, bitte auch ein Geschäft eintragen.");
+    return;
+  }
+
+  const fnL = __normLower(firstName);
+  const lnL = __normLower(lastName);
+  const stL = __normLower(storeRaw);
+
+  // Duplikat-Check (nur beim Neuanlegen): gleicher Vorname/Nachname/Geburtsdatum + Geschäft
+  if(!__editingDelinqId){
+    const dupQ = query(
+      delinqCol(),
+      where("firstNameLower", "==", fnL),
+      where("lastNameLower", "==", lnL),
+      where("birthDate", "==", birthDate),
+      where("storeLower", "==", stL),
+      limit(1)
+    );
+    const dupSnap = await getDocs(dupQ);
+    if(!dupSnap.empty){
+      toast("⚠️ Bereits vorhanden (Duplikat).");
+      return;
+    }
+  }
+
+  const docData = {
+    firstName,
+    lastName,
+    birthDate,
+
+    store: storeRaw,
+    storeLower: stL,
+    houseBan: houseBan,
+
+    firstNameLower: fnL,
+    lastNameLower: lnL,
+
+    // Suchtext: Name + Datum + Geschäft + "hausverbot"
+    searchKey: `${lnL} ${fnL} ${birthDate} ${stL} ${houseBan ? "hausverbot" : ""}`.trim(),
+
+    createdAt: serverTimestamp(),
+    createdByUid: userId,
+    createdByEmail: (auth.currentUser?.email || null)
+  };
+
+  try{
+    if(__editingDelinqId){
+      // Owner/createdBy* bleiben im Doc erhalten (Rules blocken sonst). Wir setzten hier nichts um.
+      // Firestore update: nur Felder, die sich ändern sollen.
+      await updateDoc(doc(db, "delinquents", __editingDelinqId), {
+        firstName, lastName, birthDate,
+        store: storeRaw, storeLower: stL, houseBan,
+        firstNameLower: fnL, lastNameLower: lnL,
+        searchKey: docData.searchKey
+      });
+      toast("✅ Delinquent aktualisiert.");
+    }else{
+      await addDoc(delinqCol(), docData);
+      toast("✅ Delinquent gespeichert.");
+    }
+    clearDelinqForm();
+  }catch(err){
+    console.error(err);
+    alert("Speichern fehlgeschlagen: " + (err?.message || err));
+  }
+}
+
+async function deleteDelinqById(id){
+  requireLogin();
+  const d = __delinqCache.find(x => x.id === id);
+  if(!d){
+    toast("⚠️ Eintrag nicht gefunden.");
+    return;
+  }
+  if(!__canDeleteDelinq(d)){
+    toast("⛔ Keine Berechtigung zum Löschen.");
+    return;
+  }
+  const ok = confirm(`Eintrag wirklich löschen?\n\n${(d.lastName||"").toUpperCase()} ${d.firstName||""} (${d.birthDate||""})`);
+  if(!ok) return;
+
+  await deleteDoc(doc(db, "delinquents", id));
+  toast("🗑️ Gelöscht.");
+}
+
+(function bindDelinqUi(){
+  const btnOpen = document.getElementById("btnOpenDelinq");
+  const zone = document.getElementById("delinqZone");
+  const btnClose = document.getElementById("btnCloseDelinq");
+  const btnSave = document.getElementById("btnSaveDelinq");
+  const btnClear = document.getElementById("btnClearDelinq");
+  const search = document.getElementById("delinqSearch");
+  const list = document.getElementById("delinqList");
+
+  if(btnOpen) btnOpen.addEventListener("click", (e)=>{ e.preventDefault(); openDelinqOverlay(); });
+  if(zone) zone.addEventListener("click", (e)=>{
+    const t = e.target;
+    if(t && t.id === "btnOpenDelinq") return;
+    if(window.getSelection && String(window.getSelection()).length) return;
+    openDelinqOverlay();
+  });
+
+  if(btnClose) btnClose.addEventListener("click", closeDelinqOverlay);
+  if(btnSave) btnSave.addEventListener("click", saveDelinq);
+  if(btnClear) btnClear.addEventListener("click", clearDelinqForm);
+  if(search) search.addEventListener("input", renderDelinqList);
+
+  // Edit/Delete delegation (works for dynamically rendered list items)
+  if(list){
+    list.addEventListener("click", async (e)=>{
+      const btn = e.target?.closest?.('button[data-delinq-action]');
+      if(!btn) return;
+      const action = btn.getAttribute("data-delinq-action");
+      const wrap = btn.closest("[data-delinq-id]");
+      const id = wrap?.getAttribute("data-delinq-id");
+      if(!id) return;
+
+      const d = __delinqCache.find(x => x.id === id);
+      if(!d){ toast("⚠️ Eintrag nicht gefunden."); return; }
+
+      const myUid = state?.session?.uid || auth.currentUser?.uid || null;
+      const canEdit = (typeof perms === "function" && perms().canAdmin) || (myUid && d.createdByUid === myUid);
+      if(!canEdit){ toast("⛔ Keine Berechtigung."); return; }
+
+      if(action === "edit"){
+        __editingDelinqId = id;
+        const f = document.getElementById("delinqFirstName"); if(f) f.value = d.firstName || "";
+        const l = document.getElementById("delinqLastName");  if(l) l.value = d.lastName || "";
+        const b = document.getElementById("delinqBirthDate"); if(b) b.value = d.birthDate || "";
+        const s = document.getElementById("delinqStore");     if(s) s.value = d.store || "";
+        const hb = document.getElementById("delinqHouseBan"); if(hb) hb.checked = !!d.houseBan;
+        const saveBtn = document.getElementById("btnSaveDelinq"); if(saveBtn) saveBtn.textContent = "Aktualisieren";
+        try{ f?.focus?.(); }catch(_){}
+        return;
+      }
+
+      if(action === "delete"){
+        try{
+          await deleteDelinqById(id);
+          if(__editingDelinqId === id) clearDelinqForm();
+        }catch(err){
+          console.error(err);
+          alert("Löschen fehlgeschlagen: " + (err?.message || err));
+        }
+      }
+    });
+  }
+
+
+  // ESC schließt
+  document.addEventListener("keydown", (e)=>{
+    if(e.key === "Escape"){
+      const ov = document.getElementById("delinqOverlay");
+      if(ov && !ov.classList.contains("hidden")) closeDelinqOverlay();
+    }
+  });
+})();
+
 </script>
 
 <!-- Mobile Bottom Navigation -->
@@ -5944,9 +6348,40 @@ const DRIVE_FOLDER_URL = "https://drive.google.com/drive/folders/1tsABJ9d963_-8W
   <button class="mbtn" id="mbDocs" type="button"><span>📋</span>Infos</button>
   <button class="mbtn" id="mbRank" type="button"><span>🏆</span>Rang</button>
   <button class="mbtn" id="mbCase" type="button"><span>📝</span>Fall</button>
-  <button class="mbtn" id="mbChat" type="button"><span>💬</span>Chat</button>
+  <button class="mbtn" id="mbChat" type="button" style="position:relative;"><span>💬</span>Chat<span id="chatBadge" style="position:absolute;top:6px;right:18px;background:red;color:white;border-radius:50%;min-width:18px;height:18px;font-size:11px;display:none;align-items:center;justify-content:center;padding:0 5px;font-weight:bold;">0</span></button>
   <button class="mbtn" id="mbSettings" type="button"><span>⚙️</span>Settings</button>
 </nav>
+
+
+<script>
+(function(){
+  const badge = document.getElementById("chatBadge");
+  if(!badge) return;
+
+  function updateBadge(){
+    const count = window.newMsgCount || 0;
+    if(count > 0){
+      badge.style.display = "flex";
+      badge.textContent = count;
+    }else{
+      badge.style.display = "none";
+    }
+  }
+
+  setInterval(updateBadge, 500);
+
+  const origSetMobileView = window.setMobileView;
+  if(origSetMobileView){
+    window.setMobileView = function(view){
+      origSetMobileView(view);
+      if(view === "chat"){
+        window.newMsgCount = 0;
+        updateBadge();
+      }
+    }
+  }
+})();
+</script>
 
 </body>
 </html>

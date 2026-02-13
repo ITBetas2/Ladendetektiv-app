@@ -4681,6 +4681,8 @@ async function restoreServiceAfterLogin(){
       stopServiceTimer();
       serviceTimer = setInterval(updateServiceRunningLine, 1000);
 
+      window.__restoredInService = true;
+
       // ensure local cache exists (also if only presence was available)
       saveServiceLocal({
         uid,
@@ -4692,6 +4694,7 @@ async function restoreServiceAfterLogin(){
       });
     } else {
       // Not in service anymore -> clear local state so it won't "revive" after refresh
+      window.__restoredInService = false;
       clearServiceLocal();
       activeServiceId = null;
   activeServiceId = null;
@@ -5141,7 +5144,7 @@ async function saveService(){
     dienstbeginn: startHH,
     dienstende: endHH
   });
-if(!state.__inServiceRestored) clearServiceForm();
+if(!state.__inServiceRestored) if(!window.__restoredInService) clearServiceForm();
       // Cleanup active-duty listener
       if(state.unsubActiveDuty) state.unsubActiveDuty();
       state.unsubActiveDuty = null;

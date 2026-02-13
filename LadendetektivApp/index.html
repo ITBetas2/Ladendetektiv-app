@@ -2794,6 +2794,7 @@ const swReady = (async () => {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import {
   getAuth, onAuthStateChanged,
+  setPersistence, browserLocalPersistence,
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
   updateProfile
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
@@ -2833,6 +2834,8 @@ if (location.protocol === "file:") {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+// Ensure login persists across app closes (mobile Safari/Chrome)
+setPersistence(auth, browserLocalPersistence).catch((e)=>console.warn('Auth persistence', e));
 const db = getFirestore(app);
 
 // ---------- Power Automate Webhook (Dienstzeit -> Teams) ----------
@@ -3747,7 +3750,8 @@ async function doLogin(){
   if(!u || !p) return alert("Bitte Benutzername/Email & Passwort eingeben.");
   const email = normalizeEmail(u);
   try{
-    await signInWithEmailAndPassword(auth, email, p);
+    await setPersistence(auth, browserLocalPersistence).catch(()=>{});
+  await signInWithEmailAndPassword(auth, email, p);
   } catch(err){
     console.error(err);
     alert("Login fehlgeschlagen: " + explainFirebaseAuthError(err));

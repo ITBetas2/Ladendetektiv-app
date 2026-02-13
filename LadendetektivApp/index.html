@@ -1988,6 +1988,30 @@ input, textarea, select { scroll-margin-top: 90px; }
 @media (max-width: 900px){
   #delinqList .delinqActions{ flex-direction:column; }
 }
+
+/* ===== DELINQUENTEN REMARK PILL ===== */
+#delinqList .delinqRemark{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin-top:6px;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:12px;
+  line-height:1.1;
+  font-weight:800;
+  width: fit-content;
+  max-width: 100%;
+  white-space: normal;
+  word-break: break-word;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+}
+#delinqList .delinqRemark.pillDanger{
+  border: 1px solid rgba(255, 70, 70, .55);
+  background: linear-gradient(135deg, rgba(255,70,70,.28), rgba(255,0,90,.18));
+  box-shadow: 0 10px 24px rgba(255, 0, 70, .18), inset 0 0 0 1px rgba(255,70,70,.18);
+}
 </style>
 
 <style id="mobileChatComposerOverlay">
@@ -2222,6 +2246,7 @@ input, textarea, select { scroll-margin-top: 90px; }
         <button class="adminNavBtn active" type="button" data-admin-tab="access">🔐 Zugang</button>
         <button class="adminNavBtn" type="button" data-admin-tab="roles">🧩 Rollen</button>
         <button class="adminNavBtn" type="button" data-admin-tab="chat">💬 Chat</button>
+        <button class="adminNavBtn" type="button" data-admin-tab="profile">👤 Profile</button>
       </nav>
 
       <div class="adminContent">
@@ -2349,7 +2374,53 @@ input, textarea, select { scroll-margin-top: 90px; }
           </div>
         </section>
 
-      </div>
+      
+        <!-- Profile (Admin) -->
+        <section class="adminPage hidden" data-admin-page="profile">
+          <div class="adminCard">
+            <div class="adminCardTitle">Benutzername als Admin festlegen</div>
+            <div class="hint" style="margin-top:6px;">
+              Suche per <b>E-Mail</b> oder direkt per <b>UID</b>. Danach kannst du den <b>Display Name</b> setzen.
+            </div>
+
+            <div class="adminGrid2" style="margin-top:12px;">
+              <div class="field">
+                <label>E-Mail (optional)</label>
+                <input id="adminUserEmail" placeholder="z.B. user@firma.de" />
+              </div>
+              <div class="field">
+                <label>UID (optional)</label>
+                <input id="adminUserUid" placeholder="Firebase UID" />
+              </div>
+            </div>
+
+            <div class="row2" style="margin-top:10px;">
+              <button class="btn" id="btnAdminUserLoad" type="button">User laden</button>
+              <div id="adminUserLoadHint" class="hint" style="align-self:center; margin:0;"></div>
+            </div>
+
+            <div class="adminGrid2" style="margin-top:14px;">
+              <div class="field">
+                <label>Aktueller Name</label>
+                <input id="adminUserCurrentName" disabled />
+              </div>
+              <div class="field">
+                <label>Neuer Name</label>
+                <input id="adminUserNewName" placeholder="z.B. Max Mustermann" />
+              </div>
+            </div>
+
+            <div class="row2" style="margin-top:10px;">
+              <button class="btn primary" id="btnAdminUserSave" type="button">Speichern</button>
+              <div id="adminUserSaveHint" class="hint" style="align-self:center; margin:0;"></div>
+            </div>
+
+            <div class="hint" style="margin-top:10px; opacity:.85;">
+              Hinweis: Wenn der Benutzer online ist, wird der Name zusätzlich in <code>presence/{uid}</code> gespiegelt, damit er sofort sichtbar ist.
+            </div>
+          </div>
+        </section>
+</div>
     </div>
   </div>
 </div>
@@ -2395,7 +2466,12 @@ input, textarea, select { scroll-margin-top: 90px; }
           <input id="delinqIdNo" placeholder="z.B. ID/Pass-Nr." />
         </div>
 
-        <div class="row2" style="gap:10px;">
+        
+        <div class="field">
+          <label>Bemerkung</label>
+          <input id="delinqRemark" placeholder="z.B Zenterverbot, Hausverbot, keine" />
+        </div>
+<div class="row2" style="gap:10px;">
           <div class="field" style="flex:1; min-width:160px;">
             <label>Fall-Datum</label>
             <input id="delinqCaseDate" type="date" />
@@ -2447,7 +2523,7 @@ input, textarea, select { scroll-margin-top: 90px; }
 
   <div class="drawerList">
     <button class="drawerBtn active" id="navStart" type="button">🏠 Home</button>
-    <button class="drawerBtn" id="navFiles" type="button">📄 Infos</button>
+    <button class="drawerBtn" id="navFiles" type="button">💼 Tools</button>
     <button class="drawerBtn" id="navRanking" type="button">🏆 Rangliste</button>
     <button class="drawerBtn" id="navCase" type="button">📝 Fälle</button>
     <button class="drawerBtn" id="navChat" type="button">💬 Chat</button>
@@ -2467,7 +2543,7 @@ input, textarea, select { scroll-margin-top: 90px; }
   <div class="desktopNavInner">
     <div class="tabs" id="desktopTabs">
       <button class="tabBtn active" id="dnavStart" type="button">🏠 Home</button>
-      <button class="tabBtn" id="dnavFiles" type="button">📄 Infos</button>
+      <button class="tabBtn" id="dnavFiles" type="button">💼 Tools</button>
       <button class="tabBtn" id="dnavRanking" type="button">🏆 Rangliste</button>
       <button class="tabBtn" id="dnavCase" type="button">📝 Fälle</button>
       <button class="tabBtn" id="dnavChat" type="button">💬 Chat</button>
@@ -2698,7 +2774,7 @@ input, textarea, select { scroll-margin-top: 90px; }
 </div>
 
 <div class="dropzone" id="dropzone">
-  <div style="font-weight:900; font-size:16px; color:var(--text);">📁 Dokumente</div>
+  <div style="font-weight:900; font-size:16px; color:var(--text);">📁 Infos / Dokumente</div>
   <div class="hint" style="margin-top:6px;">
     Alle relevanten Dokumente liegen zentral im Google Drive. Öffne den Ordner über den Button.
   </div>
@@ -2721,7 +2797,7 @@ input, textarea, select { scroll-margin-top: 90px; }
       <span class="icon">🛡️</span>
       <span class="title">SecuriReport +</span>
     </div>
-    <p class="card-text">Öffne SecuriReport direkt im Browser.</p>
+    <p class="card-text">Nur im Notfall brauchen!</p>
     <button class="btn primary" id="btnOpenSecuriReport" type="button" style="margin-top:16px" onclick="(function(){var u='https://securireport3.securitas.ch/securireport/desktop-app/#login'; try{var w=window.open(u, '_blank', 'noopener,noreferrer'); if(!w) window.location.href=u;}catch(e){window.location.href=u;}})()">SecuriReport öffnen</button>
   </div>
 </div>
@@ -3734,6 +3810,126 @@ async function setUserRole(){
   await setDoc(doc(db,"appConfig","global","userRoles", email), { email, role, updatedAt: serverTimestamp() }, { merge:true });
   alert("Benutzerrolle gespeichert.");
 }
+
+
+// ===== Admin: Edit other user's display name =====
+let __adminTargetUid = null;
+
+async function adminLoadUser(){
+  if(!perms().canAdmin) { alert("Keine Admin-Rechte."); return; }
+
+  const emailRaw = (document.getElementById("adminUserEmail")?.value || "").trim();
+  const uidRaw   = (document.getElementById("adminUserUid")?.value || "").trim();
+  const hintEl   = document.getElementById("adminUserLoadHint");
+  const curEl    = document.getElementById("adminUserCurrentName");
+  const newEl    = document.getElementById("adminUserNewName");
+  const saveHint = document.getElementById("adminUserSaveHint");
+  if(hintEl) hintEl.textContent = "";
+  if(saveHint) saveHint.textContent = "";
+  if(curEl) curEl.value = "";
+  if(newEl) newEl.value = "";
+
+  __adminTargetUid = null;
+
+  try{
+    // --- Load by UID (preferred) ---
+    if(uidRaw){
+      // 1) Try users/{uid}
+      const uSnap = await getDoc(doc(db,"users", uidRaw));
+      if(uSnap.exists()){
+        const d = uSnap.data() || {};
+        __adminTargetUid = uidRaw;
+        if(curEl) curEl.value = d.displayName || d.name || "";
+        if(newEl) newEl.value = d.displayName || d.name || "";
+        if(hintEl) hintEl.textContent = "✅ User geladen (users/" + uidRaw + ").";
+        return;
+      }
+
+      // 2) Fallback: presence/{uid} (many installs store only presence)
+      const pSnap = await getDoc(doc(db,"presence", uidRaw));
+      if(pSnap.exists()){
+        const d = pSnap.data() || {};
+        __adminTargetUid = uidRaw;
+        const nm = d.displayName || d.name || "";
+        if(curEl) curEl.value = nm;
+        if(newEl) newEl.value = nm;
+        if(hintEl) hintEl.textContent = "ℹ️ Kein users-Dokument. Daten aus presence geladen – beim Speichern wird users/" + uidRaw + " angelegt.";
+        return;
+      }
+
+      alert("Kein User-Dokument für diese UID gefunden (weder users noch presence).");
+      return;
+    }
+
+    // --- Load by email (requires users.email) ---
+    if(!emailRaw || !emailRaw.includes("@")){
+      alert("Bitte UID oder eine gültige E-Mail eingeben.");
+      return;
+    }
+
+    const email = emailRaw.toLowerCase();
+    const qy = query(collection(db,"users"), where("email","==", email), limit(1));
+    const qs = await getDocs(qy);
+    if(qs.empty){
+      alert("Kein User mit dieser E-Mail gefunden (users.email). Wenn der User nur in presence existiert, bitte UID verwenden.");
+      return;
+    }
+    const docu = qs.docs[0];
+    const d = docu.data() || {};
+    __adminTargetUid = docu.id;
+    if(document.getElementById("adminUserUid")) document.getElementById("adminUserUid").value = __adminTargetUid;
+    if(curEl) curEl.value = d.displayName || d.name || "";
+    if(newEl) newEl.value = d.displayName || d.name || "";
+    if(hintEl) hintEl.textContent = "✅ User geladen (users per E-Mail).";
+  }catch(e){
+    console.error(e);
+    alert("User laden fehlgeschlagen: " + (e?.message || e));
+  }
+}
+
+async function adminSaveUserName(){
+  if(!perms().canAdmin) { alert("Keine Admin-Rechte."); return; }
+  const uid = __adminTargetUid || (document.getElementById("adminUserUid")?.value || "").trim();
+  if(!uid){ alert("Bitte zuerst 'User laden' oder UID eingeben."); return; }
+
+  const name = (document.getElementById("adminUserNewName")?.value || "").trim();
+  if(!name){ alert("Bitte neuen Namen eingeben."); return; }
+
+  const saveHint = document.getElementById("adminUserSaveHint");
+  if(saveHint) saveHint.textContent = "⏳ Speichere…";
+
+  try{
+    // Ensure users/{uid} exists / gets updated
+    await setDoc(doc(db,"users", uid), {
+      displayName: name,
+      displayNameLower: name.toLowerCase(),
+      updatedAt: serverTimestamp(),
+      adminNameSetAt: serverTimestamp(),
+      adminNameSetByUid: state.session?.uid || "",
+      adminNameSetByEmail: (state.session?.email || "").toLowerCase()
+    }, { merge:true });
+
+    // Mirror into presence so UI updates immediately
+    try{
+      await setDoc(doc(db,"presence", uid), {
+        displayName: name,
+        updatedAt: serverTimestamp()
+      }, { merge:true });
+    }catch(_e){}
+
+    const curEl = document.getElementById("adminUserCurrentName");
+    if(curEl) curEl.value = name;
+    if(saveHint) saveHint.textContent = "✅ Gespeichert.";
+    toast("✅ Name gespeichert.");
+  }catch(e){
+    console.error(e);
+    if(saveHint) saveHint.textContent = "";
+    alert("Speichern fehlgeschlagen: " + (e?.message || e));
+  }
+}
+
+
+
 
 
 async function doRegister(){
@@ -5558,6 +5754,8 @@ async function bindUI(){
   click("btnSaveRole", () => saveRole().catch((e)=>{ console.error(e); alert("Rolle speichern fehlgeschlagen: " + (e?.message||e)); }));
   click("btnDeleteRole", () => deleteRole().catch((e)=>{ console.error(e); alert("Rolle löschen fehlgeschlagen: " + (e?.message||e)); }));
   click("btnSetUserRole", () => setUserRole().catch((e)=>{ console.error(e); alert("User Rolle setzen fehlgeschlagen: " + (e?.message||e)); }));
+  click("btnAdminUserLoad", () => adminLoadUser().catch((e)=>{ console.error(e); alert("User laden fehlgeschlagen: " + (e?.message||e)); }));
+  click("btnAdminUserSave", () => adminSaveUserName().catch((e)=>{ console.error(e); alert("Name speichern fehlgeschlagen: " + (e?.message||e)); }));
 
   // Fälle
   click("btnSaveCase", () => saveCase().catch((e)=>{ console.error(e); alert("Fall speichern fehlgeschlagen: " + (e?.message||e)); }));
@@ -6813,6 +7011,11 @@ function renderDelinqList(){
     const idNo = escapeHtml(d.idNo || "");
     const cDate = escapeHtml(d.caseDate || "");
     const cPlace = escapeHtml(d.casePlace || "");
+    const remarkRaw = (d.remark || "");
+    const remark = escapeHtml(remarkRaw);
+    const remarkL = (remarkRaw || "").toLowerCase();
+    const isBan = remarkL.includes("hausverbot") || remarkL.includes("zenterverbot") || remarkL.includes("centerverbot");
+    const remarkHtml = remark ? `<div class="delinqRemark ${isBan ? 'pillDanger' : ''}">${remark}</div>` : "";
     const canEdit = __canEditDelinq(d);
 
     const sub = [
@@ -6825,6 +7028,7 @@ function renderDelinqList(){
       <div class="delinqItem" data-delinq-id="${escapeHtml(d.id)}">
         <div class="delinqMeta">
           <div class="delinqTitle">${name}</div>
+          ${remarkHtml}
           <div class="delinqSub">${sub || `<span style="opacity:.7;">(keine Details)</span>`}</div>
         </div>
         <div class="delinqActions">
@@ -6865,6 +7069,7 @@ function clearDelinqForm(){
   const i = document.getElementById("delinqIdNo");      if(i) i.value = "";
   const d = document.getElementById("delinqCaseDate");  if(d) d.value = "";
   const p = document.getElementById("delinqCasePlace"); if(p) p.value = "";
+  const r = document.getElementById("delinqRemark");   if(r) r.value = "";
 
   __editingDelinqId = null;
   const btn = document.getElementById("btnSaveDelinq");
@@ -6886,6 +7091,7 @@ async function saveDelinq(){
   const caseDate  = __norm(document.getElementById("delinqCaseDate")?.value); // YYYY-MM-DD
   const casePlace = __norm(document.getElementById("delinqCasePlace")?.value);
 
+  const remark   = __norm(document.getElementById("delinqRemark")?.value);
   if(!firstName || !lastName || !idNo || !caseDate || !casePlace){
     alert("Bitte Vorname, Name, Ausweisnummer, Fall-Datum und Fall-Ort ausfüllen.");
     return;
@@ -6897,6 +7103,8 @@ async function saveDelinq(){
   const dtL = __normLower(caseDate);
   const plL = __normLower(casePlace);
 
+
+  const rmL = __normLower(remark);
   const docData = {
     firstName,
     lastName,
@@ -6904,14 +7112,17 @@ async function saveDelinq(){
     caseDate,
     casePlace,
 
+    remark,
     firstNameLower: fnL,
     lastNameLower: lnL,
     idNoLower: idL,
     caseDateLower: dtL,
     casePlaceLower: plL,
 
+
+    remarkLower: rmL,
     // Suchtext: alles in einem Feld
-    searchKey: `${lnL} ${fnL} ${idL} ${dtL} ${plL}`.trim(),
+    searchKey: `${lnL} ${fnL} ${idL} ${dtL} ${plL} ${rmL}`.trim(),
 
     createdAt: serverTimestamp(),
     createdByUid: userId,
@@ -6977,6 +7188,7 @@ async function saveDelinq(){
         const cd = document.getElementById("delinqCaseDate"); if(cd) cd.value = d.caseDate || "";
         const cp = document.getElementById("delinqCasePlace"); if(cp) cp.value = d.casePlace || "";
 
+        const rr = document.getElementById("delinqRemark");   if(rr) rr.value = d.remark || "";
         const saveBtn = document.getElementById("btnSaveDelinq"); if(saveBtn) saveBtn.textContent = "Aktualisieren";
         try{ f?.focus?.(); }catch(_){}
         return;
@@ -7008,7 +7220,7 @@ async function saveDelinq(){
 <!-- Mobile Bottom Navigation -->
 <nav id="mobileBottomNav">
   <button class="mbtn" id="mbStart" type="button"><span>🏠</span>Home</button>
-  <button class="mbtn" id="mbDocs" type="button"><span>📋</span>Infos</button>
+  <button class="mbtn" id="mbDocs" type="button"><span>💼</span>Tools</button>
   <button class="mbtn" id="mbRank" type="button"><span>🏆</span>Rang</button>
   <button class="mbtn" id="mbCase" type="button"><span>📝</span>Fall</button>
   <button class="mbtn" id="mbChat" type="button"><span>💬</span>Chat</button>

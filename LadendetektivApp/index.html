@@ -4581,10 +4581,12 @@ function clearServiceLocal(){
 
 async function restoreServiceAfterLogin(){
   try{
-    // If the Home UI isn't mounted yet (common on mobile after cold start), retry once shortly.
-    if(!document.getElementById("btnServiceStart") && !window.__restoreRetryV2){
-      window.__restoreRetryV2 = 1;
-      setTimeout(()=>{ restoreServiceAfterLogin(); }, 600);
+    // If the Home UI isn't mounted yet (common on mobile after cold start), retry a few times.
+    if(!document.getElementById("btnServiceStart")){
+      window.__restoreTriesV4 = (window.__restoreTriesV4 || 0) + 1;
+      if(window.__restoreTriesV4 <= 12){
+        setTimeout(()=>{ restoreServiceAfterLogin(); }, 600);
+      }
     }
 
     if(!state.session?.uid) return;
@@ -4774,6 +4776,95 @@ function watchServices(){
     state.services = arr;
     renderServices();
   }, (err)=> console.error(err));
+}
+
+
+function applyServiceUIRunning(startMs){
+  try{
+    serviceStartMs = startMs || serviceStartMs || 0;
+    if(!serviceStartMs) return;
+
+    // Buttons / UI
+    const btnStart = document.getElementById("btnServiceStart");
+    const btnEnd   = document.getElementById("btnServiceEnd");
+    const btnSave  = document.getElementById("btnServiceSave");
+    if(btnStart) btnStart.disabled = true;
+    if(btnEnd) btnEnd.disabled = false;
+    if(btnSave) btnSave.disabled = true;
+
+    const endWrap = document.getElementById("serviceEndWrap");
+    if(endWrap) endWrap.classList.add("hidden");
+
+    // Start time field (display only)
+    const startEl = document.getElementById("serviceStartTime");
+    if(startEl && !startEl.value){
+      startEl.value = msToHHMM(serviceStartMs);
+    }
+    if(startEl) startEl.disabled = true;
+
+    const hint = document.getElementById("serviceStatusHint");
+    if(hint) hint.textContent = "Dienst läuft… Drücke „Dienstende“, wenn du fertig bist.";
+
+    updateServiceRunningLine();
+    stopServiceTimer();
+    serviceTimer = setInterval(updateServiceRunningLine, 1000);
+  }catch(_){}
+}
+
+function applyServiceUIIdle(){
+  try{
+    stopServiceTimer();
+    serviceStartMs = 0;
+    activeServiceId = null;
+
+    const btnStart = document.getElementById("btnServiceStart");
+    const btnEnd   = document.getElementById("btnServiceEnd");
+    const btnSave  = document.getElementById("btnServiceSave");
+    if(btnStart) btnStart.disabled = false;
+    if(btnEnd) btnEnd.disabled = true;
+    if(btnSave) btnSave.disabled = true;
+
+    const startEl = document.getElementById("serviceStartTime");
+    if(startEl){ startEl.value = ""; startEl.disabled = true; }
+
+    const hint = document.getElementById("serviceStatusHint");
+    if(hint) hint.textContent = "Tip: Dienstbeginn starten → danach Dienstende setzen → speichern.";
+
+    const runLine = document.getElementById("serviceRunningLine");
+    if(runLine) runLine.textContent = "—";
+  }catch(_){}
+}
+
+function watchPresenceForService(uid){
+  try{
+    if(state.unsubPresenceService) state.unsubPresenceService();
+  }catch(_){}
+  try{
+    const pref = doc(db, "presence", uid);
+    state.unsubPresenceService = onSnapshot(pref, async (snap)=>{
+      if(!snap.exists()) return;
+      const p = snap.data() || {};
+      const inSvc = !!p.inService;
+      const startMs = (p.serviceStartedAt && typeof p.serviceStartedAt.toMillis === "function") ? p.serviceStartedAt.toMillis()
+                    : (typeof p.serviceStartMs === "number" ? p.serviceStartMs : 0);
+      const svcId = p.activeServiceId || null;
+
+      if(inSvc && startMs){
+        activeServiceId = svcId || activeServiceId;
+        serviceStartMs = startMs;
+
+        // If we're not currently on Home, just keep state; UI will be applied when Home is shown.
+        const isHome = (state.mobileView || state.view) ? ((state.mobileView||state.view) === "home") : document.body.classList.contains("view-home");
+        if(isHome){
+          applyServiceUIRunning(startMs);
+        }
+      } else {
+        // not in service anymore
+        clearServiceLocal();
+        applyServiceUIIdle();
+      }
+    });
+  }catch(_){}
 }
 
 function stopServiceTimer(){
@@ -6921,6 +7012,33 @@ async function saveDelinq(){
   ["mbChat","navChat","dnavChat"].forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.addEventListener("click", ()=> markSeenNow(), {passive:true});
+  });
+})();
+</script>
+
+
+<script id="serviceHomeHookV4">
+(function(){
+  function applyIfNeeded(){
+    try{
+      const uid = window.state?.session?.uid;
+      if(!uid) return;
+      // if presence says inService, apply UI using cached startMs
+      if(window.serviceStartMs && window.serviceStartMs > 0){
+        if(typeof window.applyServiceUIRunning === "function"){
+          window.applyServiceUIRunning(window.serviceStartMs);
+        }
+      }
+    }catch(_){}
+  }
+  ["setView","setMobileView"].forEach(fn=>{
+    const orig = window[fn];
+    if(typeof orig !== "function") return;
+    window[fn] = function(v){
+      const r = orig.apply(this, arguments);
+      if(String(v) === "home") setTimeout(applyIfNeeded, 50);
+      return r;
+    };
   });
 })();
 </script>

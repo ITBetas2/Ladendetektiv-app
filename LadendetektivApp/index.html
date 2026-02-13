@@ -3377,6 +3377,7 @@ async function setInService(flag, serviceId){
         inService: true,
         activeServiceId: serviceId || deleteField(),
         serviceStartedAt: serverTimestamp(),
+        serviceStartMs: Date.now(),
         serviceEndedAt: deleteField(),
         serviceUpdatedAt: serverTimestamp(),
       }, { merge: true });
@@ -4573,8 +4574,15 @@ function clearServiceLocal(){
   try{ localStorage.removeItem(SERVICE_LOCAL_KEY); }catch(_e){}
 }
 
+
 async function restoreServiceAfterLogin(){
   try{
+    // If the Home UI isn't mounted yet (common on mobile after cold start), retry once shortly.
+    if(!document.getElementById("btnServiceStart") && !window.__restoreRetryV2){
+      window.__restoreRetryV2 = 1;
+      setTimeout(()=>{ restoreServiceAfterLogin(); }, 600);
+    }
+
     if(!state.session?.uid) return;
 
     const uid = state.session.uid;
@@ -4588,7 +4596,7 @@ async function restoreServiceAfterLogin(){
       if(pSnap.exists()){
         const p = pSnap.data() || {};
         inService = !!p.inService;
-        presenceStartMs = p.serviceStartedAt?.toMillis ? p.serviceStartedAt.toMillis() : 0;
+        presenceStartMs = p.serviceStartedAt?.toMillis ? p.serviceStartedAt.toMillis() : (typeof p.serviceStartMs === 'number' ? p.serviceStartMs : 0);
         presenceServiceId = p.activeServiceId || null;
       }
     }catch(_e){}
@@ -4609,7 +4617,7 @@ async function restoreServiceAfterLogin(){
           if(sSnap.exists()){
             const s = sSnap.data() || {};
             // Prefer server startAt if present
-            startMs = s.startAt?.toMillis ? s.startAt.toMillis() : 0;
+            startMs = s.startAt?.toMillis ? s.startAt.toMillis() : (typeof s.startMs === 'number' ? s.startMs : 0);
             // Restore form values from service doc if available
             const dateEl = document.getElementById("serviceDate");
             const pnEl = document.getElementById("servicePN");
@@ -4878,6 +4886,7 @@ async function startService(){
     name,
     startTime: startHH,
     startAt: serverTimestamp(),
+    startMs: nowMs,
     status: "running",
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()

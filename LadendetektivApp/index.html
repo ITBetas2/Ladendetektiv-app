@@ -2794,7 +2794,7 @@ const swReady = (async () => {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import {
   getAuth, onAuthStateChanged,
-  setPersistence, browserLocalPersistence,
+  setPersistence, indexedDBLocalPersistence, browserLocalPersistence,
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
   updateProfile
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
@@ -2835,7 +2835,18 @@ if (location.protocol === "file:") {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 // Ensure login persists across app closes (mobile Safari/Chrome)
-setPersistence(auth, browserLocalPersistence).catch((e)=>console.warn('Auth persistence', e));
+(async ()=>{
+  try{
+    await setPersistence(auth, indexedDBLocalPersistence);
+  }catch(e1){
+    try{
+      await setPersistence(auth, browserLocalPersistence);
+    }catch(e2){
+      console.warn("Auth persistence failed (will require login after close).", e1 || e2);
+      // We can still restore the running duty AFTER manual login from Firestore.
+    }
+  }
+})();
 const db = getFirestore(app);
 
 // ---------- Power Automate Webhook (Dienstzeit -> Teams) ----------
@@ -4612,6 +4623,8 @@ async function restoreServiceAfterLogin(){
     const cachedServiceId = cached?.serviceId || null;
 
     if(inService){
+      state.__inServiceRestored = true;
+
       // Resolve active service id (presence > local cache)
       activeServiceId = presenceServiceId || cachedServiceId || null;
 
@@ -5128,7 +5141,7 @@ async function saveService(){
     dienstbeginn: startHH,
     dienstende: endHH
   });
-clearServiceForm();
+if(!state.__inServiceRestored) clearServiceForm();
       // Cleanup active-duty listener
       if(state.unsubActiveDuty) state.unsubActiveDuty();
       state.unsubActiveDuty = null;

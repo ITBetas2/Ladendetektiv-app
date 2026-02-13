@@ -4935,7 +4935,17 @@ function updateServicePreviewLine(){
 
 
 function clearServiceForm(){
-  const now = new Date();
+  // IMPORTANT: Never wipe the service form while a service is running/restored.
+  try{
+    if(window.__restoredInService) return;
+    if(state && state.__inServiceRestored) return;
+    if(typeof serviceStartMs === "number" && serviceStartMs > 0) return;
+    const cached = (typeof loadServiceLocal === "function") ? loadServiceLocal() : null;
+    if(cached && cached.uid && state?.session?.uid && cached.uid === state.session.uid && cached.startMs > 0){
+      return;
+    }
+  }catch(_e){}
+const now = new Date();
   const d = now.toISOString().slice(0,10);
 
   const dateEl = document.getElementById("serviceDate");

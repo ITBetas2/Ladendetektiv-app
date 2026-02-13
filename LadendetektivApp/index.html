@@ -2369,7 +2369,7 @@ input, textarea, select { scroll-margin-top: 90px; }
   </div>
 </div>
 
-<div id="delinqOverlay" class="authOverlay hidden">
+<div <div id="delinqOverlay" class="authOverlay hidden">
   <div class="card authModal" style="max-width:980px; width:min(980px, 94vw);">
     <div class="adminHeader" style="margin-bottom:10px;">
       <div class="authTitle" style="margin:0;">🗃️ Delinquenten Datenbank</div>
@@ -2378,7 +2378,7 @@ input, textarea, select { scroll-margin-top: 90px; }
 
     <div class="row2" style="gap:12px; align-items:flex-start; flex-wrap:wrap;">
       <div class="card" style="flex:1; min-width:280px; padding:12px;">
-        <div style="font-weight:900; margin-bottom:10px;">Neuen Delinquenten erfassen</div>
+        <div style="font-weight:900; margin-bottom:10px;">Neuen Eintrag erfassen</div>
 
         <div class="field">
           <label>Vorname</label>
@@ -2386,71 +2386,48 @@ input, textarea, select { scroll-margin-top: 90px; }
         </div>
 
         <div class="field">
-          <label>Nachname</label>
+          <label>Name</label>
           <input id="delinqLastName" placeholder="z.B. Mustermann" />
         </div>
 
         <div class="field">
-          <label>Geburtsdatum</label>
-          <input id="delinqBirthDate" type="date" />
-        </div>
-<div class="field" style="margin-top:8px;">
-          <label style="display:flex; gap:10px; align-items:center;">
-            <input id="delinqHouseBan" type="checkbox" />
-            <span>Hausverbot (Ja)</span>
-          </label>
+          <label>Ausweisnummer</label>
+          <input id="delinqIdNo" placeholder="z.B. ID/Pass-Nr." />
         </div>
 
-        <!-- Fälle / Vorfälle pro Person (mehrere möglich) -->
-        <div class="card" style="margin-top:12px; padding:10px; border:1px solid rgba(255,255,255,0.08);">
-          <div style="font-weight:900; margin-bottom:8px;">Fall/Fälle (Hier eintragen)</div>
-
-          <div class="row2" style="gap:8px;">
-            <div class="field" style="margin-top:0;">
-              <label>Fall Nr.</label>
-              <input id="delinqCaseNo" placeholder="z.B. 1/2/3 etc." />
-            </div>
-            <div class="field" style="margin-top:0;">
-              <label>Datum</label>
-              <input id="delinqCaseDate" type="date" />
-            </div>
+        <div class="row2" style="gap:10px;">
+          <div class="field" style="flex:1; min-width:160px;">
+            <label>Fall-Datum</label>
+            <input id="delinqCaseDate" type="date" />
           </div>
 
-          <div class="field" style="margin-top:8px;">
-            <label>Ort</label>
-            <input id="delinqCasePlace" placeholder="z.B. Bahnhof / Filiale / Stadt" />
+          <div class="field" style="flex:1; min-width:160px;">
+            <label>Fall-Ort</label>
+            <input id="delinqCasePlace" placeholder="z.B. Filiale / Bahnhof / Stadt" />
           </div>
-
-          <div style="display:flex; gap:8px; margin-top:10px; align-items:center;">
-            <button class="btn" id="btnAddDelinqCase" type="button">+ Fall hinzufügen</button>
-            <div class="hint" style="margin:0;">Fälle werden beim Speichern übernommen.</div>
-          </div>
-
-          <div class="list" id="delinqCaseList" style="margin-top:10px; padding:0; gap:8px;"></div>
         </div>
 
-        <div class="row2" style="margin-top:10px;">
-          <button class="btn primary" id="btnSaveDelinq" type="button">Speichern</button>
-          <button class="btn" id="btnClearDelinq" type="button">Leeren</button>
+        <div class="row2" style="gap:10px; margin-top:12px;">
+          <button class="btn primary" id="btnSaveDelinq" type="button" style="flex:1;">Speichern</button>
+          <button class="btn" id="btnClearDelinq" type="button" style="flex:1;">Leeren</button>
         </div>
 
-        <div class="hint" style="margin-top:10px;">
-          Duplikate werden automatisch verhindert.
+        <div class="hint" style="margin-top:8px; font-size:12px; opacity:.85;">
+          Jeder Fall wird als eigener Eintrag gespeichert (kein Sammeln mehr pro Person).
         </div>
       </div>
 
-      <div class="card" style="flex:1.2; min-width:320px; padding:12px;">
-        <div style="font-weight:900; margin-bottom:10px;">Liste</div>
-
-        <div class="field" style="margin-top:0;">
+      <div class="card" style="flex:1; min-width:280px; padding:12px;">
+        <div style="font-weight:900; margin-bottom:8px;">Liste</div>
+        <div class="field" style="margin-top:6px;">
           <label>Suchen</label>
-          <input id="delinqSearch" placeholder="Name oder Datum (z.B. 1999-01)" />
+          <input id="delinqSearch" placeholder="Name / Ausweis / Datum / Ort" />
         </div>
-
-        <div class="list" id="delinqList" style="padding:0; gap:10px;"></div>
+        <div id="delinqList" style="margin-top:10px; display:flex; flex-direction:column; gap:10px;"></div>
       </div>
     </div>
   </div>
+</div>
 </div>
 
 
@@ -3378,7 +3355,7 @@ async function ensureMyProfileLoaded(){
 const PRESENCE_COL = collection(db, "presence");
 
 // --- Aktiv im Dienst (Presence) ---
-async function setInService(flag){
+async function setInService(flag, serviceId){
     requireLogin();
     await ensureMyProfileLoaded();
     const uid = state.session.uid;
@@ -3398,6 +3375,7 @@ async function setInService(flag){
       await setDoc(doc(db, "presence", uid), {
         ...base,
         inService: true,
+        activeServiceId: serviceId || deleteField(),
         serviceStartedAt: serverTimestamp(),
         serviceEndedAt: deleteField(),
         serviceUpdatedAt: serverTimestamp(),
@@ -3406,6 +3384,7 @@ async function setInService(flag){
       await setDoc(doc(db, "presence", uid), {
         ...base,
         inService: false,
+        activeServiceId: deleteField(),
         serviceEndedAt: serverTimestamp(),
         serviceUpdatedAt: serverTimestamp(),
       }, { merge: true });
@@ -3775,6 +3754,8 @@ async function doLogin(){
 }
 
 async function doLogout(){
+  try{ clearServiceLocal();
+  activeServiceId = null; }catch(_e){}
   try{ await signOut(auth); } catch(e){}
 }
 
@@ -4572,6 +4553,128 @@ function watchCases(){
 let serviceStartMs = 0;
 let serviceTimer = null;
 
+// Persist "Dienstbeginn" across refresh / app close (localStorage)
+const SERVICE_LOCAL_KEY = "tas_service_active_v1";
+let activeServiceId = null; // current running service doc id (users/{uid}/services/{id})
+
+function saveServiceLocal(payload){
+  try{
+    localStorage.setItem(SERVICE_LOCAL_KEY, JSON.stringify(payload||{}));
+  }catch(_e){}
+}
+function loadServiceLocal(){
+  try{
+    const raw = localStorage.getItem(SERVICE_LOCAL_KEY);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  }catch(_e){ return null; }
+}
+function clearServiceLocal(){
+  try{ localStorage.removeItem(SERVICE_LOCAL_KEY); }catch(_e){}
+}
+
+async function restoreServiceAfterLogin(){
+  try{
+    if(!state.session?.uid) return;
+
+    const uid = state.session.uid;
+
+    // Load presence to know if the user is still "inService"
+    let inService = false;
+    let presenceStartMs = 0;
+    let presenceServiceId = null;
+    try{
+      const pSnap = await getDoc(doc(db, "presence", uid));
+      if(pSnap.exists()){
+        const p = pSnap.data() || {};
+        inService = !!p.inService;
+        presenceStartMs = p.serviceStartedAt?.toMillis ? p.serviceStartedAt.toMillis() : 0;
+        presenceServiceId = p.activeServiceId || null;
+      }
+    }catch(_e){}
+
+    const cached = loadServiceLocal();
+    const cachedValid = cached && cached.uid === uid && typeof cached.startMs === "number" && cached.startMs > 0;
+    const cachedServiceId = cached?.serviceId || null;
+
+    if(inService){
+      // Resolve active service id (presence > local cache)
+      activeServiceId = presenceServiceId || cachedServiceId || null;
+
+      // Try to load the running service doc (for form fields + accurate start time)
+      let startMs = 0;
+      try{
+        if(activeServiceId){
+          const sSnap = await getDoc(doc(db, "users", uid, "services", activeServiceId));
+          if(sSnap.exists()){
+            const s = sSnap.data() || {};
+            // Prefer server startAt if present
+            startMs = s.startAt?.toMillis ? s.startAt.toMillis() : 0;
+            // Restore form values from service doc if available
+            const dateEl = document.getElementById("serviceDate");
+            const pnEl = document.getElementById("servicePN");
+            const nameEl = document.getElementById("serviceName");
+            if(dateEl && s.date) dateEl.value = s.date;
+            if(pnEl && (s.personalNumber || s.pn)) pnEl.value = (s.personalNumber || s.pn);
+            if(nameEl && s.name) nameEl.value = s.name;
+
+            const startEl = document.getElementById("serviceStartTime");
+            if(startEl && s.startTime){
+              startEl.value = s.startTime;
+              startEl.disabled = true;
+            }
+          }
+        }
+      }catch(_e){}
+
+      // Fallbacks
+      if(!startMs) startMs = presenceStartMs || (cachedValid ? cached.startMs : 0);
+      if(!startMs) return; // can't restore without a start time
+      serviceStartMs = startMs;
+
+      const startEl = document.getElementById("serviceStartTime");
+      if(startEl){
+        startEl.value = msToHHMM(serviceStartMs);
+        startEl.disabled = true;
+      }
+
+      // UI state like "just started"
+      document.getElementById("btnServiceStart")?.setAttribute("disabled","disabled");
+      const bEnd = document.getElementById("btnServiceEnd");
+      if(bEnd) bEnd.disabled = false;
+      const bSave = document.getElementById("btnServiceSave");
+      if(bSave) bSave.disabled = true;
+      document.getElementById("serviceEndWrap")?.classList.add("hidden");
+
+      const hint = document.getElementById("serviceStatusHint");
+      if(hint) hint.textContent = "Dienst läuft… Drücke „Dienstende“, wenn du fertig bist.";
+
+      // timer
+      updateServiceRunningLine();
+      stopServiceTimer();
+      serviceTimer = setInterval(updateServiceRunningLine, 1000);
+
+      // ensure local cache exists (also if only presence was available)
+      saveServiceLocal({
+        uid,
+        startMs: serviceStartMs,
+        date: (document.getElementById("serviceDate")?.value || "").trim(),
+        pn: (document.getElementById("servicePN")?.value || "").trim(),
+        name: (document.getElementById("serviceName")?.value || "").trim(),
+        serviceId: activeServiceId
+      });
+    } else {
+      // Not in service anymore -> clear local state so it won't "revive" after refresh
+      clearServiceLocal();
+      activeServiceId = null;
+  activeServiceId = null;
+    }
+  }catch(e){
+    console.warn("restoreServiceAfterLogin failed", e);
+  }
+}
+
+
 function pad2(n){ return String(n).padStart(2,"0"); }
 function msToHHMM(ms){
   const d = new Date(ms);
@@ -4732,6 +4835,8 @@ function clearServiceForm(){
   if(endWrap) endWrap.classList.add("hidden");
 
   serviceStartMs = 0;
+  clearServiceLocal();
+  activeServiceId = null;
   stopServiceTimer();
   updateServiceRunningLine();
 
@@ -4757,12 +4862,37 @@ async function startService(){
   if(!pn) return alert("Bitte Personalnummer eingeben.");
   if(!name) return alert("Bitte Name eingeben.");
 
-  serviceStartMs = Date.now();
+  const uid = state.session.uid;
 
-  await setInService(true);
+  // Create (or resume) a running service session in Firebase
+  const nowMs = Date.now();
+  const startHH = msToHHMM(nowMs);
+
+  // Create a deterministic new doc id now (so we can resume across devices)
+  const sRef = doc(servicesCol(uid));
+  activeServiceId = sRef.id;
+
+  await setDoc(sRef, {
+    date,
+    personalNumber: pn,
+    name,
+    startTime: startHH,
+    startAt: serverTimestamp(),
+    status: "running",
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  }, { merge: true });
+
+  // Presence is the source of truth for "in service" + activeServiceId
+  await setInService(true, activeServiceId);
+
+  // Local cache is only a fallback for UI (not the source of truth)
+  serviceStartMs = nowMs;
+  saveServiceLocal({ uid, startMs: serviceStartMs, date, pn, name, serviceId: activeServiceId });
+
   const startEl = document.getElementById("serviceStartTime");
   if(startEl){
-    startEl.value = msToHHMM(serviceStartMs);
+    startEl.value = startHH;
     startEl.disabled = true;
   }
 
@@ -4836,20 +4966,56 @@ async function saveService(){
   const durationSec = Math.round((endMs - startMs)/1000);
 
   const uid = state.session.uid;
-  await addDoc(servicesCol(uid), {
-    date,
-    personalNumber: pn,
-    name,
-    startTime: startHH,
-    endTime: endHH,
-    startAt: Timestamp.fromDate(new Date(startMs)),
-    endAt: Timestamp.fromDate(new Date(endMs)),
-    durationSec,
-    createdAt: serverTimestamp()
-  });
-    await setInService(false);
+  // Save into the same service session doc if available (so resume works after app close)
+  let serviceId = activeServiceId;
+  try{
+    if(!serviceId){
+      const cached = loadServiceLocal();
+      if(cached && cached.uid === uid && cached.serviceId) serviceId = cached.serviceId;
+    }
+    if(!serviceId){
+      const pSnap = await getDoc(doc(db, "presence", uid));
+      if(pSnap.exists()){
+        const p = pSnap.data() || {};
+        if(p.activeServiceId) serviceId = p.activeServiceId;
+      }
+    }
+  }catch(_e){}
 
-  
+  if(serviceId){
+    await setDoc(doc(db, "users", uid, "services", serviceId), {
+      date,
+      personalNumber: pn,
+      name,
+      startTime: startHH,
+      endTime: endHH,
+      startAt: Timestamp.fromDate(new Date(startMs)),
+      endAt: Timestamp.fromDate(new Date(endMs)),
+      durationSec,
+      status: "done",
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  } else {
+    // fallback (should rarely happen)
+    await addDoc(servicesCol(uid), {
+      date,
+      personalNumber: pn,
+      name,
+      startTime: startHH,
+      endTime: endHH,
+      startAt: Timestamp.fromDate(new Date(startMs)),
+      endAt: Timestamp.fromDate(new Date(endMs)),
+      durationSec,
+      status: "done",
+      createdAt: serverTimestamp()
+    });
+  }
+// service finished -> clear persisted running state
+  clearServiceLocal();
+  activeServiceId = null;
+  activeServiceId = null;
+  await setInService(false, null);
+
   // Trigger Power Automate -> Teams (Adaptive Card)
   notifyTeamsDienstzeit({
     datum: date,
@@ -5119,6 +5285,8 @@ const sidebar = document.querySelector(".sidebar");
     document.getElementById("dnavCase")?.classList.add("active");
 } else if(view === "chat"){
     rightbar.style.display = "flex";
+    // mark chat as read immediately (prevents badge reappearing on refresh)
+    try{ markChatReadNow(state.chatRoom || "Raum: Global"); }catch(_e){}
     // ensure latest message is visible
     scrollChatBottom();
     document.getElementById("navChat")?.classList.add("active");
@@ -5348,7 +5516,9 @@ async function bindUI(){
 
       applySessionUI();
       applyPermsUI();
-      
+
+      // Restore running duty timer after refresh/app close
+      await restoreServiceAfterLogin();
 
       // Presence
       watchPresence();
@@ -5464,6 +5634,38 @@ service firebase.storage {
 // ===== Chat Unread Badge (Tabs) =====
 window.chatUnreadCount = window.chatUnreadCount || 0;
 
+// --- Chat unread persistence helpers (per user + room) ---
+function __chatRoomKey(roomId){
+  return String(roomId || "Raum: Global" || "global");
+}
+function __chatLSKey(roomId){
+  const uid = (state && state.session && state.session.uid) ? state.session.uid : "anon";
+  return `chatLastSeen:${uid}:${__chatRoomKey(roomId)}`;
+}
+function __toMs(ts){
+  try{
+    if(!ts) return 0;
+    if(typeof ts === "number") return ts;
+    if(typeof ts === "string"){ const n = Number(ts); return Number.isFinite(n) ? n : 0; }
+    if(typeof ts.toMillis === "function") return ts.toMillis();
+    if(typeof ts.seconds === "number") return ts.seconds * 1000;
+  }catch(_e){}
+  return 0;
+}
+// mark chat read now (used on tab open + while in chat)
+function markChatReadNow(roomId){
+  try{
+    const key = __chatLSKey(roomId);
+    const ms = (state && state.__lastChatMsgMs) ? Number(state.__lastChatMsgMs) : 0;
+    const now = Date.now();
+    const seen = ms > 0 ? ms : now;
+    localStorage.setItem(key, String(seen));
+  }catch(_e){}
+  try{ setChatUnreadBadge(0); }catch(_e){}
+}
+
+
+
 function __ensureChatBadges(){
   const targets = [
     { btnId: "navChat",  badgeId: "badgeNavChat"  },
@@ -5486,6 +5688,7 @@ function __ensureChatBadges(){
 
 function setChatUnreadBadge(count){
   const n = Math.max(0, Number(count) || 0);
+
   window.chatUnreadCount = n;
   ["badgeNavChat","badgeDnavChat","badgeMbChat"].forEach(id=>{
     const el = document.getElementById(id);
@@ -5537,31 +5740,6 @@ watchChat = function(){
   state.unsubChat = onSnapshot(qChat, (snap)=>{
     const log = document.getElementById('chatLog');
     if(!log) return;
-
-    // --- Unread badge for Chat tabs ---
-    const __curView = (state && state.mobileView) ? state.mobileView : (document.body.classList.contains("view-chat") ? "chat" : "");
-    if(typeof state.__chatSnapInit === "undefined") state.__chatSnapInit = false;
-
-    if(!state.__chatSnapInit){
-      // first snapshot should not create unread counts
-      state.__chatSnapInit = true;
-      if(__curView === "chat") setChatUnreadBadge(0);
-    } else {
-      let __addedFromOthers = 0;
-      try{
-        snap.docChanges().forEach(ch=>{
-          if(ch.type !== "added") return;
-          const m = ch.doc.data() || {};
-          if(m.uid && m.uid === userId) return; // ignore my own messages
-          __addedFromOthers++;
-        });
-      }catch(_e){}
-      if(__curView !== "chat" && __addedFromOthers > 0){
-        setChatUnreadBadge((window.chatUnreadCount || 0) + __addedFromOthers);
-      } else if(__curView === "chat" && (window.chatUnreadCount || 0) > 0){
-        setChatUnreadBadge(0);
-      }
-    }
     const auto = shouldAutoScroll(log);
     log.innerHTML = '';
     let lastDate = '';
@@ -5831,32 +6009,47 @@ async function watchChatEnhanced(){
     if(!log) return;
 
 
-    // --- Unread badge for Chat tabs (works even when not on Chat view) ---
-    try{
-      const __curView = (state && state.mobileView) ? state.mobileView : (document.body.classList.contains("view-chat") ? "chat" : "");
-      if(typeof state.__chatSnapInitEnhanced === "undefined") state.__chatSnapInitEnhanced = false;
 
-      if(!state.__chatSnapInitEnhanced){
-        // first snapshot should not count as unread
-        state.__chatSnapInitEnhanced = true;
-        if(__curView === "chat") setChatUnreadBadge(0);
+    // --- Unread badge (persistent): count messages newer than lastSeen and not from me ---
+    try{
+      const roomKey = __chatRoomKey(roomId);
+      const viewNow = (state && state.mobileView) ? state.mobileView : (document.body.classList.contains("view-chat") ? "chat" : "");
+      const lastSeen = Number(localStorage.getItem(__chatLSKey(roomKey)) || "0") || 0;
+
+      // compute newest message time in this snapshot
+      let newestMs = lastSeen;
+      try{
+        snap.forEach(d=>{
+          const m = d.data() || {};
+          const ms = (__toMs(m.at) || __toMs(m.createdAt) || __toMs(m.ts) || 0) || (Number(m.atMs)||0);
+          if(ms > newestMs) newestMs = ms;
+        });
+      }catch(_){}
+
+      // count additions from others that are newer than lastSeen
+      let inc = 0;
+      try{
+        snap.docChanges().forEach(ch=>{
+          if(ch.type !== "added") return;
+          const m = ch.doc.data() || {};
+          if(m.uid && m.uid === userId) return; // ignore my own messages
+          const ms = (__toMs(m.at) || __toMs(m.createdAt) || __toMs(m.ts) || 0) || (Number(m.atMs)||0);
+          if(ms > lastSeen) inc++;
+        });
+      }catch(_){}
+
+      // keep last msg ms around (used by markChatReadNow)
+      state.__lastChatMsgMs = newestMs;
+
+      if(viewNow === "chat"){
+        // while user is in chat: mark everything as read immediately
+        if(newestMs > lastSeen) localStorage.setItem(__chatLSKey(roomKey), String(newestMs));
+        setChatUnreadBadge(0);
       } else {
-        let __addedFromOthers = 0;
-        try{
-          snap.docChanges().forEach(ch=>{
-            if(ch.type !== "added") return;
-            const m = ch.doc.data() || {};
-            if(m.uid && m.uid === userId) return; // ignore my own messages
-            __addedFromOthers++;
-          });
-        }catch(_e){}
-        if(__curView !== "chat" && __addedFromOthers > 0){
-          setChatUnreadBadge((window.chatUnreadCount || 0) + __addedFromOthers);
-        } else if(__curView === "chat" && (window.chatUnreadCount || 0) > 0){
-          setChatUnreadBadge(0);
-        }
+        if(inc > 0) setChatUnreadBadge((window.chatUnreadCount || 0) + inc);
       }
     }catch(_e){}
+
     const auto = shouldAutoScroll(log);
     const docs = snap.docs.slice(-CHAT_LIMIT);
 
@@ -6449,95 +6642,21 @@ function fmtDateTime(d){
 
 // ================================
 // Delinquenten Datenbank (Firestore)
-
-
+// (vereinfachte Version: jeder Fall = eigener Eintrag)
 // ================================
 function delinqCol(){ return collection(db, "delinquents"); }
 
 let __unsubDelinq = null;
 let __delinqCache = [];
 let __editingDelinqId = null;
-// Fälle / Vorfälle
-let __delinqCurrentCases = [];   // bereits gespeicherte Fälle (bei Bearbeiten)
-let __delinqPendingCases = [];   // neue, noch nicht gespeicherte Fälle
 
 function __norm(s){ return (s||"").trim(); }
 function __normLower(s){ return __norm(s).toLowerCase(); }
 
-function __safeArr(a){ return Array.isArray(a) ? a : []; }
-
-function __caseSummary(c){
-  const no = __norm(c?.caseNo);
-  const dt = __norm(c?.date);
-  const pl = __norm(c?.place);
-  const parts = [];
-  if(no) parts.push(`#${escapeHtml(no)}`);
-  if(dt) parts.push(`📅 ${escapeHtml(dt)}`);
-  if(pl) parts.push(`📍 ${escapeHtml(pl)}`);
-  return parts.join(" · ") || "(ohne Details)";
-}
-
-function renderDelinqCaseList(){
-  const el = document.getElementById('delinqCaseList');
-  if(!el) return;
-  const existing = __safeArr(__delinqCurrentCases);
-  const pending = __safeArr(__delinqPendingCases);
-  const all = [...existing.map(c=>({c, t:'existing'})), ...pending.map((c,idx)=>({c, t:'pending', idx}))];
-  if(!all.length){
-    el.innerHTML = `<div class="hint" style="padding:8px;">Noch keine Fälle hinzugefügt.</div>`;
-    return;
-  }
-  el.innerHTML = all.map(({c,t,idx})=>{
-    return `
-      <div class="delinqItem" style="padding:10px;">
-        <div class="delinqMeta">
-          <div class="delinqTitle" style="font-size:14px;">${t==='existing' ? '📌 Gespeichert' : '🆕 Neu'}</div>
-          <div class="delinqSub">${__caseSummary(c)}</div>
-        </div>
-        <div class="delinqActions">
-          ${t==='pending' ? `<button class="btn danger" type="button" data-delinqcase-remove="${idx}">Entfernen</button>` : ``}
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-function clearDelinqCaseInputs(){
-  const a = document.getElementById('delinqCaseNo'); if(a) a.value = '';
-  const b = document.getElementById('delinqCaseDate'); if(b) b.value = '';
-  const c = document.getElementById('delinqCasePlace'); if(c) c.value = '';
-}
-
-function addDelinqCaseFromInputs(){
-  const caseNo = __norm(document.getElementById('delinqCaseNo')?.value);
-  const date = __norm(document.getElementById('delinqCaseDate')?.value);
-  const place = __norm(document.getElementById('delinqCasePlace')?.value);
-
-  if(!caseNo){ alert('Bitte eine Fall Nr. eingeben.'); return; }
-  if(!date){ alert('Bitte ein Datum auswählen.'); return; }
-  if(!place){ alert('Bitte einen Ort eingeben.'); return; }
-
-  // simple Duplicate-Check (CaseNo) innerhalb aktueller + pending
-  const all = [...__safeArr(__delinqCurrentCases), ...__safeArr(__delinqPendingCases)];
-  const exists = all.some(x => __normLower(x?.caseNo) === __normLower(caseNo));
-  if(exists){ toast('⚠️ Diese Fall Nr. existiert bereits.'); return; }
-
-  __delinqPendingCases.push({
-    caseNo,
-    date,
-    place,
-    addedAt: Date.now(),
-    addedByUid: (state?.session?.uid || auth.currentUser?.uid || null),
-    addedByEmail: (auth.currentUser?.email || null)
-  });
-  clearDelinqCaseInputs();
-  renderDelinqCaseList();
-}
-
-function __canDeleteDelinq(d){
+function __canEditDelinq(d){
   try{
-    const uid = state.session?.uid || null;
-    return isAdminUser() || (!!uid && d && d.createdByUid === uid);
+    const myUid = state?.session?.uid || auth.currentUser?.uid || null;
+    return (typeof perms === "function" && perms().canAdmin) || (!!myUid && d?.createdByUid === myUid);
   }catch(_){
     return false;
   }
@@ -6561,59 +6680,22 @@ function renderDelinqList(){
 
   listEl.innerHTML = rows.map(d => {
     const name = `${escapeHtml(d.lastName || "")} ${escapeHtml(d.firstName || "")}`.trim();
-    const bd = escapeHtml(d.birthDate || "");
-    const store = escapeHtml(d.store || "");
-    const hb = !!d.houseBan;
+    const idNo = escapeHtml(d.idNo || "");
+    const cDate = escapeHtml(d.caseDate || "");
+    const cPlace = escapeHtml(d.casePlace || "");
+    const canEdit = __canEditDelinq(d);
 
-    const myUid = state?.session?.uid || auth.currentUser?.uid || null;
-    const canEdit = (typeof perms === "function" && perms().canAdmin) || (myUid && d.createdByUid === myUid);
-
-    const cases = Array.isArray(d.cases) ? d.cases : [];
-    const caseCount = cases.length;
-    let lastCase = null;
-    if(caseCount){
-      // latest by date-string (YYYY-MM-DD) fallback by addedAt
-      lastCase = cases.slice().sort((a,b)=>{
-        const ad = (a?.date || "");
-        const bd2 = (b?.date || "");
-        if(ad && bd2) return ad.localeCompare(bd2);
-        return (a?.addedAt||0) - (b?.addedAt||0);
-      }).pop();
-    }
-
-    const subParts = [
-      `🎂 ${bd}`,
-      hb ? `⛔ Hausverbot: Ja` : `⛔ Hausverbot: Nein`,
-      caseCount ? `🧾 Fälle: ${caseCount}` : `🧾 Fälle: 0`,
-      (caseCount && lastCase) ? `🆕 Letzter: ${[lastCase?.date ? `📅 ${escapeHtml(lastCase.date)}` : "", lastCase?.place ? `📍 ${escapeHtml(lastCase.place)}` : ""].filter(Boolean).join(" · ")}` : ""
-    ].filter(Boolean);
-    const sub = subParts.join(" · ");
-
-    const casesHtml = caseCount ? (()=>{
-      const sorted = cases.slice().sort((a,b)=>{
-        const ad = (a?.date || "");
-        const bd2 = (b?.date || "");
-        if(ad && bd2) return bd2.localeCompare(ad); // newest first
-        return (b?.addedAt||0) - (a?.addedAt||0);
-      });
-      const top = sorted.slice(0, 3);
-      const more = Math.max(0, sorted.length - top.length);
-      return `
-        <details class="delinqCases">
-          <summary>📂 Fälle anzeigen (${sorted.length})${more ? ` · +${more} weitere` : ``}</summary>
-          <div class="delinqCasesList">
-            ${top.map(c=>`<div class="delinqCaseRow">🧾 <b>${escapeHtml(c.caseNo || c.caseNr || "")}</b> · ${c.date ? `📅 ${escapeHtml(c.date)}` : ""}${c.place ? ` · 📍 ${escapeHtml(c.place)}` : ""}</div>`).join("")}
-            ${more ? `<div class="hint" style="font-size:12px;opacity:.8;padding:4px 2px;">Weitere Fälle sind vorhanden. Öffne „Bearbeiten“, um alle zu sehen.</div>` : ``}
-          </div>
-        </details>
-      `;
-    })() : ``;
+    const sub = [
+      idNo ? `🪪 ${idNo}` : "",
+      cDate ? `📅 ${cDate}` : "",
+      cPlace ? `📍 ${cPlace}` : ""
+    ].filter(Boolean).join(" · ");
 
     return `
       <div class="delinqItem" data-delinq-id="${escapeHtml(d.id)}">
         <div class="delinqMeta">
           <div class="delinqTitle">${name}</div>
-          <div class="delinqSub">${sub}</div>${casesHtml}
+          <div class="delinqSub">${sub || `<span style="opacity:.7;">(keine Details)</span>`}</div>
         </div>
         <div class="delinqActions">
           ${canEdit ? `<button class="btn" type="button" data-delinq-action="edit">Bearbeiten</button>` : ""}
@@ -6630,11 +6712,9 @@ function openDelinqOverlay(){
   if(!ov) return;
   ov.classList.remove("hidden");
 
-  // Case-Liste initial rendern (damit der Bereich nicht leer wirkt)
-  try{ renderDelinqCaseList(); }catch(_e){}
-
   if(__unsubDelinq) __unsubDelinq();
-  const q = query(delinqCol(), orderBy("lastNameLower","asc"), orderBy("firstNameLower","asc"), orderBy("birthDate","asc"));
+  // newest first (works without composite index)
+  const q = query(delinqCol(), orderBy("createdAt","desc"));
   __unsubDelinq = onSnapshot(q, (snap)=>{
     const arr = [];
     snap.forEach(docu => arr.push({ id: docu.id, ...docu.data() }));
@@ -6651,71 +6731,57 @@ function closeDelinqOverlay(){
 
 function clearDelinqForm(){
   const f = document.getElementById("delinqFirstName"); if(f) f.value = "";
-  const l = document.getElementById("delinqLastName"); if(l) l.value = "";
-  const b = document.getElementById("delinqBirthDate"); if(b) b.value = "";
-const hb = document.getElementById("delinqHouseBan"); if(hb) hb.checked = false;
-
-  // Fälle zurücksetzen
-  __delinqCurrentCases = [];
-  __delinqPendingCases = [];
-  clearDelinqCaseInputs();
-  renderDelinqCaseList();
+  const l = document.getElementById("delinqLastName");  if(l) l.value = "";
+  const i = document.getElementById("delinqIdNo");      if(i) i.value = "";
+  const d = document.getElementById("delinqCaseDate");  if(d) d.value = "";
+  const p = document.getElementById("delinqCasePlace"); if(p) p.value = "";
 
   __editingDelinqId = null;
   const btn = document.getElementById("btnSaveDelinq");
   if(btn) btn.textContent = "Speichern";
+  try{ f?.focus?.(); }catch(_){}
+}
+
+async function deleteDelinqById(id){
+  await deleteDoc(doc(db, "delinquents", id));
+  toast("🗑️ Gelöscht.");
 }
 
 async function saveDelinq(){
   const userId = requireLogin();
+
   const firstName = __norm(document.getElementById("delinqFirstName")?.value);
   const lastName  = __norm(document.getElementById("delinqLastName")?.value);
-  const birthDate = __norm(document.getElementById("delinqBirthDate")?.value); // YYYY-MM-DD
-const houseBan  = !!document.getElementById("delinqHouseBan")?.checked;
+  const idNo      = __norm(document.getElementById("delinqIdNo")?.value);
+  const caseDate  = __norm(document.getElementById("delinqCaseDate")?.value); // YYYY-MM-DD
+  const casePlace = __norm(document.getElementById("delinqCasePlace")?.value);
 
-  if(!firstName || !lastName || !birthDate){
-    alert("Bitte Vorname, Nachname und Geburtsdatum ausfüllen.");
+  if(!firstName || !lastName || !idNo || !caseDate || !casePlace){
+    alert("Bitte Vorname, Name, Ausweisnummer, Fall-Datum und Fall-Ort ausfüllen.");
     return;
   }
-const fnL = __normLower(firstName);
-  const lnL = __normLower(lastName);
-// Fälle: bestehende + neue (pending)
-  const existingCases = __safeArr(__delinqCurrentCases);
-  const pendingCases = __safeArr(__delinqPendingCases);
-  const finalCases = __editingDelinqId ? [...existingCases, ...pendingCases] : [...pendingCases];
-  const casesKey = finalCases.map(c => `${__normLower(c?.caseNo)} ${__normLower(c?.date)} ${__normLower(c?.place)}`).join(" ").trim();
 
-  // Duplikat-Check (nur beim Neuanlegen): gleicher Vorname/Nachname/Geburtsdatum
-  if(!__editingDelinqId){
-    const dupQ = query(
-      delinqCol(),
-      where("firstNameLower", "==", fnL),
-      where("lastNameLower", "==", lnL),
-      where("birthDate", "==", birthDate),
-limit(1)
-    );
-    const dupSnap = await getDocs(dupQ);
-    if(!dupSnap.empty){
-      toast("⚠️ Bereits vorhanden (Duplikat).");
-      return;
-    }
-  }
+  const fnL = __normLower(firstName);
+  const lnL = __normLower(lastName);
+  const idL = __normLower(idNo);
+  const dtL = __normLower(caseDate);
+  const plL = __normLower(casePlace);
 
   const docData = {
     firstName,
     lastName,
-    birthDate,
-houseBan: houseBan,
+    idNo,
+    caseDate,
+    casePlace,
 
     firstNameLower: fnL,
     lastNameLower: lnL,
+    idNoLower: idL,
+    caseDateLower: dtL,
+    casePlaceLower: plL,
 
-    // Suchtext: Name + Datum + "hausverbot" + Fälle
-    searchKey: `${lnL} ${fnL} ${birthDate} ${houseBan ? "hausverbot" : ""} ${casesKey}`.trim(),
-
-    // Fälle / Vorfälle
-    cases: finalCases,
-    casesCount: (finalCases?.length || 0),
+    // Suchtext: alles in einem Feld
+    searchKey: `${lnL} ${fnL} ${idL} ${dtL} ${plL}`.trim(),
 
     createdAt: serverTimestamp(),
     createdByUid: userId,
@@ -6724,20 +6790,11 @@ houseBan: houseBan,
 
   try{
     if(__editingDelinqId){
-      // Owner/createdBy* bleiben im Doc erhalten (Rules blocken sonst). Wir setzten hier nichts um.
-      // Firestore update: nur Felder, die sich ändern sollen.
-      await updateDoc(doc(db, "delinquents", __editingDelinqId), {
-        firstName, lastName, birthDate,
-        houseBan,
-firstNameLower: fnL, lastNameLower: lnL,
-        searchKey: docData.searchKey,
-        cases: finalCases,
-        casesCount: (finalCases?.length || 0)
-      });
-      toast("✅ Delinquent aktualisiert.");
+      await updateDoc(doc(db, "delinquents", __editingDelinqId), docData);
+      toast("✅ Aktualisiert.");
     }else{
       await addDoc(delinqCol(), docData);
-      toast("✅ Delinquent gespeichert.");
+      toast("✅ Gespeichert.");
     }
     clearDelinqForm();
   }catch(err){
@@ -6746,32 +6803,12 @@ firstNameLower: fnL, lastNameLower: lnL,
   }
 }
 
-async function deleteDelinqById(id){
-  requireLogin();
-  const d = __delinqCache.find(x => x.id === id);
-  if(!d){
-    toast("⚠️ Eintrag nicht gefunden.");
-    return;
-  }
-  if(!__canDeleteDelinq(d)){
-    toast("⛔ Keine Berechtigung zum Löschen.");
-    return;
-  }
-  const ok = confirm(`Eintrag wirklich löschen?\n\n${(d.lastName||"").toUpperCase()} ${d.firstName||""} (${d.birthDate||""})`);
-  if(!ok) return;
-
-  await deleteDoc(doc(db, "delinquents", id));
-  toast("🗑️ Gelöscht.");
-}
-
 (function bindDelinqUi(){
   const btnOpen = document.getElementById("btnOpenDelinq");
   const zone = document.getElementById("delinqZone");
   const btnClose = document.getElementById("btnCloseDelinq");
   const btnSave = document.getElementById("btnSaveDelinq");
   const btnClear = document.getElementById("btnClearDelinq");
-  const btnAddCase = document.getElementById("btnAddDelinqCase");
-  const caseList = document.getElementById("delinqCaseList");
   const search = document.getElementById("delinqSearch");
   const list = document.getElementById("delinqList");
 
@@ -6786,22 +6823,8 @@ async function deleteDelinqById(id){
   if(btnClose) btnClose.addEventListener("click", closeDelinqOverlay);
   if(btnSave) btnSave.addEventListener("click", saveDelinq);
   if(btnClear) btnClear.addEventListener("click", clearDelinqForm);
-  if(btnAddCase) btnAddCase.addEventListener("click", addDelinqCaseFromInputs);
   if(search) search.addEventListener("input", renderDelinqList);
 
-  // Pending-Fall entfernen (nur lokal, wird erst bei Speichern geschrieben)
-  if(caseList){
-    caseList.addEventListener('click', (e)=>{
-      const b = e.target?.closest?.('button[data-delinqcase-remove]');
-      if(!b) return;
-      const idx = parseInt(b.getAttribute('data-delinqcase-remove'), 10);
-      if(Number.isNaN(idx)) return;
-      __delinqPendingCases.splice(idx, 1);
-      renderDelinqCaseList();
-    });
-  }
-
-  // Edit/Delete delegation (works for dynamically rendered list items)
   if(list){
     list.addEventListener("click", async (e)=>{
       const btn = e.target?.closest?.('button[data-delinq-action]');
@@ -6814,23 +6837,15 @@ async function deleteDelinqById(id){
       const d = __delinqCache.find(x => x.id === id);
       if(!d){ toast("⚠️ Eintrag nicht gefunden."); return; }
 
-      const myUid = state?.session?.uid || auth.currentUser?.uid || null;
-      const canEdit = (typeof perms === "function" && perms().canAdmin) || (myUid && d.createdByUid === myUid);
-      if(!canEdit){ toast("⛔ Keine Berechtigung."); return; }
+      if(!__canEditDelinq(d)){ toast("⛔ Keine Berechtigung."); return; }
 
       if(action === "edit"){
         __editingDelinqId = id;
         const f = document.getElementById("delinqFirstName"); if(f) f.value = d.firstName || "";
         const l = document.getElementById("delinqLastName");  if(l) l.value = d.lastName || "";
-        const b = document.getElementById("delinqBirthDate"); if(b) b.value = d.birthDate || "";
-        const s = null;     if(s) s.value = d.store || "";
-        const hb = document.getElementById("delinqHouseBan"); if(hb) hb.checked = !!d.houseBan;
-
-        // Fälle laden (bearbeiten) + Liste anzeigen
-        __delinqCurrentCases = __safeArr(d.cases).slice();
-        __delinqPendingCases = [];
-        clearDelinqCaseInputs();
-        renderDelinqCaseList();
+        const i = document.getElementById("delinqIdNo");      if(i) i.value = d.idNo || "";
+        const cd = document.getElementById("delinqCaseDate"); if(cd) cd.value = d.caseDate || "";
+        const cp = document.getElementById("delinqCasePlace"); if(cp) cp.value = d.casePlace || "";
 
         const saveBtn = document.getElementById("btnSaveDelinq"); if(saveBtn) saveBtn.textContent = "Aktualisieren";
         try{ f?.focus?.(); }catch(_){}
@@ -6848,7 +6863,6 @@ async function deleteDelinqById(id){
       }
     });
   }
-
 
   // ESC schließt
   document.addEventListener("keydown", (e)=>{
@@ -6870,6 +6884,33 @@ async function deleteDelinqById(id){
   <button class="mbtn" id="mbChat" type="button"><span>💬</span>Chat</button>
   <button class="mbtn" id="mbSettings" type="button"><span>⚙️</span>Settings</button>
 </nav>
+
+
+<script id="chatLastSeenHookV20">
+(function(){
+  const __chatLSKey = (roomId)=> `chatLastSeen:${roomId || "global"}`;
+  function markSeenNow(){
+    try{
+      const roomSel = (window.state && window.state.chatRoom) ? window.state.chatRoom : (window.currentRoomId || "global");
+      localStorage.setItem(__chatLSKey(String(roomSel || "global")), String(Date.now()));
+      if(typeof window.setChatUnreadBadge === "function") window.setChatUnreadBadge(0);
+    }catch(_){}
+  }
+  ["setView","setMobileView"].forEach(fnName=>{
+    const orig = window[fnName];
+    if(typeof orig !== "function") return;
+    window[fnName] = function(view){
+      const r = orig.apply(this, arguments);
+      if(String(view) === "chat") markSeenNow();
+      return r;
+    };
+  });
+  ["mbChat","navChat","dnavChat"].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.addEventListener("click", ()=> markSeenNow(), {passive:true});
+  });
+})();
+</script>
 
 </body>
 </html>

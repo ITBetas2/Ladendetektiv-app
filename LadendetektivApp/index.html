@@ -1042,6 +1042,33 @@ input, textarea, select { scroll-margin-top: 90px; }
     }
     .tabBadge.hidden{ display:none !important; }
 
+
+/* Case sub-tabs (Fall / Rangliste inside Fall-Tab) */
+.subtabBar{
+  display:flex;
+  gap:8px;
+  padding:10px 12px 0 12px;
+  flex-wrap:wrap;
+}
+.subtabBtn{
+  border:1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  padding:8px 10px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 12px;
+}
+.subtabBtn.active{
+  background: rgba(255,255,255,0.14);
+}
+
+/* Tools sub-tabs (within Tools view / files) */
+.toolsPanel{ display:none; }
+.toolsPanel.active{ display:block; }
+
+/* Keep consistent spacing: panels already contain dropzone cards */
+#toolsContent .dropzone{ margin-top: 0 !important; }
 </style>
 
 <!-- ===== MOBILE VISIBILITY FIX (Chat + Settings) ===== -->
@@ -2014,151 +2041,8 @@ input, textarea, select { scroll-margin-top: 90px; }
 }
 </style>
 
-<style id="mobileChatComposerOverlay">
-@media (max-width: 980px){
-  #mobileChatComposer{
-    position: fixed;
-    left: 12px;
-    right: 12px;
-    bottom: calc(var(--navH, 72px) + env(safe-area-inset-bottom, 0px) + 10px);
-    z-index: 99999;
-    display: none; /* only visible in chat view */
-    gap: 10px;
-    padding: 10px;
-    border: 1px solid rgba(255,255,255,.10);
-    border-radius: 16px;
-    background: rgba(10,14,28,.92);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 14px 40px rgba(0,0,0,.45);
-  }
-  #mobileChatComposer input{
-    flex: 1 1 auto;
-    min-width: 0;
-    min-height: 46px;
-  }
-  #mobileChatComposer button{
-    min-width: 96px;
-  }
-  /* Give the chat log space so last messages aren't hidden behind composer */
-  body.view-chat #chatLog{
-    padding-bottom: calc(140px + var(--navH, 72px) + env(safe-area-inset-bottom, 0px)) !important;
-  }
-}
-@media (min-width: 981px){
-  #mobileChatComposer{ display:none !important; }
-}
-</style>
 
 
-<script id="mobileChatComposerOverlayJs">
-(function(){
-  function isMobile(){ return window.matchMedia && window.matchMedia("(max-width: 980px)").matches; }
-  function inChat(){
-    // primary: body class used by this app
-    if(document.body.classList.contains("view-chat")) return true;
-    // fallback: active button id/class
-    const active = document.querySelector(".tabBtn.active, .mbtn.active, #mobileBottomNav .mbtn.active");
-    const id = active?.id || "";
-    return /chat/i.test(id);
-  }
-
-  function ensure(){
-    let bar = document.getElementById("mobileChatComposer");
-    if(bar) return bar;
-
-    bar = document.createElement("div");
-    bar.id = "mobileChatComposer";
-
-    const inp = document.createElement("input");
-    inp.id = "chatTextMobile";
-    inp.placeholder = "Nachricht eingeben…";
-    inp.autocomplete = "off";
-
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "btn primary";
-    btn.textContent = "Senden";
-
-    const send = ()=>{
-      const v = (inp.value || "").trim();
-      if(!v) return;
-      const desktopInp = document.getElementById("chatText");
-      if(desktopInp) desktopInp.value = v;
-      const desktopBtn = document.getElementById("btnSend");
-      if(desktopBtn) desktopBtn.click();
-      else if(typeof window.sendChat === "function") window.sendChat();
-      inp.value = "";
-    };
-
-    btn.addEventListener("click", send);
-    inp.addEventListener("keydown", (e)=>{
-      if(e.key === "Enter"){
-        e.preventDefault();
-        send();
-      }
-    });
-
-    bar.appendChild(inp);
-    bar.appendChild(btn);
-    document.body.appendChild(bar);
-    return bar;
-  }
-
-  function sync(){
-    const bar = document.getElementById("mobileChatComposer");
-    // If not mobile, ensure hidden (and don't create)
-    if(!isMobile()){
-      if(bar) bar.style.display = "none";
-      return;
-    }
-    const b = bar || ensure();
-    b.style.display = (inChat() ? "flex" : "none");
-  }
-
-  // Run ASAP (no timeout delay)
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", sync, { once:true });
-  }else{
-    sync();
-  }
-  window.addEventListener("resize", sync);
-
-  // 1) Observe body class changes (instant show/hide on view switch)
-  try{
-    const mo = new MutationObserver(()=> sync());
-    mo.observe(document.body, { attributes:true, attributeFilter:["class"] });
-  }catch(_){}
-
-  // 2) Hook navigation clicks for immediate UI feedback
-  function bindNavClicks(){
-    const navBtns = document.querySelectorAll(".tabBtn, #mobileBottomNav .mbtn, .mbtn");
-    navBtns.forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        // run on next microtask (after app updates classes)
-        Promise.resolve().then(sync);
-      }, { passive:true });
-    });
-  }
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", bindNavClicks, { once:true });
-  }else{
-    bindNavClicks();
-  }
-
-  // 3) Wrap view-setter functions (if present) without delay
-  const wrap = (fnName)=>{
-    const orig = window[fnName];
-    if(typeof orig !== "function") return;
-    window[fnName] = function(){
-      const r = orig.apply(this, arguments);
-      sync();
-      return r;
-    };
-  };
-  wrap("setView");
-  wrap("setMobileView");
-})();
-</script>
 
 
 
@@ -2214,6 +2098,169 @@ input, textarea, select { scroll-margin-top: 90px; }
     border-radius:12px;
     background: rgba(255,255,255,.03);
   }
+</style>
+
+
+
+<style id="prettyTabbarsV5">
+  /* Pretty sub tab bars (Fall + Tools) */
+  .subtabBar{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    padding:8px;
+    margin:10px 12px 12px 12px;
+    border-radius:16px;
+    border:1px solid var(--border);
+    background: rgba(255,255,255,.04);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    overflow-x:auto;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+    z-index: 40;
+  }
+  .subtabBar::-webkit-scrollbar{ display:none; }
+  .subtabBtn{
+    flex:0 0 auto;
+    appearance:none;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(0,0,0,.10);
+    color: var(--muted);
+    padding:8px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:.2px;
+    cursor:pointer;
+    pointer-events:auto;
+    touch-action: manipulation;
+    transition: transform .08s ease, background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .subtabBtn:active{ transform: scale(.98); }
+  .subtabBtn.active{
+    background: color-mix(in srgb, var(--accent) 28%, rgba(0,0,0,.10));
+    border-color: color-mix(in srgb, var(--accent) 55%, rgba(255,255,255,.12));
+    color: var(--text);
+    box-shadow: 0 10px 22px rgba(0,0,0,.25);
+  }
+  /* Make sure badges can sit on tab buttons if needed */
+  .subtabBtn{ position:relative; z-index:41; }
+</style>
+
+
+<style id="subtabAnimV7">
+  /* Smooth sub-view transitions */
+  .subtabView{
+    transition: opacity .18s ease, transform .18s ease;
+    will-change: opacity, transform;
+  }
+  .subtabView.isHidden{
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .subtabView.isShown{
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    position: relative;
+    left: 0;
+    width: auto;
+    height: auto;
+    overflow: visible;
+  }
+</style>
+
+
+
+
+<style id="caseSubtabCssV17">
+  /* Make Fall subtab bar always visible and clickable */
+  #casePanel{ overflow: visible; }
+  #casePanel .topbar{ position: sticky; top: 0; z-index: 25; }
+  #casePanel .subtabBar{
+    position: sticky;
+    top: 56px;
+    z-index: 26;
+    pointer-events: auto;
+  }
+  #casePanel .subtabBtn{
+    pointer-events: auto;
+    z-index: 27;
+    touch-action: manipulation;
+  }
+</style>
+
+
+<style id="caseSubtabsStickyV20">
+  /* Single, clean Fall/Rangliste switcher */
+  #caseSubtabBar{
+    position: sticky;
+    top: 74px; /* below header in mobile */
+    z-index: 45;
+    margin: 10px 12px 12px 12px !important;
+    width: calc(100% - 24px);
+    pointer-events: auto;
+  }
+  /* Ensure the case header stays on top */
+  #casePanel .topbar{
+    position: sticky;
+    top: 0;
+    z-index: 46;
+  }
+  /* Prevent overlapping with sticky elements */
+  #casePanel .content{
+    padding-top: 6px;
+  }
+</style>
+
+
+
+<style id="caseSubtabsSegmentedV22">
+  /* Simple, fixed segmented control for Fall / Rangliste */
+  #casePanel{ overflow: visible !important; }
+  #casePanel .topbar{ position: sticky; top: 0; z-index: 70; }
+
+  #caseSubtabBar{
+    position: sticky;
+    top: 64px; /* under header */
+    z-index: 69;
+    margin: 10px 12px 12px 12px !important;
+    width: calc(100% - 24px) !important;
+    box-sizing: border-box !important;
+
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+
+    padding: 8px !important;
+    border-radius: 18px !important;
+    border: 1px solid var(--border, rgba(255,255,255,.08)) !important;
+    background: rgba(255,255,255,.04) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  #caseSubtabBar .subtabBtn{
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 10px 10px !important;
+    border-radius: 14px !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    letter-spacing: .2px !important;
+    white-space: nowrap !important;
+  }
+
+  /* Prevent any inherited overflow/scroll behaviour from generic subtab bar */
+  #caseSubtabBar{ overflow: visible !important; }
 </style>
 
 </head>
@@ -2524,7 +2571,7 @@ input, textarea, select { scroll-margin-top: 90px; }
   <div class="drawerList">
     <button class="drawerBtn active" id="navStart" type="button">🏠 Home</button>
     <button class="drawerBtn" id="navFiles" type="button">💼 Tools</button>
-    <button class="drawerBtn" id="navRanking" type="button">🏆 Rangliste</button>
+    <button class="drawerBtn" id="navRanking" type="button">📌 Ereignis</button>
     <button class="drawerBtn" id="navCase" type="button">📝 Fälle</button>
     <button class="drawerBtn" id="navChat" type="button">💬 Chat</button>
     <div class="drawerDivider"></div>
@@ -2544,7 +2591,7 @@ input, textarea, select { scroll-margin-top: 90px; }
     <div class="tabs" id="desktopTabs">
       <button class="tabBtn active" id="dnavStart" type="button">🏠 Home</button>
       <button class="tabBtn" id="dnavFiles" type="button">💼 Tools</button>
-      <button class="tabBtn" id="dnavRanking" type="button">🏆 Rangliste</button>
+      <button class="tabBtn" id="dnavRanking" type="button">📌 Ereignis</button>
       <button class="tabBtn" id="dnavCase" type="button">📝 Fälle</button>
       <button class="tabBtn" id="dnavChat" type="button">💬 Chat</button>
 <button class="tabBtn" id="dnavSettings" type="button">⚙️ Settings</button>
@@ -2689,22 +2736,21 @@ input, textarea, select { scroll-margin-top: 90px; }
     </details>
   </div>
 </section>
-<!-- RANGLISTE -->
+<!-- EREIGNIS -->
 <section class="card" id="rankingPanel" style="display:none;">
   <div class="topbar">
     <div>
-      <div style="font-weight:900; font-size:16px;">🏆 Rangliste</div>
-      <div class="sub">Fälle pro Person (Firebase)</div>
+      <div style="font-weight:900; font-size:16px;">📌 Ereignis</div>
+      <div class="sub">Ereignisse / Infos</div>
     </div>
-    <div class="chip">Live</div>
+    <div class="chip">Info</div>
   </div>
 
   <div class="section">
     <div class="hint" style="margin-bottom:10px;">
-      Live-Rangliste aus Firestore. Sortiert nach gemeldeten Fällen (absteigend).
+     🚧 > Hier entsteht etwas neues!!! (noch im Aufbau). < 🚧 
     </div>
-
-    <div class="list" id="rankingList" style="padding:0; gap:10px;"></div>
+    <div class="list" id="eventList" style="padding:0; gap:10px;"></div>
   </div>
 </section>
 
@@ -2713,12 +2759,18 @@ input, textarea, select { scroll-margin-top: 90px; }
 <section class="card" id="casePanel" style="display:none;">
   <div class="topbar">
     <div>
-      <div style="font-weight:900; font-size:16px;">📝 Fälle</div>
-      <div class="sub">Speicherung &amp; Liste über Firebase</div>
+      <div style="font-weight:900; font-size:16px;">📝 Fälle / 🎖️ Rangliste</div>
+      <div class="sub">Fall erfassen + Rangliste</div>
     </div>
-    <div class="chip">Live</div>
+    <div class="chip">Live Ansicht</div>
   </div>
 
+  <div class="subtabBar" id="caseSubtabBar">
+  <button class="subtabBtn active" id="caseTabCases" type="button">Fall erfassen</button>
+  <button class="subtabBtn" id="caseTabRanking" type="button">Rangliste</button>
+</div>
+
+  <div id="caseSubCases" class="subtabView isShown">
   <div class="section">
     <div class="hint" style="margin-bottom:10px;">
       Trage einen Fall ein (Name, Ort, Datum, Zeit) und speichere ihn. Unten siehst du deine gespeicherten Fälle.
@@ -2755,6 +2807,17 @@ input, textarea, select { scroll-margin-top: 90px; }
     <div style="font-weight:900; margin-bottom:10px;">Deine Fälle</div>
     <div class="list" id="caseList" style="padding:0; gap:10px;"></div>
   </div>
+  </div>
+
+  <div id="caseSubRanking" class="subtabView isHidden"<div id="caseSubRanking" class="subtabView isHidden">
+    <div class="section">
+<div class="hint" style="margin-bottom:10px;">
+      Live-Rangliste. (Hier werden die Fälle gezählt)
+    </div>
+
+    <div class="list" id="rankingList" style="padding:0; gap:10px;"></div>
+    </div>
+  </div>
 </section>
 
 
@@ -2773,16 +2836,15 @@ input, textarea, select { scroll-margin-top: 90px; }
 </div>
 </div>
 
-<div class="dropzone" id="dropzone">
-  <div style="font-weight:900; font-size:16px; color:var(--text);">📁 Infos / Dokumente</div>
-  <div class="hint" style="margin-top:6px;">
-    Alle relevanten Dokumente liegen zentral im Google Drive. Öffne den Ordner über den Button.
-  </div>
-  <div style="margin-top:12px; display:flex; justify-content:center;">
-    <button class="btn primary" id="btnOpenDrive" type="button">Google Drive öffnen</button>
-  </div>
+<div class="subtabBar" id="toolsSubtabBar">
+  <button class="subtabBtn" type="button" data-toolstab="duty">Aktiv im Dienst</button>
+  <button class="subtabBtn" type="button" data-toolstab="docs">Infos / Dokumente</button>
+  <button class="subtabBtn" type="button" data-toolstab="securi">SecuriReport</button>
+  <button class="subtabBtn" type="button" data-toolstab="delinq">Delinquenten DB</button>
 </div>
 
+<div id="toolsContent">
+  <div class="toolsPanel" id="toolsPanelDuty">
 <div class="dropzone" id="activeDutyZone" style="margin-top:14px;">
   <div style="font-weight:900; font-size:16px; color:var(--text);">🟢 Aktiv im Dienst</div>
   <div class="hint" style="margin-top:6px;">
@@ -2790,7 +2852,23 @@ input, textarea, select { scroll-margin-top: 90px; }
   </div>
   <div class="active-duty-grid" id="activeDutyGrid"></div>
 </div>
+  </div>
 
+  <div class="toolsPanel" id="toolsPanelDocs">
+<div class="dropzone" id="docsZone" style="margin-top:14px;">
+  <div class="securireport-card">
+    <div class="card-header">
+      <span class="icon">📁</span>
+      <span class="title">Infos / Dokumente</span>
+    </div>
+    <p class="card-text">Alle relevanten Dokumente liegen zentral im Google Drive. Öffne den Ordner über den Button.</p>
+    <button class="btn primary" id="btnOpenDrive" type="button" style="margin-top:16px">Google Drive öffnen</button>
+  </div>
+
+</div>
+  </div>
+
+  <div class="toolsPanel" id="toolsPanelSecuri">
 <div class="dropzone" id="securiReportZone" style="margin-top:14px;">
   <div class="securireport-card">
     <div class="card-header">
@@ -2801,7 +2879,9 @@ input, textarea, select { scroll-margin-top: 90px; }
     <button class="btn primary" id="btnOpenSecuriReport" type="button" style="margin-top:16px" onclick="(function(){var u='https://securireport3.securitas.ch/securireport/desktop-app/#login'; try{var w=window.open(u, '_blank', 'noopener,noreferrer'); if(!w) window.location.href=u;}catch(e){window.location.href=u;}})()">SecuriReport öffnen</button>
   </div>
 </div>
+  </div>
 
+  <div class="toolsPanel" id="toolsPanelDelinq">
 <div class="dropzone" id="delinqZone" style="margin-top:14px;">
   <div class="securireport-card">
     <div class="card-header">
@@ -2812,7 +2892,7 @@ input, textarea, select { scroll-margin-top: 90px; }
     <button class="btn primary" id="btnOpenDelinq" type="button" style="margin-top:16px">Datenbank öffnen</button>
   </div>
 </div>
-
+  </div>
 </div>
 
 <div class="grid hidden" id="fileGrid"></div>
@@ -5130,17 +5210,26 @@ function updateServicePreviewLine(){
 }
 
 
-function clearServiceForm(){
-  // IMPORTANT: Never wipe the service form while a service is running/restored.
+function clearServiceForm(force=false){
+  // clearServiceFormGuardV15: never clear while a duty is running
   try{
-    if(window.__restoredInService) return;
-    if(state && state.__inServiceRestored) return;
-    if(typeof serviceStartMs === "number" && serviceStartMs > 0) return;
-    const cached = (typeof loadServiceLocal === "function") ? loadServiceLocal() : null;
-    if(cached && cached.uid && state?.session?.uid && cached.uid === state.session.uid && cached.startMs > 0){
+    if(typeof serviceStartMs === "number" && serviceStartMs > 0){
       return;
     }
   }catch(_e){}
+
+  // IMPORTANT: Never wipe the service form while a service is running/restored.
+  if(!force){
+  try{
+      if(window.__restoredInService) return;
+      if(state && state.__inServiceRestored) return;
+      if(typeof serviceStartMs === "number" && serviceStartMs > 0) return;
+      const cached = (typeof loadServiceLocal === "function") ? loadServiceLocal() : null;
+      if(cached && cached.uid && state?.session?.uid && cached.uid === state.session.uid && cached.startMs > 0){
+        return;
+      }
+    }catch(_e){}
+    }
 const now = new Date();
   const d = now.toISOString().slice(0,10);
 
@@ -5152,7 +5241,7 @@ const now = new Date();
   const endEl = document.getElementById("serviceEndTime");
 
   if(dateEl) dateEl.value = d;
-  if(pnEl) pnEl.value = (pnEl.value || "").trim(); // keep if user already typed
+  if(pnEl) pnEl.value = force ? "" : (pnEl.value || "").trim(); // clear after save
   if(nameEl) nameEl.value = (state.profile?.displayName || state.session?.user || displayNameFromEmail(state.session?.email) || "");
   if(startEl){ startEl.value = ""; startEl.disabled = true; }
   if(endEl){ endEl.value = ""; endEl.disabled = false; }
@@ -5350,7 +5439,9 @@ async function saveService(){
     dienstbeginn: startHH,
     dienstende: endHH
   });
-if(!state.__inServiceRestored) if(!window.__restoredInService) clearServiceForm();
+  // Reset UI + clear form after successful save
+  try{ applyServiceUIIdle(); }catch(_e){}
+  clearServiceForm(true);
       // Cleanup active-duty listener
       if(state.unsubActiveDuty) state.unsubActiveDuty();
       state.unsubActiveDuty = null;
@@ -5609,6 +5700,7 @@ const sidebar = document.querySelector(".sidebar");
     if(casePanel) casePanel.style.display = "flex";
     document.getElementById("navCase")?.classList.add("active");
     document.getElementById("dnavCase")?.classList.add("active");
+    try{ setCaseSubTab(state.caseSubTab || (localStorage.getItem("caseSubTab")||"cases")); }catch(_e){}
 } else if(view === "chat"){
     rightbar.style.display = "flex";
     // mark chat as read immediately (prevents badge reappearing on refresh)
@@ -5681,7 +5773,7 @@ document.getElementById("dnavSettings")?.addEventListener("click", ()=>goDesktop
 
   // Default view
   const isMobile = window.matchMedia("(max-width: 980px)").matches;
-  setMobileView(isMobile ? "start" : "files");
+  setMobileView("start");
 
   // Update date line
   const updateDate = ()=>{
@@ -5701,7 +5793,7 @@ document.getElementById("dnavSettings")?.addEventListener("click", ()=>goDesktop
     const nowMobile = window.matchMedia("(max-width: 980px)").matches;
     if(nowMobile !== _lastIsMobile){
       _lastIsMobile = nowMobile;
-      setMobileView(state.mobileView || (nowMobile ? "start" : "files"));
+      setMobileView(state.mobileView || "start");
       closeDrawer();
     }
   });
@@ -5847,6 +5939,13 @@ async function bindUI(){
 
       // Restore running duty timer after refresh/app close
       await restoreServiceAfterLogin();
+      // Force Home (start) as default view after login on mobile
+      try{
+        const isMobile = window.matchMedia("(max-width: 980px)").matches;
+        if(isMobile && typeof setMobileView === "function"){
+          setMobileView("start");
+        }
+      }catch(_e){}
 
       // Presence
       watchPresence();
@@ -5862,7 +5961,10 @@ async function bindUI(){
       watchCases();
       watchServices();
       clearCaseForm();
-      clearServiceForm();
+      // IMPORTANT: do not reset running service state after restore
+      if(!serviceStartMs){
+        clearServiceForm(true);
+      }
       renderRanking();
     } else {
       // Cleanup listeners/timers
@@ -7221,7 +7323,7 @@ async function saveDelinq(){
 <nav id="mobileBottomNav">
   <button class="mbtn" id="mbStart" type="button"><span>🏠</span>Home</button>
   <button class="mbtn" id="mbDocs" type="button"><span>💼</span>Tools</button>
-  <button class="mbtn" id="mbRank" type="button"><span>🏆</span>Rang</button>
+  <button class="mbtn" id="mbRank" type="button"><span>📌</span>Ereignis</button>
   <button class="mbtn" id="mbCase" type="button"><span>📝</span>Fall</button>
   <button class="mbtn" id="mbChat" type="button"><span>💬</span>Chat</button>
   <button class="mbtn" id="mbSettings" type="button"><span>⚙️</span>Settings</button>
@@ -7277,6 +7379,276 @@ async function saveDelinq(){
       if(String(v) === "home") setTimeout(applyIfNeeded, 50);
       return r;
     };
+  });
+})();
+
+// ===== Case SubTabs (Fall / Rangliste) =====
+function setCaseSubTab(tab){
+  try{
+    state.caseSubTab = tab;
+    try{ localStorage.setItem("caseSubTab", tab); }catch(_){}
+    const b1 = document.getElementById("caseTabCases");
+    const b2 = document.getElementById("caseTabRanking");
+    const v1 = document.getElementById("caseSubCases");
+    const v2 = document.getElementById("caseSubRanking");
+    if(b1) b1.classList.toggle("active", tab==="cases");
+    if(b2) b2.classList.toggle("active", tab==="ranking");
+    if(v1) v1.style.display = (tab==="cases") ? "" : "none";
+    if(v2) v2.style.display = (tab==="ranking") ? "" : "none";
+
+    // Render relevant list
+    if(tab==="ranking"){
+      try{ renderRanking(); }catch(_){}
+    }else{
+      try{ renderMyCases(); }catch(_){}
+    }
+  }catch(e){
+    console.warn("setCaseSubTab failed", e);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", ()=>{
+  // restore last subtab
+  let t = "cases";
+  try{ t = localStorage.getItem("caseSubTab") || "cases"; }catch(_){}
+  if(t !== "ranking") t = "cases";
+  try{ state.caseSubTab = t; }catch(_){}
+  document.getElementById("caseTabCases")?.addEventListener("click", ()=> setCaseSubTab("cases"));
+  document.getElementById("caseTabRanking")?.addEventListener("click", ()=> setCaseSubTab("ranking"));
+});
+
+</script>
+
+
+
+<script id="initCaseSubTabsV3">
+document.addEventListener("DOMContentLoaded", function(){
+  const btnCases = document.getElementById("caseTabCases");
+  const btnRank  = document.getElementById("caseTabRanking");
+  const viewCases = document.getElementById("caseSubCases");
+  const viewRank  = document.getElementById("caseSubRanking");
+
+  function activate(which){
+    if(!btnCases || !btnRank || !viewCases || !viewRank) return;
+
+    const isCases = which === "cases";
+    btnCases.classList.toggle("active", isCases);
+    btnRank.classList.toggle("active", !isCases);
+
+    viewCases.classList.toggle("isShown", isCases);
+    viewCases.classList.toggle("isHidden", !isCases);
+    viewRank.classList.toggle("isShown", !isCases);
+    viewRank.classList.toggle("isHidden", isCases);
+
+    // If ranking view is shown, ensure ranking is refreshed if function exists
+    if(!isCases && typeof window.refreshRanking === "function"){
+      try{ window.refreshRanking(); }catch(_){}
+    }
+  }
+
+  // Make absolutely sure clicks work even if something stops propagation
+  if(btnCases){
+    btnCases.style.pointerEvents = "auto";
+    btnCases.addEventListener("click", function(e){ e.preventDefault(); e.stopPropagation(); activate("cases"); }, {passive:false});
+    btnCases.addEventListener("touchstart", function(e){ e.stopPropagation(); }, {passive:true});
+  }
+  if(btnRank){
+    btnRank.style.pointerEvents = "auto";
+    btnRank.addEventListener("click", function(e){ e.preventDefault(); e.stopPropagation(); activate("rank"); }, {passive:false});
+    btnRank.addEventListener("touchstart", function(e){ e.stopPropagation(); }, {passive:true});
+  }
+
+  // default
+  activate("cases");
+});
+</script>
+
+<script id="initToolsSubTabs">
+(function(){
+  // Tools SubTabs (within view-files / "Tools")
+  function setToolsSubTab(tab){
+    try{
+      const key = (tab||"").toLowerCase();
+      const resolved = (key==="docs"||key==="securi"||key==="delinq") ? key : "duty";
+      try{ window.state = window.state || {}; window.state.toolsSubTab = resolved; }catch(_){}
+      try{ localStorage.setItem("toolsSubTab", resolved); }catch(_){}
+
+      const panels = {
+        duty:  document.getElementById("toolsPanelDuty"),
+        docs:  document.getElementById("toolsPanelDocs"),
+        securi:document.getElementById("toolsPanelSecuri"),
+        delinq:document.getElementById("toolsPanelDelinq"),
+      };
+      Object.keys(panels).forEach(k=>{
+        const el = panels[k];
+        if(!el) return;
+        el.classList.toggle("active", k===resolved);
+      });
+
+      const bar = document.getElementById("toolsSubtabBar");
+      if(bar){
+        bar.querySelectorAll("[data-toolstab]").forEach(btn=>{
+          btn.classList.toggle("active", btn.getAttribute("data-toolstab")===resolved);
+        });
+      }
+    }catch(e){
+      console.warn("setToolsSubTab failed", e);
+    }
+  }
+
+  // expose for other scripts (e.g. view switcher)
+  window.setToolsSubTab = setToolsSubTab;
+
+  document.addEventListener("DOMContentLoaded", ()=>{
+    const bar = document.getElementById("toolsSubtabBar");
+    if(bar){
+      bar.addEventListener("click", (ev)=>{
+        const btn = ev.target.closest("[data-toolstab]");
+        if(!btn) return;
+        ev.preventDefault();
+        setToolsSubTab(btn.getAttribute("data-toolstab"));
+      });
+    }
+
+    // default: Aktiv im Dienst
+    let t = "duty";
+    try{ t = (window.state && window.state.toolsSubTab) || localStorage.getItem("toolsSubTab") || "duty"; }catch(_){}
+    setToolsSubTab(t);
+  });
+
+  // also re-apply whenever we switch to Tools view (if setMobileView exists)
+  const _wrap = (fnName)=>{
+    const orig = window[fnName];
+    if(typeof orig !== "function") return;
+    window[fnName] = function(){
+      const r = orig.apply(this, arguments);
+      try{
+        const v = arguments && arguments[0];
+        if(v === "files"){
+          let t = "duty";
+          try{ t = (window.state && window.state.toolsSubTab) || localStorage.getItem("toolsSubTab") || "duty"; }catch(_){}
+          setToolsSubTab(t);
+        }
+      }catch(_){}
+      return r;
+    };
+  };
+  _wrap("setMobileView");
+})();
+</script>
+
+
+
+
+<script id="subtabAnimInitV7">
+document.addEventListener("DOMContentLoaded", function(){
+  try{
+    document.querySelectorAll(".subtabView").forEach(el=>{
+      // If already explicitly shown/hidden, keep; else hide.
+      if(!el.classList.contains("isShown") && !el.classList.contains("isHidden")){
+        el.classList.add("isHidden");
+      }
+    });
+    // Ensure the currently active subtabs show their views
+    const activeCaseBtn = document.querySelector("#caseSubtabBar .subtabBtn.active");
+    if(activeCaseBtn) activeCaseBtn.click();
+    const activeToolsBtn = document.querySelector("#toolsSubtabBar .subtabBtn.active");
+    if(activeToolsBtn) activeToolsBtn.click();
+  }catch(_){}
+});
+</script>
+
+
+
+<script id="startStrictDefaultV14">
+document.addEventListener("DOMContentLoaded", function(){
+  try{
+    if(!window.__appInitialized){
+      window.__appInitialized = true;
+      if(typeof setMobileView === "function"){
+        setMobileView("start"); // Home screen
+      }
+    }
+  }catch(_){}
+});
+</script>
+
+
+<script id="caseSubtabsJSV17">
+(function(){
+  const KEY = "tas_case_subtab_v1"; // "cases" | "ranking"
+
+  window.setCaseSubTab = function(which){
+    try{
+      const btnCases = document.getElementById("caseTabCases");
+      const btnRank  = document.getElementById("caseTabRanking");
+      const viewCases = document.getElementById("caseSubCases");
+      const viewRank  = document.getElementById("caseSubRanking");
+
+      if(!btnCases || !btnRank || !viewCases || !viewRank) return;
+
+      const isCases = (which === "cases");
+
+      btnCases.classList.toggle("active", isCases);
+      btnRank.classList.toggle("active", !isCases);
+
+      viewCases.classList.toggle("isShown", isCases);
+      viewCases.classList.toggle("isHidden", !isCases);
+
+      viewRank.classList.toggle("isShown", !isCases);
+      viewRank.classList.toggle("isHidden", isCases);
+
+      try{ localStorage.setItem(KEY, which); }catch(_){}
+
+      // When showing ranking, render immediately (data is computed from cases watcher)
+      if(!isCases && typeof window.renderRanking === "function"){
+        try{ window.renderRanking(); }catch(_){}
+      }
+    }catch(_){}
+  };
+
+  function bind(){
+    const btnCases = document.getElementById("caseTabCases");
+    const btnRank  = document.getElementById("caseTabRanking");
+    if(btnCases){
+      btnCases.addEventListener("click", (e)=>{ e.preventDefault(); e.stopPropagation(); window.setCaseSubTab("cases"); }, {passive:false});
+      btnCases.addEventListener("touchstart", (e)=>{ e.stopPropagation(); }, {passive:true});
+    }
+    if(btnRank){
+      btnRank.addEventListener("click", (e)=>{ e.preventDefault(); e.stopPropagation(); window.setCaseSubTab("ranking"); }, {passive:false});
+      btnRank.addEventListener("touchstart", (e)=>{ e.stopPropagation(); }, {passive:true});
+    }
+    // default
+    let which = "cases";
+    try{
+      const saved = localStorage.getItem(KEY);
+      if(saved === "ranking" || saved === "cases") which = saved;
+    }catch(_){}
+    window.setCaseSubTab(which);
+  }
+
+  document.addEventListener("DOMContentLoaded", ()=>{
+    bind();
+
+    // When switching to the Fall tab, re-apply saved subtab after render
+    ["setView","setMobileView"].forEach(fn=>{
+      const orig = window[fn];
+      if(typeof orig !== "function") return;
+      window[fn] = function(v){
+        const r = orig.apply(this, arguments);
+        if(String(v)==="case"){
+          setTimeout(()=>{
+            try{
+              let which="cases";
+              const saved = localStorage.getItem(KEY);
+              if(saved==="ranking"||saved==="cases") which=saved;
+              window.setCaseSubTab(which);
+            }catch(_){ window.setCaseSubTab("cases"); }
+          }, 50);
+        }
+        return r;
+      };
+    });
   });
 })();
 </script>

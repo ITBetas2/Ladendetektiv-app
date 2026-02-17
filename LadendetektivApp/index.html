@@ -3,12 +3,12 @@
 <html lang="de">
 <head>
 <!-- PWA / App Icons -->
-<link rel="manifest" href="/manifest.webmanifest">
-<link rel="icon" href="/favicon.ico">
-<link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180x180.png">
-<meta name="theme-color" content="#0b1a3a">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link href="/manifest.webmanifest" rel="manifest"/>
+<link href="/favicon.ico" rel="icon"/>
+<link href="/icons/icon-180x180.png" rel="apple-touch-icon" sizes="180x180"/>
+<meta content="#0b1a3a" name="theme-color"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>Ladendetektive</title>
@@ -1070,7 +1070,6 @@ input, textarea, select { scroll-margin-top: 90px; }
 /* Keep consistent spacing: panels already contain dropzone cards */
 #toolsContent .dropzone{ margin-top: 0 !important; }
 </style>
-
 <!-- ===== MOBILE VISIBILITY FIX (Chat + Settings) ===== -->
 <style>
 @media (max-width: 900px){
@@ -1082,9 +1081,6 @@ input, textarea, select { scroll-margin-top: 90px; }
   }
 }
 </style>
-
-
-
 <!-- ===== CHAT FINAL CLEAN (WhatsApp/Signal-ish + Swipe) ===== -->
 <style>
 /* Chat layout polish (all sizes) */
@@ -1169,8 +1165,6 @@ input, textarea, select { scroll-margin-top: 90px; }
   .bubble{ max-width: 88% !important; border-radius: 18px !important; }
 }
 </style>
-
-
 <!-- ===== CHAT INPUT BAR FIX (Mobile) ===== -->
 <style>
 @media (max-width: 900px){
@@ -1209,8 +1203,6 @@ input, textarea, select { scroll-margin-top: 90px; }
   }
 }
 </style>
-
-
 <!-- ===== CHAT BUBBLES LEFT/RIGHT FIX ===== -->
 <style>
 /* Wrapper controls alignment for each row */
@@ -1228,9 +1220,6 @@ input, textarea, select { scroll-margin-top: 90px; }
   right: 14px;
 }
 </style>
-
-
-
 <!-- ===== MOBILE KEYBOARD / JUMP FIX (Chat) ===== -->
 <style>
 @media (max-width: 900px){
@@ -1285,10 +1274,6 @@ input, textarea, select { scroll-margin-top: 90px; }
   }
 }
 </style>
-
-
-
-
 <!-- ===== CHAT: ONLY MESSAGE LIST SCROLLS (scoped) ===== -->
 <style>
 @media (max-width: 900px){
@@ -1350,8 +1335,6 @@ input, textarea, select { scroll-margin-top: 90px; }
   }
 }
 </style>
-
-
 <!-- ===== CHAT FIT FIX (no content behind input) ===== -->
 <style>
 @media (max-width: 900px){
@@ -1383,9 +1366,6 @@ input, textarea, select { scroll-margin-top: 90px; }
   }
 }
 </style>
-
-
-
 <!-- ===== MOBILE HEADBAR / LAYOUT: hide side columns except their tab ===== -->
 <style>
 @media (max-width: 900px){
@@ -1425,8 +1405,6 @@ input, textarea, select { scroll-margin-top: 90px; }
   }
 }
 </style>
-
-
 <!-- ===== FINAL MOBILE VIEW OVERRIDES (fix side columns) ===== -->
 <style>
 @media (max-width: 900px){
@@ -1441,8 +1419,6 @@ input, textarea, select { scroll-margin-top: 90px; }
 
 }
 </style>
-
-
 <!-- ===== MOBILE START/RANK/FALL INTERNAL LAYOUT FIX ===== -->
 <style>
 @media (max-width: 900px){
@@ -1477,20 +1453,15 @@ input, textarea, select { scroll-margin-top: 90px; }
   }
 }
 </style>
-
-
 <!-- ===== DRIVE MODE: disable local upload UI ===== -->
 <style>
 /* Hide local upload controls if they exist anywhere */
 #filePicker, #btnPickFiles{ display:none !important; }
 </style>
-
-
 <style>
 /* This keeps the layout, but disables drag interactions */
 #dropzone{ user-select:none; }
 </style>
-
 <style>
 
 
@@ -1565,7 +1536,6 @@ input, textarea, select { scroll-margin-top: 90px; }
 }
 
 </style>
-
 <!-- ===== HOME: Services List readability + smaller delete button ===== -->
 <style>
 /* "Erfasste Dienste" – better readability + compact delete */
@@ -1604,8 +1574,6 @@ input, textarea, select { scroll-margin-top: 90px; }
   border-color: rgba(255,77,109,.30) !important;
 }
 </style>
-
-
 <!-- ===== MOBILE REFACTOR (clean + single scroll owner) ===== -->
 <style id="mobile-refactor">
 /* Goals:
@@ -1894,8 +1862,6 @@ input, textarea, select { scroll-margin-top: 90px; }
 
 }
 </style>
-
-
 <style id="settings-scroll-fix">
 /* Fix: Settings screen must be scrollable on mobile (body is sometimes locked to avoid outer scroll) */
 @media (max-width: 980px){
@@ -1916,8 +1882,6 @@ input, textarea, select { scroll-margin-top: 90px; }
   }
 }
 </style>
-
-
 <style>
 .securireport-card{
   margin-top:16px;
@@ -1953,8 +1917,6 @@ input, textarea, select { scroll-margin-top: 90px; }
 }
 .securireport-btn:active{transform:scale(.97);}
 </style>
-
-
 <style>
 /* ===== UI polish: clearer navigation labels ===== */
 .drawerBtn{ text-align:left; }
@@ -1967,12 +1929,9 @@ input, textarea, select { scroll-margin-top: 90px; }
   #activeDutyZone #btnOpenSecuriReport{ width: 100%; min-width: 0; }
 }
 </style>
-
-
 <style>
 .drawerDivider{height:1px;background:rgba(255,255,255,.12);margin:10px 0;}
 </style>
-
 <style>
 /* ===== DELINQUENTEN MOBILE LIST V1 ===== */
 #delinqList .delinqItem{
@@ -2040,12 +1999,6 @@ input, textarea, select { scroll-margin-top: 90px; }
   box-shadow: 0 10px 24px rgba(255, 0, 70, .18), inset 0 0 0 1px rgba(255,70,70,.18);
 }
 </style>
-
-
-
-
-
-
 <style id="tabBadgeAutoWidth">
   .tabBadge:not(.hidden):not(:empty){
     /* keep small, but allow 2+ chars if needed */
@@ -2072,8 +2025,6 @@ input, textarea, select { scroll-margin-top: 90px; }
   setInterval(tick, 300);
 })();
 </script>
-
-
 <style id="delinqCasesDetails">
   .delinqCases{ margin-top:8px; }
   .delinqCases summary{
@@ -2099,9 +2050,6 @@ input, textarea, select { scroll-margin-top: 90px; }
     background: rgba(255,255,255,.03);
   }
 </style>
-
-
-
 <style id="prettyTabbarsV5">
   /* Pretty sub tab bars (Fall + Tools) */
   .subtabBar{
@@ -2147,8 +2095,6 @@ input, textarea, select { scroll-margin-top: 90px; }
   /* Make sure badges can sit on tab buttons if needed */
   .subtabBtn{ position:relative; z-index:41; }
 </style>
-
-
 <style id="subtabAnimV7">
   /* Smooth sub-view transitions */
   .subtabView{
@@ -2177,10 +2123,6 @@ input, textarea, select { scroll-margin-top: 90px; }
     overflow: visible;
   }
 </style>
-
-
-
-
 <style id="caseSubtabCssV17">
   /* Make Fall subtab bar always visible and clickable */
   #casePanel{ overflow: visible; }
@@ -2197,8 +2139,6 @@ input, textarea, select { scroll-margin-top: 90px; }
     touch-action: manipulation;
   }
 </style>
-
-
 <style id="caseSubtabsStickyV20">
   /* Single, clean Fall/Rangliste switcher */
   #caseSubtabBar{
@@ -2220,9 +2160,6 @@ input, textarea, select { scroll-margin-top: 90px; }
     padding-top: 6px;
   }
 </style>
-
-
-
 <style id="caseSubtabsSegmentedV22">
   /* Simple, fixed segmented control for Fall / Rangliste */
   #casePanel{ overflow: visible !important; }
@@ -2262,354 +2199,405 @@ input, textarea, select { scroll-margin-top: 90px; }
   /* Prevent any inherited overflow/scroll behaviour from generic subtab bar */
   #caseSubtabBar{ overflow: visible !important; }
 </style>
+<style>
+/* === Ereignis (Mobile Decision Tree) === */
+#eventList { padding: 0 !important; }
+.eventWrap { display: block; }
 
-</head>
+.eventHeader{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  margin: 4px 0 10px;
+}
+.eventTitle{ font-weight: 800; font-size: 18px; letter-spacing:.2px; }
+
+.eventNav{
+  display:flex; align-items:center; gap:10px;
+  margin: 0 0 12px;
+}
+.eventBreadcrumb{
+  flex:1;
+  font-size: 13px;
+  opacity:.85;
+  white-space: nowrap;
+  overflow:hidden;
+  text-overflow: ellipsis;
+}
+
+.evtCard{
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 14px;
+  padding: 14px;
+  margin: 0 0 12px;
+}
+.evtCard h3{
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+
+.evtGrid2{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+}
+
+.evtBtn{
+  width:100%;
+  padding: 14px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.06);
+  color: inherit;
+  font-weight: 800;
+  font-size: 16px;
+  cursor: pointer;
+}
+.evtBtn:disabled{ opacity:.45; cursor:not-allowed; }
+
+.evtBtn.primary{ background: #ff9800; border-color: rgba(0,0,0,.12); color:#111; }
+.evtBtn.yes{ background: #1db954; border-color: rgba(0,0,0,.12); color:#08130b; }
+.evtBtn.no{ background: #ffcc00; border-color: rgba(0,0,0,.12); color:#111; }
+.evtBtn.ghost{ background: transparent; }
+
+.evtActions{
+  list-style:none;
+  padding:0;
+  margin:0;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.evtActions li{
+  display:flex; align-items:flex-start; gap:10px;
+  background: rgba(0,0,0,.16);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 12px;
+  padding: 10px 10px;
+  line-height: 1.25rem;
+}
+
+.tag{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width: 78px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  border: 1px solid rgba(0,0,0,.18);
+  color:#111;
+  flex: 0 0 auto;
+}
+.tag.police{ background:#ff3b30; }
+.tag.info{ background:#0a84ff; color:#06101f; }
+.tag.os{ background:#bf5af2; color:#12051c; }
+.tag.form{ background:#ffd60a; }
+.tag.check{ background:#30d158; }
+.tag.warn{ background:#ff9f0a; }
+.tag.pay{ background:#64d2ff; }
+
+.hidden{ display:none !important; }
+
+@media (min-width: 860px){
+  .eventTitle{ font-size: 20px; }
+  .evtCard h3{ font-size: 17px; }
+}
+</style></head>
 <body>
-<div id="authOverlay" class="authOverlay">
-  <div class="card authModal">
-    <div class="authTitle" id="authTitle">Login / Registrierung</div>
-    <div class="field">
-      <label>Benutzername</label>
-      <input id="authUser" placeholder="Hier deine E-Mail eingeben" autocomplete="username"/>
-    </div>
-    <div class="field">
-      <label>Passwort</label>
-      <input id="authPass" placeholder="••••••••" type="password" autocomplete="current-password"/>
-    </div>
-    <div class="row2" style="margin-top:10px;">
-      <button class="btn primary" id="btnDoLogin" type="button">Login</button>
+<div class="authOverlay" id="authOverlay">
+<div class="card authModal">
+<div class="authTitle" id="authTitle">Login / Registrierung</div>
+<div class="field">
+<label>Benutzername</label>
+<input autocomplete="username" id="authUser" placeholder="Hier deine E-Mail eingeben"/>
+</div>
+<div class="field">
+<label>Passwort</label>
+<input autocomplete="current-password" id="authPass" placeholder="••••••••" type="password"/>
+</div>
+<div class="row2" style="margin-top:10px;">
+<button class="btn primary" id="btnDoLogin" type="button">Login</button>
 </div>
 </div>
 </div>
-<div id="adminOverlay" class="authOverlay hidden">
-  <div class="card authModal adminModal">
-    <div class="adminHeader">
-      <div class="authTitle" style="margin:0;">Admin Bereich</div>
-      <button class="btn small" id="btnCloseAdmin" type="button">Schließen</button>
-    </div>
-
-    <div class="adminLayout">
-      <nav class="adminNav" id="adminNav" aria-label="Admin Navigation">
-        <button class="adminNavBtn active" type="button" data-admin-tab="access">🔐 Zugang</button>
-        <button class="adminNavBtn" type="button" data-admin-tab="roles">🧩 Rollen</button>
-        <button class="adminNavBtn" type="button" data-admin-tab="chat">💬 Chat</button>
-        <button class="adminNavBtn" type="button" data-admin-tab="profile">👤 Profile</button>
-      </nav>
-
-      <div class="adminContent">
-        <!-- Zugang -->
-        <section class="adminPage" data-admin-page="access">
-          <div class="adminCard">
-            <div class="adminCardTitle">App Whitelist</div>
-            <div class="hint" style="margin-top:6px;">Zugelassene E-Mails (eine pro Zeile). Alles wird klein geschrieben gespeichert.</div>
-            <textarea id="whitelistBox" class="adminTextarea"></textarea>
-            <div class="row2" style="margin-top:10px;">
-              <button class="btn primary" id="btnSaveWhitelist" type="button">Whitelist speichern</button>
-              <div></div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Rollen -->
-        <section class="adminPage hidden" data-admin-page="roles">
-          <div class="adminGrid2">
-            <div class="adminCard">
-              <div class="adminCardTitle">Rolle anlegen / ändern</div>
-              <div class="hint" style="margin-top:6px;">Name + Rechte setzen, dann speichern.</div>
-
-              <div class="field">
-                <label>Rollenname</label>
-                <input id="roleName" placeholder="z.B. Leitung oder Mitarbeiter"/>
-              </div>
-
-              <div class="row2">
-                <label class="pill"><input type="checkbox" id="roleCanUpload"/> Upload</label>
-                <label class="pill"><input type="checkbox" id="roleCanDownload"/> Download</label>
-              </div>
-              <div class="row2" style="margin-top:8px;">
-                <label class="pill"><input type="checkbox" id="roleCanAdmin"/> Admin</label>
-                <div></div>
-              </div>
-
-              <div class="row2" style="margin-top:10px;">
-                <button class="btn primary" id="btnSaveRole" type="button">Rolle speichern</button>
-                <button class="btn danger" id="btnDeleteRole" type="button">Rolle löschen</button>
-              </div>
-            </div>
-
-            <div class="adminCard">
-              <div class="adminCardTitle">Benutzer Rolle zuweisen</div>
-
-              <div class="field">
-                <label>E-Mail</label>
-                <input id="userRoleEmail" placeholder="user@firma.ch"/>
-              </div>
-              <div class="field">
-                <label>Rolle</label>
-                <select id="userRoleSelect"></select>
-              </div>
-
-              <div class="row2" style="margin-top:10px;">
-                <button class="btn primary" id="btnSetUserRole" type="button">Rolle zuweisen</button>
-                <button class="btn" id="btnRefreshRoleOverview" type="button">Aktualisieren</button>
-              </div>
-
-              <div class="divider"></div>
-
-              <div class="adminCardTitle" style="margin-top:2px;">Übersicht</div>
-              <div class="field" style="margin-top:10px;">
-                <label>Suche</label>
-                <input id="roleOverviewSearch" placeholder="E-Mail oder Rolle..." />
-              </div>
-              <div class="hint" id="roleOverviewHint" style="margin-top:6px;">—</div>
-
-              <div class="adminTableWrap" style="margin-top:10px;">
-                <table id="roleOverviewTable" class="adminTable"></table>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Chat -->
-        <section class="adminPage hidden" data-admin-page="chat">
-          <div class="adminGrid2">
-            <div class="adminCard">
-              <div class="adminCardTitle">Chat Rollen</div>
-              <div class="hint" style="margin-top:6px;">Damit im Chat ein Admin/Moderator an einem Icon erkennbar ist.</div>
-
-              <div class="field">
-                <label>E-Mail (für Chat-Rolle)</label>
-                <input id="chatRoleEmail" placeholder="user@firma.ch"/>
-              </div>
-              <div class="field">
-                <label>Rolle</label>
-                <select id="chatRoleSelect">
-                  <option value="user">User</option>
-                  <option value="mod">Moderator</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-
-              <div class="row2" style="margin-top:10px;">
-                <button class="btn primary" id="btnSetChatRole" type="button">Chat-Rolle speichern</button>
-                <button class="btn danger" id="btnDeleteChatRole" type="button">Chat-Rolle löschen</button>
-              </div>
-
-              <div class="hint" style="margin-top:12px;">Aktuelle Chat-Rollen (read-only)</div>
-              <textarea id="chatRolesBox" class="adminTextarea" readonly></textarea>
-            </div>
-
-            <div class="adminCard">
-              <div class="adminCardTitle">Chat Moderation</div>
-              <div class="hint" style="margin-top:6px;">Nutzer muten (UIDs oder E-Mails, je Zeile) und Chat/Systemmeldungen bereinigen.</div>
-
-              <div class="field">
-                <label>Muted (eine UID oder E-Mail pro Zeile)</label>
-                <textarea id="mutedBox" class="adminTextarea" style="min-height:140px;"></textarea>
-              </div>
-
-              <div class="row2" style="margin-top:10px;">
-                <button class="btn primary" id="btnSaveMuted" type="button">Muted speichern</button>
-                <button class="btn danger" id="btnClearChat" type="button">Chat leeren (letzte 500)</button>
-              </div>
-              <div class="row2" style="margin-top:10px;">
-                <button class="btn danger" id="btnClearSystem" type="button">Systemmeldungen löschen (letzte 500)</button>
-                <div></div>
-              </div>
-              <div class="hint" style="margin-top:8px;">Hinweis: Mute blockiert das Senden. Lesen bleibt erlaubt.</div>
-            </div>
-          </div>
-        </section>
-
-      
-        <!-- Profile (Admin) -->
-        <section class="adminPage hidden" data-admin-page="profile">
-          <div class="adminCard">
-            <div class="adminCardTitle">Benutzername als Admin festlegen</div>
-            <div class="hint" style="margin-top:6px;">
+<div class="authOverlay hidden" id="adminOverlay">
+<div class="card authModal adminModal">
+<div class="adminHeader">
+<div class="authTitle" style="margin:0;">Admin Bereich</div>
+<button class="btn small" id="btnCloseAdmin" type="button">Schließen</button>
+</div>
+<div class="adminLayout">
+<nav aria-label="Admin Navigation" class="adminNav" id="adminNav">
+<button class="adminNavBtn active" data-admin-tab="access" type="button">🔐 Zugang</button>
+<button class="adminNavBtn" data-admin-tab="roles" type="button">🧩 Rollen</button>
+<button class="adminNavBtn" data-admin-tab="chat" type="button">💬 Chat</button>
+<button class="adminNavBtn" data-admin-tab="profile" type="button">👤 Profile</button>
+</nav>
+<div class="adminContent">
+<!-- Zugang -->
+<section class="adminPage" data-admin-page="access">
+<div class="adminCard">
+<div class="adminCardTitle">App Whitelist</div>
+<div class="hint" style="margin-top:6px;">Zugelassene E-Mails (eine pro Zeile). Alles wird klein geschrieben gespeichert.</div>
+<textarea class="adminTextarea" id="whitelistBox"></textarea>
+<div class="row2" style="margin-top:10px;">
+<button class="btn primary" id="btnSaveWhitelist" type="button">Whitelist speichern</button>
+<div></div>
+</div>
+</div>
+</section>
+<!-- Rollen -->
+<section class="adminPage hidden" data-admin-page="roles">
+<div class="adminGrid2">
+<div class="adminCard">
+<div class="adminCardTitle">Rolle anlegen / ändern</div>
+<div class="hint" style="margin-top:6px;">Name + Rechte setzen, dann speichern.</div>
+<div class="field">
+<label>Rollenname</label>
+<input id="roleName" placeholder="z.B. Leitung oder Mitarbeiter"/>
+</div>
+<div class="row2">
+<label class="pill"><input id="roleCanUpload" type="checkbox"/> Upload</label>
+<label class="pill"><input id="roleCanDownload" type="checkbox"/> Download</label>
+</div>
+<div class="row2" style="margin-top:8px;">
+<label class="pill"><input id="roleCanAdmin" type="checkbox"/> Admin</label>
+<div></div>
+</div>
+<div class="row2" style="margin-top:10px;">
+<button class="btn primary" id="btnSaveRole" type="button">Rolle speichern</button>
+<button class="btn danger" id="btnDeleteRole" type="button">Rolle löschen</button>
+</div>
+</div>
+<div class="adminCard">
+<div class="adminCardTitle">Benutzer Rolle zuweisen</div>
+<div class="field">
+<label>E-Mail</label>
+<input id="userRoleEmail" placeholder="user@firma.ch"/>
+</div>
+<div class="field">
+<label>Rolle</label>
+<select id="userRoleSelect"></select>
+</div>
+<div class="row2" style="margin-top:10px;">
+<button class="btn primary" id="btnSetUserRole" type="button">Rolle zuweisen</button>
+<button class="btn" id="btnRefreshRoleOverview" type="button">Aktualisieren</button>
+</div>
+<div class="divider"></div>
+<div class="adminCardTitle" style="margin-top:2px;">Übersicht</div>
+<div class="field" style="margin-top:10px;">
+<label>Suche</label>
+<input id="roleOverviewSearch" placeholder="E-Mail oder Rolle..."/>
+</div>
+<div class="hint" id="roleOverviewHint" style="margin-top:6px;">—</div>
+<div class="adminTableWrap" style="margin-top:10px;">
+<table class="adminTable" id="roleOverviewTable"></table>
+</div>
+</div>
+</div>
+</section>
+<!-- Chat -->
+<section class="adminPage hidden" data-admin-page="chat">
+<div class="adminGrid2">
+<div class="adminCard">
+<div class="adminCardTitle">Chat Rollen</div>
+<div class="hint" style="margin-top:6px;">Damit im Chat ein Admin/Moderator an einem Icon erkennbar ist.</div>
+<div class="field">
+<label>E-Mail (für Chat-Rolle)</label>
+<input id="chatRoleEmail" placeholder="user@firma.ch"/>
+</div>
+<div class="field">
+<label>Rolle</label>
+<select id="chatRoleSelect">
+<option value="user">User</option>
+<option value="mod">Moderator</option>
+<option value="admin">Admin</option>
+</select>
+</div>
+<div class="row2" style="margin-top:10px;">
+<button class="btn primary" id="btnSetChatRole" type="button">Chat-Rolle speichern</button>
+<button class="btn danger" id="btnDeleteChatRole" type="button">Chat-Rolle löschen</button>
+</div>
+<div class="hint" style="margin-top:12px;">Aktuelle Chat-Rollen (read-only)</div>
+<textarea class="adminTextarea" id="chatRolesBox" readonly=""></textarea>
+</div>
+<div class="adminCard">
+<div class="adminCardTitle">Chat Moderation</div>
+<div class="hint" style="margin-top:6px;">Nutzer muten (UIDs oder E-Mails, je Zeile) und Chat/Systemmeldungen bereinigen.</div>
+<div class="field">
+<label>Muted (eine UID oder E-Mail pro Zeile)</label>
+<textarea class="adminTextarea" id="mutedBox" style="min-height:140px;"></textarea>
+</div>
+<div class="row2" style="margin-top:10px;">
+<button class="btn primary" id="btnSaveMuted" type="button">Muted speichern</button>
+<button class="btn danger" id="btnClearChat" type="button">Chat leeren (letzte 500)</button>
+</div>
+<div class="row2" style="margin-top:10px;">
+<button class="btn danger" id="btnClearSystem" type="button">Systemmeldungen löschen (letzte 500)</button>
+<div></div>
+</div>
+<div class="hint" style="margin-top:8px;">Hinweis: Mute blockiert das Senden. Lesen bleibt erlaubt.</div>
+</div>
+</div>
+</section>
+<!-- Profile (Admin) -->
+<section class="adminPage hidden" data-admin-page="profile">
+<div class="adminCard">
+<div class="adminCardTitle">Benutzername als Admin festlegen</div>
+<div class="hint" style="margin-top:6px;">
               Suche per <b>E-Mail</b> oder direkt per <b>UID</b>. Danach kannst du den <b>Display Name</b> setzen.
             </div>
-
-            <div class="adminGrid2" style="margin-top:12px;">
-              <div class="field">
-                <label>E-Mail (optional)</label>
-                <input id="adminUserEmail" placeholder="z.B. user@firma.de" />
-              </div>
-              <div class="field">
-                <label>UID (optional)</label>
-                <input id="adminUserUid" placeholder="Firebase UID" />
-              </div>
-            </div>
-
-            <div class="row2" style="margin-top:10px;">
-              <button class="btn" id="btnAdminUserLoad" type="button">User laden</button>
-              <div id="adminUserLoadHint" class="hint" style="align-self:center; margin:0;"></div>
-            </div>
-
-            <div class="adminGrid2" style="margin-top:14px;">
-              <div class="field">
-                <label>Aktueller Name</label>
-                <input id="adminUserCurrentName" disabled />
-              </div>
-              <div class="field">
-                <label>Neuer Name</label>
-                <input id="adminUserNewName" placeholder="z.B. Max Mustermann" />
-              </div>
-            </div>
-
-            <div class="row2" style="margin-top:10px;">
-              <button class="btn primary" id="btnAdminUserSave" type="button">Speichern</button>
-              <div id="adminUserSaveHint" class="hint" style="align-self:center; margin:0;"></div>
-            </div>
-
-            <div class="hint" style="margin-top:10px; opacity:.85;">
+<div class="adminGrid2" style="margin-top:12px;">
+<div class="field">
+<label>E-Mail (optional)</label>
+<input id="adminUserEmail" placeholder="z.B. user@firma.de"/>
+</div>
+<div class="field">
+<label>UID (optional)</label>
+<input id="adminUserUid" placeholder="Firebase UID"/>
+</div>
+</div>
+<div class="row2" style="margin-top:10px;">
+<button class="btn" id="btnAdminUserLoad" type="button">User laden</button>
+<div class="hint" id="adminUserLoadHint" style="align-self:center; margin:0;"></div>
+</div>
+<div class="adminGrid2" style="margin-top:14px;">
+<div class="field">
+<label>Aktueller Name</label>
+<input disabled="" id="adminUserCurrentName"/>
+</div>
+<div class="field">
+<label>Neuer Name</label>
+<input id="adminUserNewName" placeholder="z.B. Max Mustermann"/>
+</div>
+</div>
+<div class="row2" style="margin-top:10px;">
+<button class="btn primary" id="btnAdminUserSave" type="button">Speichern</button>
+<div class="hint" id="adminUserSaveHint" style="align-self:center; margin:0;"></div>
+</div>
+<div class="hint" style="margin-top:10px; opacity:.85;">
               Hinweis: Wenn der Benutzer online ist, wird der Name zusätzlich in <code>presence/{uid}</code> gespiegelt, damit er sofort sichtbar ist.
             </div>
-          </div>
-        </section>
 </div>
-    </div>
-  </div>
+</section>
 </div>
 </div>
-
-  </div>
 </div>
-
+</div>
 <div class="mobileHeader hidden" id="mobileHeader">
-  <button class="iconBtn" id="btnHamburger" type="button" aria-label="Menü öffnen">☰</button>
-  <div class="mhTitle">
-    <div style="font-weight:900" id="mhAppName">Projekt TAS</div>
-    <div class="mhSub" id="mhDateLine"></div>
-  </div>
-  <div style="display:flex; gap:8px; align-items:center;">
-    <div class="chip" id="mhUserChip">offline</div>
-  </div>
+<button aria-label="Menü öffnen" class="iconBtn" id="btnHamburger" type="button">☰</button>
+<div class="mhTitle">
+<div id="mhAppName" style="font-weight:900">Projekt TAS</div>
+<div class="mhSub" id="mhDateLine"></div>
 </div>
-
-<div <div id="delinqOverlay" class="authOverlay hidden">
-  <div class="card authModal" style="max-width:980px; width:min(980px, 94vw);">
-    <div class="adminHeader" style="margin-bottom:10px;">
-      <div class="authTitle" style="margin:0;">🗃️ Delinquenten Datenbank</div>
-      <button class="btn small" id="btnCloseDelinq" type="button">Schließen</button>
-    </div>
-
-    <div class="row2" style="gap:12px; align-items:flex-start; flex-wrap:wrap;">
-      <div class="card" style="flex:1; min-width:280px; padding:12px;">
-        <div style="font-weight:900; margin-bottom:10px;">Neuen Eintrag erfassen</div>
-
-        <div class="field">
-          <label>Vorname</label>
-          <input id="delinqFirstName" placeholder="z.B. Max" />
-        </div>
-
-        <div class="field">
-          <label>Name</label>
-          <input id="delinqLastName" placeholder="z.B. Mustermann" />
-        </div>
-
-        <div class="field">
-          <label>Ausweisnummer</label>
-          <input id="delinqIdNo" placeholder="z.B. ID/Pass-Nr." />
-        </div>
-
-        
-        <div class="field">
-          <label>Bemerkung</label>
-          <input id="delinqRemark" placeholder="z.B Zenterverbot, Hausverbot, keine" />
-        </div>
+<div style="display:flex; gap:8px; align-items:center;">
+<div class="chip" id="mhUserChip">offline</div>
+</div>
+</div>
+<div <div="" class="authOverlay hidden" id="delinqOverlay">
+<div class="card authModal" style="max-width:980px; width:min(980px, 94vw);">
+<div class="adminHeader" style="margin-bottom:10px;">
+<div class="authTitle" style="margin:0;">🗃️ Delinquenten Datenbank</div>
+<button class="btn small" id="btnCloseDelinq" type="button">Schließen</button>
+</div>
+<div class="row2" style="gap:12px; align-items:flex-start; flex-wrap:wrap;">
+<div class="card" style="flex:1; min-width:280px; padding:12px;">
+<div style="font-weight:900; margin-bottom:10px;">Neuen Eintrag erfassen</div>
+<div class="field">
+<label>Vorname</label>
+<input id="delinqFirstName" placeholder="z.B. Max"/>
+</div>
+<div class="field">
+<label>Name</label>
+<input id="delinqLastName" placeholder="z.B. Mustermann"/>
+</div>
+<div class="field">
+<label>Ausweisnummer</label>
+<input id="delinqIdNo" placeholder="z.B. ID/Pass-Nr."/>
+</div>
+<div class="field">
+<label>Bemerkung</label>
+<input id="delinqRemark" placeholder="z.B Zenterverbot, Hausverbot, keine"/>
+</div>
 <div class="row2" style="gap:10px;">
-          <div class="field" style="flex:1; min-width:160px;">
-            <label>Fall-Datum</label>
-            <input id="delinqCaseDate" type="date" />
-          </div>
-
-          <div class="field" style="flex:1; min-width:160px;">
-            <label>Fall-Ort</label>
-            <input id="delinqCasePlace" placeholder="z.B. Filiale / Bahnhof / Stadt" />
-          </div>
-        </div>
-
-        <div class="row2" style="gap:10px; margin-top:12px;">
-          <button class="btn primary" id="btnSaveDelinq" type="button" style="flex:1;">Speichern</button>
-          <button class="btn" id="btnClearDelinq" type="button" style="flex:1;">Leeren</button>
-        </div>
-
-        <div class="hint" style="margin-top:8px; font-size:12px; opacity:.85;">
+<div class="field" style="flex:1; min-width:160px;">
+<label>Fall-Datum</label>
+<input id="delinqCaseDate" type="date"/>
+</div>
+<div class="field" style="flex:1; min-width:160px;">
+<label>Fall-Ort</label>
+<input id="delinqCasePlace" placeholder="z.B. Filiale / Bahnhof / Stadt"/>
+</div>
+</div>
+<div class="row2" style="gap:10px; margin-top:12px;">
+<button class="btn primary" id="btnSaveDelinq" style="flex:1;" type="button">Speichern</button>
+<button class="btn" id="btnClearDelinq" style="flex:1;" type="button">Leeren</button>
+</div>
+<div class="hint" style="margin-top:8px; font-size:12px; opacity:.85;">
           Jeder Fall wird als eigener Eintrag gespeichert (kein Sammeln mehr pro Person).
         </div>
-      </div>
-
-      <div class="card" style="flex:1; min-width:280px; padding:12px;">
-        <div style="font-weight:900; margin-bottom:8px;">Liste</div>
-        <div class="field" style="margin-top:6px;">
-          <label>Suchen</label>
-          <input id="delinqSearch" placeholder="Name / Ausweis / Datum / Ort" />
-        </div>
-        <div id="delinqList" style="margin-top:10px; display:flex; flex-direction:column; gap:10px;"></div>
-      </div>
-    </div>
-  </div>
+</div>
+<div class="card" style="flex:1; min-width:280px; padding:12px;">
+<div style="font-weight:900; margin-bottom:8px;">Liste</div>
+<div class="field" style="margin-top:6px;">
+<label>Suchen</label>
+<input id="delinqSearch" placeholder="Name / Ausweis / Datum / Ort"/>
+</div>
+<div id="delinqList" style="margin-top:10px; display:flex; flex-direction:column; gap:10px;"></div>
 </div>
 </div>
-
-
-
+</div>
+</div>
 <div class="drawerOverlay hidden" id="drawerOverlay"></div>
 <nav class="drawer hidden" id="drawer">
-  <div class="drawerTop">
-    <div style="display:flex; align-items:center; gap:10px;">
-      <div class="logo" style="width:34px;height:34px;border-radius:12px;" id="drawerLogo">TAS</div>
-      <div style="min-width:0">
-        <div style="font-weight:900; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="drawerAppName">Projekt TAS</div>
-        <div class="mhSub" id="drawerUserLine">🔴 abgemeldet</div>
-      </div>
-    </div>
-    <button class="iconBtn" id="btnCloseDrawer" type="button" aria-label="Menü schließen">✕</button>
-  </div>
-
-  <div class="drawerList">
-    <button class="drawerBtn active" id="navStart" type="button">🏠 Home</button>
-    <button class="drawerBtn" id="navFiles" type="button">💼 Tools</button>
-    <button class="drawerBtn" id="navRanking" type="button">📌 Ereignis</button>
-    <button class="drawerBtn" id="navCase" type="button">📝 Fälle</button>
-    <button class="drawerBtn" id="navChat" type="button">💬 Chat</button>
-    <div class="drawerDivider"></div>
-    <button class="drawerBtn hidden" id="navAdmin" type="button">🛡️ Admin</button>
+<div class="drawerTop">
+<div style="display:flex; align-items:center; gap:10px;">
+<div class="logo" id="drawerLogo" style="width:34px;height:34px;border-radius:12px;">TAS</div>
+<div style="min-width:0">
+<div id="drawerAppName" style="font-weight:900; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Projekt TAS</div>
+<div class="mhSub" id="drawerUserLine">🔴 abgemeldet</div>
+</div>
+</div>
+<button aria-label="Menü schließen" class="iconBtn" id="btnCloseDrawer" type="button">✕</button>
+</div>
+<div class="drawerList">
+<button class="drawerBtn active" id="navStart" type="button">🏠 Home</button>
+<button class="drawerBtn" id="navFiles" type="button">💼 Tools</button>
+<button class="drawerBtn" id="navRanking" type="button">📌 Ereignis</button>
+<button class="drawerBtn" id="navCase" type="button">📝 Fälle</button>
+<button class="drawerBtn" id="navChat" type="button">💬 Chat</button>
+<div class="drawerDivider"></div>
+<button class="drawerBtn hidden" id="navAdmin" type="button">🛡️ Admin</button>
 <button class="drawerBtn" id="navSettings" type="button">⚙️ Einstellungen</button>
-  </div>
-
-  <div class="drawerFooter">
-    <button class="btn small danger" id="drawerLogout" type="button">Logout</button>
-    <div class="hint" style="margin-top:10px;">Tipp: Auf Mobile öffnest du das Menü über ☰.</div>
-  </div>
+</div>
+<div class="drawerFooter">
+<button class="btn small danger" id="drawerLogout" type="button">Logout</button>
+<div class="hint" style="margin-top:10px;">Tipp: Auf Mobile öffnest du das Menü über ☰.</div>
+</div>
 </nav>
 <div class="viewport">
-
 <div class="desktopNavBar" id="desktopNavBar">
-  <div class="desktopNavInner">
-    <div class="tabs" id="desktopTabs">
-      <button class="tabBtn active" id="dnavStart" type="button">🏠 Home</button>
-      <button class="tabBtn" id="dnavFiles" type="button">💼 Tools</button>
-      <button class="tabBtn" id="dnavRanking" type="button">📌 Ereignis</button>
-      <button class="tabBtn" id="dnavCase" type="button">📝 Fälle</button>
-      <button class="tabBtn" id="dnavChat" type="button">💬 Chat</button>
+<div class="desktopNavInner">
+<div class="tabs" id="desktopTabs">
+<button class="tabBtn active" id="dnavStart" type="button">🏠 Home</button>
+<button class="tabBtn" id="dnavFiles" type="button">💼 Tools</button>
+<button class="tabBtn" id="dnavRanking" type="button">📌 Ereignis</button>
+<button class="tabBtn" id="dnavCase" type="button">📝 Fälle</button>
+<button class="tabBtn" id="dnavChat" type="button">💬 Chat</button>
 <button class="tabBtn" id="dnavSettings" type="button">⚙️ Settings</button>
-      <button class="tabBtn hidden" id="dnavAdmin" type="button">🛡️ Admin</button>
-    </div>
-    <div class="tabRight">
-
-      <div class="presenceBar" id="presenceBar" style="margin-right:8px;">
-        <div class="presenceLabel" id="presenceLabel">offline</div>
-        <div class="avatarStack" id="avatarStack"></div>
-      </div>
-
-      <div class="chip" id="dnavUserChip">offline</div>
-      <button class="btn small danger hidden" id="dnavLogout" type="button">Logout</button>
-    </div>
-  </div>
+<button class="tabBtn hidden" id="dnavAdmin" type="button">🛡️ Admin</button>
 </div>
-
+<div class="tabRight">
+<div class="presenceBar" id="presenceBar" style="margin-right:8px;">
+<div class="presenceLabel" id="presenceLabel">offline</div>
+<div class="avatarStack" id="avatarStack"></div>
+</div>
+<div class="chip" id="dnavUserChip">offline</div>
+<button class="btn small danger hidden" id="dnavLogout" type="button">Logout</button>
+</div>
+</div>
+</div>
 <div class="app" id="appShell">
 <!-- SIDEBAR -->
 <aside class="card sidebar">
@@ -2624,204 +2612,289 @@ input, textarea, select { scroll-margin-top: 90px; }
 <div class="statusDot" id="statusDot" title="Login Status"></div>
 </div>
 <div class="section">
-  <div class="row2">
+<div class="row2">
 <button class="btn small danger hidden" id="btnLogout" type="button">Logout</button>
+</div>
+<div class="hint" style="margin-top:10px;">
+    Profil: Name &amp; Bild kannst du nach dem Login selbst setzen.
   </div>
-
-  <div class="hint" style="margin-top:10px;">
-    Profil: Name & Bild kannst du nach dem Login selbst setzen.
-  </div>
-
-  <div class="field">
-    <label>Dein Name</label>
-    <input id="profileName" placeholder="z.B. Max Mustermann"/>
-  </div>
-  <div class="field">
-    <label>Profilbild</label>
-    <input id="profilePic" type="file" accept="image/*"/>
-  </div>
-  <div class="row2" style="margin-top:10px;">
-    <button class="btn small" id="btnSaveProfile" type="button">Profil speichern</button>
-    <button class="btn small hidden" id="btnOpenAdmin" type="button">Admin</button>
-  </div>
-
-  <div class="hint" style="margin-top:10px;">
+<div class="field">
+<label>Dein Name</label>
+<input id="profileName" placeholder="z.B. Max Mustermann"/>
+</div>
+<div class="field">
+<label>Profilbild</label>
+<input accept="image/*" id="profilePic" type="file"/>
+</div>
+<div class="row2" style="margin-top:10px;">
+<button class="btn small" id="btnSaveProfile" type="button">Profil speichern</button>
+<button class="btn small hidden" id="btnOpenAdmin" type="button">Admin</button>
+</div>
+<div class="hint" style="margin-top:10px;">
     Hinweis: Upload/Download-Rechte hängen von deiner Rolle ab.
   </div>
 </div>
-
-  <hr style="border:0; border-top:1px solid rgba(255,255,255,.12); margin:14px 0;">
-  <div class="hint" style="margin-top:0; font-weight:600;">Push Benachrichtigungen</div>
-  <div class="hint" style="margin-top:6px;">
+<hr style="border:0; border-top:1px solid rgba(255,255,255,.12); margin:14px 0;"/>
+<div class="hint" style="margin-top:0; font-weight:600;">Push Benachrichtigungen</div>
+<div class="hint" style="margin-top:6px;">
     Damit du im Hintergrund Benachrichtigungen bekommst, musst du Push einmal aktivieren.
   </div>
-
-  <div class="row2" style="margin-top:10px;">
-    <button class="btn small" id="btnEnablePush" type="button">🔔 Push aktivieren</button>
-    <button class="btn small" id="btnDisablePush" type="button">🔕 Push deaktivieren</button>
-  </div>
-
-  <div class="hint" id="pushStatus" style="margin-top:10px; opacity:.9;">
+<div class="row2" style="margin-top:10px;">
+<button class="btn small" id="btnEnablePush" type="button">🔔 Push aktivieren</button>
+<button class="btn small" id="btnDisablePush" type="button">🔕 Push deaktivieren</button>
+</div>
+<div class="hint" id="pushStatus" style="margin-top:10px; opacity:.9;">
     Push Status: (noch nicht geprüft)
   </div>
-
-  <div id="pushTokenAdminWrap" class="hidden">
-  <textarea id="pushTokenPreview" style="width:100%; min-height:80px; margin-top:8px; border-radius:12px; padding:10px; background:rgba(0,0,0,.25); color:var(--text); border:1px solid rgba(255,255,255,.12);" readonly placeholder="Token wird nach Aktivierung angezeigt..."></textarea>
-  </div>
-
+<div class="hidden" id="pushTokenAdminWrap">
+<textarea id="pushTokenPreview" placeholder="Token wird nach Aktivierung angezeigt..." readonly="" style="width:100%; min-height:80px; margin-top:8px; border-radius:12px; padding:10px; background:rgba(0,0,0,.25); color:var(--text); border:1px solid rgba(255,255,255,.12);"></textarea>
+</div>
 </aside>
 <!-- START (MOBILE) -->
 <section class="card startPanel" id="startPanel" style="display:none;">
-  <div class="topbar">
-    <div>
-      <div style="font-weight:900; font-size:16px;">Home</div>
-      <div class="sub" id="startDate"></div>
-    </div>
-    <div style="display:flex; align-items:center; gap:10px;">
-      <div class="presenceBar" id="presenceBarStartMobile">
-        <div class="presenceLabel" id="presenceLabelStartMobile">offline</div>
-        <div class="avatarStack" id="avatarStackStartMobile"></div>
-      </div>
-      <div class="chip">Übersicht</div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div style="font-weight:900; margin-bottom:8px;">Dienst erfassen</div>
-
-    <div class="row2" style="flex-wrap:wrap;">
-      <div class="field" style="flex:1; min-width:180px; margin-top:0;">
-        <label>Datum</label>
-        <input id="serviceDate" type="date"/>
-      </div>
-      <div class="field" style="flex:1; min-width:180px; margin-top:0;">
-        <label>Personalnummer</label>
-        <input id="servicePN" placeholder="z.B. 12345" inputmode="numeric"/>
-      </div>
-    </div>
-
-    <div class="field" style="margin-top:10px;">
-      <label>Name</label>
-      <input id="serviceName" placeholder="z.B.Max Mustermann"/>
-    </div>
-
-    <div class="row2" style="margin-top:10px; flex-wrap:wrap;">
-      <div class="field" style="flex:1; min-width:180px; margin-top:0;">
-        <label>Dienstbeginn</label>
-        <input id="serviceStartTime" type="time" disabled/>
-        <div class="hint" id="serviceRunningLine" style="margin-top:6px;">—</div>
-      </div>
-      <div class="field hidden" id="serviceEndWrap" style="flex:1; min-width:180px; margin-top:0;">
-        <label>Dienstende</label>
-        <input id="serviceEndTime" type="time"/>
-      </div>
-    </div>
-
-    <div class="row2" style="margin-top:12px; flex-wrap:wrap;">
-      <button class="btn primary" id="btnServiceStart" type="button">Dienstbeginn</button>
-      <button class="btn" id="btnServiceEnd" type="button" disabled>Dienstende</button>
-    </div>
-
-    <div style="margin-top:10px;">
-      <button class="btn primary" id="btnServiceSave" type="button" disabled>Speichern</button>
-    </div>
-
-    <div class="hint" id="serviceStatusHint" style="margin-top:10px;">Tipp: Dienstbeginn starten → danach Dienstende setzen → speichern.</div>
-  </div>
-
-  <div class="section">
-    <details id="servicesDetails" open>
-      <summary style="font-weight:900; cursor:pointer;">Erfasste Dienste</summary>
-      <div class="list" id="serviceList" style="padding:0; gap:10px; max-height: 340px; overflow:auto; margin-top:10px;"></div>
-    </details>
-  </div>
+<div class="topbar">
+<div>
+<div style="font-weight:900; font-size:16px;">Home</div>
+<div class="sub" id="startDate"></div>
+</div>
+<div style="display:flex; align-items:center; gap:10px;">
+<div class="presenceBar" id="presenceBarStartMobile">
+<div class="presenceLabel" id="presenceLabelStartMobile">offline</div>
+<div class="avatarStack" id="avatarStackStartMobile"></div>
+</div>
+<div class="chip">Übersicht</div>
+</div>
+</div>
+<div class="section">
+<div style="font-weight:900; margin-bottom:8px;">Dienst erfassen</div>
+<div class="row2" style="flex-wrap:wrap;">
+<div class="field" style="flex:1; min-width:180px; margin-top:0;">
+<label>Datum</label>
+<input id="serviceDate" type="date"/>
+</div>
+<div class="field" style="flex:1; min-width:180px; margin-top:0;">
+<label>Personalnummer</label>
+<input id="servicePN" inputmode="numeric" placeholder="z.B. 12345"/>
+</div>
+</div>
+<div class="field" style="margin-top:10px;">
+<label>Name</label>
+<input id="serviceName" placeholder="z.B.Max Mustermann"/>
+</div>
+<div class="row2" style="margin-top:10px; flex-wrap:wrap;">
+<div class="field" style="flex:1; min-width:180px; margin-top:0;">
+<label>Dienstbeginn</label>
+<input disabled="" id="serviceStartTime" type="time"/>
+<div class="hint" id="serviceRunningLine" style="margin-top:6px;">—</div>
+</div>
+<div class="field hidden" id="serviceEndWrap" style="flex:1; min-width:180px; margin-top:0;">
+<label>Dienstende</label>
+<input id="serviceEndTime" type="time"/>
+</div>
+</div>
+<div class="row2" style="margin-top:12px; flex-wrap:wrap;">
+<button class="btn primary" id="btnServiceStart" type="button">Dienstbeginn</button>
+<button class="btn" disabled="" id="btnServiceEnd" type="button">Dienstende</button>
+</div>
+<div style="margin-top:10px;">
+<button class="btn primary" disabled="" id="btnServiceSave" type="button">Speichern</button>
+</div>
+<div class="hint" id="serviceStatusHint" style="margin-top:10px;">Tipp: Dienstbeginn starten → danach Dienstende setzen → speichern.</div>
+</div>
+<div class="section">
+<details id="servicesDetails" open="">
+<summary style="font-weight:900; cursor:pointer;">Erfasste Dienste</summary>
+<div class="list" id="serviceList" style="padding:0; gap:10px; max-height: 340px; overflow:auto; margin-top:10px;"></div>
+</details>
+</div>
 </section>
 <!-- EREIGNIS -->
 <section class="card" id="rankingPanel" style="display:none;">
-  <div class="topbar">
-    <div>
-      <div style="font-weight:900; font-size:16px;">📌 Ereignis</div>
-      <div class="sub">Ereignisse / Infos</div>
+<div class="topbar">
+<div>
+<div style="font-weight:900; font-size:16px;">📌 Ereignis</div>
+<div class="sub">Ereignisse / Infos</div>
+</div>
+<div class="chip">Info</div>
+</div>
+<div class="section">
+<div class="hint" style="margin-bottom:10px;">
+     🚧 &gt; Hier entsteht etwas neues!!! (noch im Aufbau). &lt; 🚧 
     </div>
-    <div class="chip">Info</div>
-  </div>
-
-  <div class="section">
-    <div class="hint" style="margin-bottom:10px;">
-     🚧 > Hier entsteht etwas neues!!! (noch im Aufbau). < 🚧 
-    </div>
-    <div class="list" id="eventList" style="padding:0; gap:10px;"></div>
-  </div>
+<div class="list" id="eventList" style="padding:0; gap:10px;">
+<div class="eventWrap" id="eventWrap">
+<div class="eventHeader">
+<div class="eventTitle">Ereignis Migros</div>
+<button class="evtBtn ghost" onclick="eventReset()" type="button">Neu starten</button>
+</div>
+<!-- NAV / BACK -->
+<div class="eventNav">
+<button class="evtBtn ghost" disabled="" id="evtBackBtn" onclick="eventBack()" type="button">← Zurück</button>
+<div class="eventBreadcrumb" id="evtCrumb">Start</div>
+</div>
+<!-- STEP: START -->
+<section class="evtCard" id="evt_start">
+<h3>Wo hat das Ereignis stattgefunden?</h3>
+<button class="evtBtn primary" onclick="eventShow('evt_subito','Subito / Selfcheckout')" type="button">Subito / Selfcheckout</button>
+<button class="evtBtn primary" onclick="eventShow('evt_kasse','Kasse im Laden')" type="button">Migros Kasse im Laden</button>
 </section>
+<!-- SUBITO -->
+<section class="evtCard hidden" id="evt_subito">
+<h3>Ist die Person 13 Jahre oder jünger?</h3>
+<div class="evtGrid2">
+<button class="evtBtn yes" onclick="eventShow('evt_subito_jung','≤13 Jahre')" type="button">JA</button>
+<button class="evtBtn no" onclick="eventShow('evt_subito_alt','&gt;13 Jahre')" type="button">NEIN</button>
+</div>
+</section>
+<section class="evtCard hidden" id="evt_subito_jung">
+<h3>Massnahmen</h3>
+<ul class="evtActions">
+<li><span class="tag info">Info</span> Eltern informieren</li>
+<li><span class="tag police">Polizei</span> Wenn nicht erreichbar → Polizei alarmieren</li>
+<li><span class="tag os">OS</span> OS informieren</li>
+<li><span class="tag info">Info</span> Azou oder Lüd informieren</li>
+<li><span class="tag check">Check</span> M‑SiDi Abfrage</li>
+</ul>
+<button class="evtBtn primary" onclick="eventReset()" type="button">Fertig (Neu starten)</button>
+</section>
+<section class="evtCard hidden" id="evt_subito_alt">
+<h3>Mehr als 5 Artikel ODER über CHF 50.–?</h3>
+<div class="evtGrid2">
+<button class="evtBtn yes" onclick="eventShow('evt_subito_gross','&gt;5 Artikel oder &gt;50 CHF')" type="button">JA</button>
+<button class="evtBtn no" onclick="eventShow('evt_subito_klein','&lt;5 Artikel und &lt;50 CHF')" type="button">NEIN</button>
+</div>
+</section>
+<section class="evtCard hidden" id="evt_subito_gross">
+<h3>Massnahmen</h3>
+<ul class="evtActions">
+<li><span class="tag form">Formular</span> Meldeformular Subito / Mitnahme unbezahlte Ware OS ausfüllen</li>
+<li><span class="tag info">Info</span> Eltern informieren (falls minderjährig)</li>
+<li><span class="tag police">Polizei</span> Falls nicht erreichbar → Polizei informieren</li>
+<li><span class="tag warn">Abklärung</span> Abklärung unbezahlte Ware</li>
+<li><span class="tag check">Check</span> M‑SiDi Abfrage</li>
+</ul>
+<button class="evtBtn primary" onclick="eventReset()" type="button">Fertig (Neu starten)</button>
+</section>
+<section class="evtCard hidden" id="evt_subito_klein">
+<h3>Massnahmen</h3>
+<ul class="evtActions">
+<li><span class="tag pay">Kasse</span> Nachzahlung gemäss Absprache Migros</li>
+<li><span class="tag os">OS</span> OS informieren</li>
+<li><span class="tag check">Check</span> M‑SiDi Abfrage</li>
+</ul>
+<button class="evtBtn primary" onclick="eventReset()" type="button">Fertig (Neu starten)</button>
+</section>
+<!-- KASSE -->
+<section class="evtCard hidden" id="evt_kasse">
+<h3>Warenwert CHF 300.– oder höher?</h3>
+<div class="evtGrid2">
+<button class="evtBtn yes" onclick="eventShow('evt_kasse_hoch','≥300 CHF')" type="button">JA</button>
+<button class="evtBtn no" onclick="eventShow('evt_kasse_tief','&lt;300 CHF')" type="button">NEIN</button>
+</div>
+</section>
+<section class="evtCard hidden" id="evt_kasse_hoch">
+<h3>Massnahmen</h3>
+<ul class="evtActions">
+<li><span class="tag police">Polizei</span> Polizei alarmieren</li>
+<li><span class="tag os">OS</span> OS alarmieren</li>
+<li><span class="tag form">Formular</span> Strafantrag ausfüllen</li>
+<li><span class="tag form">Formular</span> Formular „Unbezahlte Ware UE“ erstellen</li>
+<li><span class="tag info">Info</span> Azou oder Lüd informieren</li>
+<li><span class="tag info">Info</span> Bei Minderjährigen → Eltern informieren</li>
+<li><span class="tag check">Check</span> M‑SiDi Abfrage</li>
+</ul>
+<button class="evtBtn primary" onclick="eventReset()" type="button">Fertig (Neu starten)</button>
+</section>
+<section class="evtCard hidden" id="evt_kasse_tief">
+<h3>Minderjährig?</h3>
+<div class="evtGrid2">
+<button class="evtBtn yes" onclick="eventShow('evt_kasse_minder','Minderjährig')" type="button">JA</button>
+<button class="evtBtn no" onclick="eventShow('evt_kasse_voll','Volljährig')" type="button">NEIN</button>
+</div>
+</section>
+<section class="evtCard hidden" id="evt_kasse_minder">
+<h3>Massnahmen</h3>
+<ul class="evtActions">
+<li><span class="tag form">Formular</span> Formular „Unbezahlte Ware“ ausfüllen</li>
+<li><span class="tag os">OS</span> OS informieren</li>
+<li><span class="tag form">Formular</span> UE ausstellen</li>
+<li><span class="tag info">Info</span> Eltern informieren</li>
+<li><span class="tag police">Polizei</span> Falls nicht erreichbar → Polizei beiziehen</li>
+<li><span class="tag check">Check</span> M‑SiDi Abfrage</li>
+</ul>
+<button class="evtBtn primary" onclick="eventReset()" type="button">Fertig (Neu starten)</button>
+</section>
+<section class="evtCard hidden" id="evt_kasse_voll">
+<h3>Massnahmen</h3>
+<ul class="evtActions">
+<li><span class="tag form">Formular</span> Formular „Unbezahlte Ware“ ausfüllen</li>
+<li><span class="tag os">OS</span> OS informieren</li>
+<li><span class="tag form">Formular</span> UE ausstellen</li>
+<li><span class="tag check">Check</span> M‑SiDi Abfrage</li>
+</ul>
+<button class="evtBtn primary" onclick="eventReset()" type="button">Fertig (Neu starten)</button>
+</section>
+<!-- Sticky bottom controls (mobile) -->
 
-
+</div>
+</div>
+</div>
+</section>
 <!-- FALL EINTRAGEN -->
 <section class="card" id="casePanel" style="display:none;">
-  <div class="topbar">
-    <div>
-      <div style="font-weight:900; font-size:16px;">📝 Fälle / 🎖️ Rangliste</div>
-      <div class="sub">Fall erfassen + Rangliste</div>
-    </div>
-    <div class="chip">Live Ansicht</div>
-  </div>
-
-  <div class="subtabBar" id="caseSubtabBar">
-  <button class="subtabBtn active" id="caseTabCases" type="button">Fall erfassen</button>
-  <button class="subtabBtn" id="caseTabRanking" type="button">Rangliste</button>
+<div class="topbar">
+<div>
+<div style="font-weight:900; font-size:16px;">📝 Fälle / 🎖️ Rangliste</div>
+<div class="sub">Fall erfassen + Rangliste</div>
 </div>
-
-  <div id="caseSubCases" class="subtabView isShown">
-  <div class="section">
-    <div class="hint" style="margin-bottom:10px;">
+<div class="chip">Live Ansicht</div>
+</div>
+<div class="subtabBar" id="caseSubtabBar">
+<button class="subtabBtn active" id="caseTabCases" type="button">Fall erfassen</button>
+<button class="subtabBtn" id="caseTabRanking" type="button">Rangliste</button>
+</div>
+<div class="subtabView isShown" id="caseSubCases">
+<div class="section">
+<div class="hint" style="margin-bottom:10px;">
       Trage einen Fall ein (Name, Ort, Datum, Zeit) und speichere ihn. Unten siehst du deine gespeicherten Fälle.
     </div>
-
-    <div class="field">
-      <label>Name</label>
-      <input id="caseName" placeholder="z.B. Max Mustermann"/>
-    </div>
-
-    <div class="field">
-      <label>Ort</label>
-      <input id="casePlace" placeholder="z.B. Migros / Filiale XY"/>
-    </div>
-
-    <div class="row2" style="margin-top:10px; flex-wrap:wrap;">
-      <div class="field" style="flex:1; min-width:180px;">
-        <label>Datum</label>
-        <input id="caseDate" type="date"/>
-      </div>
-      <div class="field" style="flex:1; min-width:160px;">
-        <label>Zeit</label>
-        <input id="caseTime" type="time"/>
-      </div>
-    </div>
-
-    <div class="row2" style="margin-top:12px; flex-wrap:wrap;">
-      <button class="btn primary" id="btnSaveCase" type="button">Speichern</button>
-      <button class="btn" id="btnClearCase" type="button">Felder leeren</button>
-    </div>
-  </div>
-
-  <div class="section">
-    <div style="font-weight:900; margin-bottom:10px;">Deine Fälle</div>
-    <div class="list" id="caseList" style="padding:0; gap:10px;"></div>
-  </div>
-  </div>
-
-  <div id="caseSubRanking" class="subtabView isHidden"<div id="caseSubRanking" class="subtabView isHidden">
-    <div class="section">
+<div class="field">
+<label>Name</label>
+<input id="caseName" placeholder="z.B. Max Mustermann"/>
+</div>
+<div class="field">
+<label>Ort</label>
+<input id="casePlace" placeholder="z.B. Migros / Filiale XY"/>
+</div>
+<div class="row2" style="margin-top:10px; flex-wrap:wrap;">
+<div class="field" style="flex:1; min-width:180px;">
+<label>Datum</label>
+<input id="caseDate" type="date"/>
+</div>
+<div class="field" style="flex:1; min-width:160px;">
+<label>Zeit</label>
+<input id="caseTime" type="time"/>
+</div>
+</div>
+<div class="row2" style="margin-top:12px; flex-wrap:wrap;">
+<button class="btn primary" id="btnSaveCase" type="button">Speichern</button>
+<button class="btn" id="btnClearCase" type="button">Felder leeren</button>
+</div>
+</div>
+<div class="section">
+<div style="font-weight:900; margin-bottom:10px;">Deine Fälle</div>
+<div class="list" id="caseList" style="padding:0; gap:10px;"></div>
+</div>
+</div>
+<div <div="" class="subtabView isHidden" id="caseSubRanking">
+<div class="section">
 <div class="hint" style="margin-bottom:10px;">
       Live-Rangliste. (Hier werden die Fälle gezählt)
     </div>
-
-    <div class="list" id="rankingList" style="padding:0; gap:10px;"></div>
-    </div>
-  </div>
+<div class="list" id="rankingList" style="padding:0; gap:10px;"></div>
+</div>
+</div>
 </section>
-
-
-
 <!-- MAIN -->
 <main class="card main">
 <div class="mainHeader">
@@ -2835,76 +2908,66 @@ input, textarea, select { scroll-margin-top: 90px; }
 <button class="btn small" id="btnNotify">🔔 Notify</button>
 </div>
 </div>
-
 <div class="subtabBar" id="toolsSubtabBar">
-  <button class="subtabBtn" type="button" data-toolstab="duty">Aktiv im Dienst</button>
-  <button class="subtabBtn" type="button" data-toolstab="docs">Infos / Dokumente</button>
-  <button class="subtabBtn" type="button" data-toolstab="securi">SecuriReport</button>
-  <button class="subtabBtn" type="button" data-toolstab="delinq">Delinquenten DB</button>
+<button class="subtabBtn" data-toolstab="duty" type="button">Aktiv im Dienst</button>
+<button class="subtabBtn" data-toolstab="docs" type="button">Infos / Dokumente</button>
+<button class="subtabBtn" data-toolstab="securi" type="button">SecuriReport</button>
+<button class="subtabBtn" data-toolstab="delinq" type="button">Delinquenten DB</button>
 </div>
-
 <div id="toolsContent">
-  <div class="toolsPanel" id="toolsPanelDuty">
+<div class="toolsPanel" id="toolsPanelDuty">
 <div class="dropzone" id="activeDutyZone" style="margin-top:14px;">
-  <div style="font-weight:900; font-size:16px; color:var(--text);">🟢 Aktiv im Dienst</div>
-  <div class="hint" style="margin-top:6px;">
+<div style="font-weight:900; font-size:16px; color:var(--text);">🟢 Aktiv im Dienst</div>
+<div class="hint" style="margin-top:6px;">
     Hier siehst du alle, die  <b>Aktiv im Dienst</b> sind.
   </div>
-  <div class="active-duty-grid" id="activeDutyGrid"></div>
+<div class="active-duty-grid" id="activeDutyGrid"></div>
 </div>
-  </div>
-
-  <div class="toolsPanel" id="toolsPanelDocs">
+</div>
+<div class="toolsPanel" id="toolsPanelDocs">
 <div class="dropzone" id="docsZone" style="margin-top:14px;">
-  <div class="securireport-card">
-    <div class="card-header">
-      <span class="icon">📁</span>
-      <span class="title">Infos / Dokumente</span>
-    </div>
-    <p class="card-text">Alle relevanten Dokumente liegen zentral im Google Drive. Öffne den Ordner über den Button.</p>
-    <button class="btn primary" id="btnOpenDrive" type="button" style="margin-top:16px">Google Drive öffnen</button>
-  </div>
-
+<div class="securireport-card">
+<div class="card-header">
+<span class="icon">📁</span>
+<span class="title">Infos / Dokumente</span>
 </div>
-  </div>
-
-  <div class="toolsPanel" id="toolsPanelSecuri">
+<p class="card-text">Alle relevanten Dokumente liegen zentral im Google Drive. Öffne den Ordner über den Button.</p>
+<button class="btn primary" id="btnOpenDrive" style="margin-top:16px" type="button">Google Drive öffnen</button>
+</div>
+</div>
+</div>
+<div class="toolsPanel" id="toolsPanelSecuri">
 <div class="dropzone" id="securiReportZone" style="margin-top:14px;">
-  <div class="securireport-card">
-    <div class="card-header">
-      <span class="icon">🛡️</span>
-      <span class="title">SecuriReport +</span>
-    </div>
-    <p class="card-text">Nur im Notfall brauchen!</p>
-    <button class="btn primary" id="btnOpenSecuriReport" type="button" style="margin-top:16px" onclick="(function(){var u='https://securireport3.securitas.ch/securireport/desktop-app/#login'; try{var w=window.open(u, '_blank', 'noopener,noreferrer'); if(!w) window.location.href=u;}catch(e){window.location.href=u;}})()">SecuriReport öffnen</button>
-  </div>
+<div class="securireport-card">
+<div class="card-header">
+<span class="icon">🛡️</span>
+<span class="title">SecuriReport +</span>
 </div>
-  </div>
-
-  <div class="toolsPanel" id="toolsPanelDelinq">
+<p class="card-text">Nur im Notfall brauchen!</p>
+<button class="btn primary" id="btnOpenSecuriReport" onclick="(function(){var u='https://securireport3.securitas.ch/securireport/desktop-app/#login'; try{var w=window.open(u, '_blank', 'noopener,noreferrer'); if(!w) window.location.href=u;}catch(e){window.location.href=u;}})()" style="margin-top:16px" type="button">SecuriReport öffnen</button>
+</div>
+</div>
+</div>
+<div class="toolsPanel" id="toolsPanelDelinq">
 <div class="dropzone" id="delinqZone" style="margin-top:14px;">
-  <div class="securireport-card">
-    <div class="card-header">
-      <span class="icon">🗃️</span>
-      <span class="title">Delinquenten Datenbank</span>
-    </div>
-    <p class="card-text">Liste der eingetragenen Delinquenten (mit Suche &amp; Eintrag).</p>
-    <button class="btn primary" id="btnOpenDelinq" type="button" style="margin-top:16px">Datenbank öffnen</button>
-  </div>
+<div class="securireport-card">
+<div class="card-header">
+<span class="icon">🗃️</span>
+<span class="title">Delinquenten Datenbank</span>
 </div>
-  </div>
+<p class="card-text">Liste der eingetragenen Delinquenten (mit Suche &amp; Eintrag).</p>
+<button class="btn primary" id="btnOpenDelinq" style="margin-top:16px" type="button">Datenbank öffnen</button>
 </div>
-
+</div>
+</div>
+</div>
 <div class="grid hidden" id="fileGrid"></div>
-
-
-
 </main>
 <!-- RIGHT: CHAT + AUTH -->
 <aside class="card rightbar">
 <div class="topbar">
 <div style="font-weight:900">Chat</div>
-<div style="display:flex; align-items:center; gap:10px; min-width:0;">  <div class="presenceBar" id="presenceBarChatMobile">    <div class="presenceLabel" id="presenceLabelChatMobile">offline</div>    <div class="avatarStack" id="avatarStackChatMobile"></div>  </div>  <div class="chip" id="chatMode">lokal</div></div>
+<div style="display:flex; align-items:center; gap:10px; min-width:0;"> <div class="presenceBar" id="presenceBarChatMobile"> <div class="presenceLabel" id="presenceLabelChatMobile">offline</div> <div class="avatarStack" id="avatarStackChatMobile"></div> </div> <div class="chip" id="chatMode">lokal</div></div>
 </div>
 <div class="hint" style="padding:0 12px 4px; color: var(--muted);">Chat-Raum: <b>global</b></div>
 <div class="hint hidden" id="typingLine" style="padding:0 12px 10px; color: var(--muted);">🟢 jemand tippt…</div>
@@ -2916,7 +2979,6 @@ input, textarea, select { scroll-margin-top: 90px; }
 </div>
 </div>
 </aside>
-</div>
 </div>
 </div>
 <script type="module">
@@ -7318,18 +7380,15 @@ async function saveDelinq(){
 })();
 
 </script>
-
 <!-- Mobile Bottom Navigation -->
 <nav id="mobileBottomNav">
-  <button class="mbtn" id="mbStart" type="button"><span>🏠</span>Home</button>
-  <button class="mbtn" id="mbDocs" type="button"><span>💼</span>Tools</button>
-  <button class="mbtn" id="mbRank" type="button"><span>📌</span>Ereignis</button>
-  <button class="mbtn" id="mbCase" type="button"><span>📝</span>Fall</button>
-  <button class="mbtn" id="mbChat" type="button"><span>💬</span>Chat</button>
-  <button class="mbtn" id="mbSettings" type="button"><span>⚙️</span>Settings</button>
+<button class="mbtn" id="mbStart" type="button"><span>🏠</span>Home</button>
+<button class="mbtn" id="mbDocs" type="button"><span>💼</span>Tools</button>
+<button class="mbtn" id="mbRank" type="button"><span>📌</span>Ereignis</button>
+<button class="mbtn" id="mbCase" type="button"><span>📝</span>Fall</button>
+<button class="mbtn" id="mbChat" type="button"><span>💬</span>Chat</button>
+<button class="mbtn" id="mbSettings" type="button"><span>⚙️</span>Settings</button>
 </nav>
-
-
 <script id="chatLastSeenHookV20">
 (function(){
   const __chatLSKey = (roomId)=> `chatLastSeen:${roomId || "global"}`;
@@ -7355,8 +7414,6 @@ async function saveDelinq(){
   });
 })();
 </script>
-
-
 <script id="serviceHomeHookV4">
 (function(){
   function applyIfNeeded(){
@@ -7418,9 +7475,6 @@ document.addEventListener("DOMContentLoaded", ()=>{
 });
 
 </script>
-
-
-
 <script id="initCaseSubTabsV3">
 document.addEventListener("DOMContentLoaded", function(){
   const btnCases = document.getElementById("caseTabCases");
@@ -7462,7 +7516,6 @@ document.addEventListener("DOMContentLoaded", function(){
   activate("cases");
 });
 </script>
-
 <script id="initToolsSubTabs">
 (function(){
   // Tools SubTabs (within view-files / "Tools")
@@ -7536,10 +7589,6 @@ document.addEventListener("DOMContentLoaded", function(){
   _wrap("setMobileView");
 })();
 </script>
-
-
-
-
 <script id="subtabAnimInitV7">
 document.addEventListener("DOMContentLoaded", function(){
   try{
@@ -7557,9 +7606,6 @@ document.addEventListener("DOMContentLoaded", function(){
   }catch(_){}
 });
 </script>
-
-
-
 <script id="startStrictDefaultV14">
 document.addEventListener("DOMContentLoaded", function(){
   try{
@@ -7572,8 +7618,6 @@ document.addEventListener("DOMContentLoaded", function(){
   }catch(_){}
 });
 </script>
-
-
 <script id="caseSubtabsJSV17">
 (function(){
   const KEY = "tas_case_subtab_v1"; // "cases" | "ranking"
@@ -7652,6 +7696,81 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 })();
 </script>
-
-</body>
+<script>
+/* === Ereignis Decision Tree Logic === */
+(function(){
+  const stack = [];
+  function setCrumb(txt){
+    const el = document.getElementById('evtCrumb');
+    if(el) el.textContent = txt || 'Start';
+  }
+  function setBackEnabled(enabled){
+    const b1 = document.getElementById('evtBackBtn');
+        if(b1) b1.disabled = !enabled;
+      }
+  function hideAllEvtCards(){
+    document.querySelectorAll('#eventList .evtCard').forEach(el=>el.classList.add('hidden'));
+  }
+  window.eventShow = function(id, crumb){
+    const current = stack.length ? stack[stack.length-1] : 'evt_start';
+    if(current !== id) stack.push(id);
+    hideAllEvtCards();
+    const target = document.getElementById(id);
+    if(target) target.classList.remove('hidden');
+    setCrumb(crumb || id);
+    setBackEnabled(stack.length > 1);
+    // smooth scroll to top of eventList for mobile
+    const wrap = document.getElementById('eventWrap');
+    if(wrap) wrap.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  window.eventBack = function(){
+    if(stack.length <= 1) return;
+    stack.pop();
+    const prev = stack[stack.length-1] || 'evt_start';
+    hideAllEvtCards();
+    const target = document.getElementById(prev);
+    if(target) target.classList.remove('hidden');
+    // set crumb from data attribute if present
+    const c = (target && target.getAttribute('data-crumb')) || 'Zurück';
+    setCrumb(c === 'Zurück' ? 'Start' : c);
+    setBackEnabled(stack.length > 1);
+    const wrap = document.getElementById('eventWrap');
+    if(wrap) wrap.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  window.eventReset = function(){
+    stack.length = 0;
+    stack.push('evt_start');
+    hideAllEvtCards();
+    const start = document.getElementById('evt_start');
+    if(start) start.classList.remove('hidden');
+    setCrumb('Start');
+    setBackEnabled(false);
+    const wrap = document.getElementById('eventWrap');
+    if(wrap) wrap.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  // initialize when DOM is ready
+  document.addEventListener('DOMContentLoaded', ()=>{
+    // add crumbs to key cards (optional)
+    const map = {
+      'evt_start':'Start',
+      'evt_subito':'Subito / Selfcheckout',
+      'evt_subito_jung':'Subito → ≤13',
+      'evt_subito_alt':'Subito → >13',
+      'evt_subito_gross':'Subito → Massnahmen',
+      'evt_subito_klein':'Subito → Massnahmen',
+      'evt_kasse':'Kasse im Laden',
+      'evt_kasse_hoch':'Kasse → ≥300 → Massnahmen',
+      'evt_kasse_tief':'Kasse → <300',
+      'evt_kasse_minder':'Kasse → Minderjährig → Massnahmen',
+      'evt_kasse_voll':'Kasse → Volljährig → Massnahmen'
+    };
+    Object.entries(map).forEach(([id,crumb])=>{
+      const el=document.getElementById(id);
+      if(el) el.setAttribute('data-crumb', crumb);
+    });
+    // ensure reset state
+    try{ window.eventReset(); }catch(e){}
+  });
+})();
+</script></body>
 </html>

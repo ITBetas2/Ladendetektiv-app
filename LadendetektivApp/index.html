@@ -1069,6 +1069,15 @@ input, textarea, select { scroll-margin-top: 90px; }
 
 /* Keep consistent spacing: panels already contain dropzone cards */
 #toolsContent .dropzone{ margin-top: 0 !important; }
+
+.srOnly{
+  position:absolute !important;
+  width:1px;height:1px;
+  padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);
+  white-space:nowrap;border:0;
+}
+
 </style>
 <!-- ===== MOBILE VISIBILITY FIX (Chat + Settings) ===== -->
 <style>
@@ -1340,29 +1349,36 @@ input, textarea, select { scroll-margin-top: 90px; }
 @media (max-width: 900px){
   :root{ --chatInputH: 72px; }
 
-  /* In chat view: rightbar fills space ABOVE bottom nav */
-
+  /* In chat view: viewport ends above bottom navigation */
+  body.view-chat .viewport{
     height: calc(100dvh - var(--navH) - var(--safeBottom)) !important;
     max-height: calc(100dvh - var(--navH) - var(--safeBottom)) !important;
   }
 
-  /* Make sure containers don't create extra scroll */
+  /* Prevent double scrolling */
   body.view-chat .rightbar,
   body.view-chat .rightbar .chat{
     overflow: hidden !important;
   }
 
-  /* Only chatLog scrolls, and it reserves space for the input bar */
+  /* Only chatLog scrolls, reserve space for the input bar */
   body.view-chat .rightbar .chatLog{
-    padding-bottom: calc(var(--chatInputH) + 12px) !important;
+    padding-bottom: calc(var(--chatInputH) + 16px) !important;
     box-sizing: border-box;
   }
 
-  /* Keep input stuck to bottom INSIDE the card (not covering content) */
+  /* Input bar: filled edge-to-edge and rounded like the card */
   body.view-chat .rightbar .chatInput{
     position: sticky !important;
     bottom: 0 !important;
-    margin-top: 0 !important;
+    left: 0;
+    right: 0;
+    width: 100%;
+    margin: 0 !important;
+    padding: 12px 14px calc(12px + var(--safeBottom)) 14px;
+    background: rgba(0,0,0,.18);
+    border-top: 1px solid var(--border);
+    border-radius: 0 0 16px 16px;
   }
 }
 </style>
@@ -2210,6 +2226,47 @@ input, textarea, select { scroll-margin-top: 90px; }
 }
 .eventTitle{ font-weight: 800; font-size: 18px; letter-spacing:.2px; }
 
+.eventHeaderActions{
+  margin-left:auto;
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+.eventHeader .evtBtn,
+.eventNav .evtBtn{
+  width:auto;
+  padding: 8px 10px;
+  font-size: 14px;
+  border-radius: 12px;
+}
+.evtBtn.backBrand{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background: rgba(255,255,255,.10);
+  border-color: rgba(255,255,255,.18);
+}
+.evtBtn.backBrand:hover{
+  background: rgba(255,255,255,.14);
+}
+
+
+.evtBtn.backBrand.backIcon{
+  width:40px;
+  height:40px;
+  padding:8px;
+  border-radius:999px;
+  justify-content:center;
+}
+.evtBtn.backBrand.backIcon svg{
+  width:20px;
+  height:20px;
+}
+.evtBtn.backBrand svg{
+  width:16px;height:16px;
+}
+
 .eventNav{
   display:flex; align-items:center; gap:10px;
   margin: 0 0 12px;
@@ -2230,6 +2287,8 @@ input, textarea, select { scroll-margin-top: 90px; }
   padding: 14px;
   margin: 0 0 12px;
 }
+.evtChooser{background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.10); border-radius: 14px; padding: 14px; margin: 0 0 12px;}
+
 .evtCard h3{
   margin: 0 0 10px;
   font-size: 16px;
@@ -2303,7 +2362,96 @@ input, textarea, select { scroll-margin-top: 90px; }
   .eventTitle{ font-size: 20px; }
   .evtCard h3{ font-size: 17px; }
 }
-</style></head>
+</style>
+<!-- === CHAT MOBILE INPUT FINAL FIX (scoped to chat only) === -->
+<style id="chat-mobile-final-fix">
+@media (max-width: 980px){
+
+  /* Only affect the Chat view */
+  body.view-chat{
+    height: 100%;
+    overflow: hidden !important;
+  }
+
+  body.view-chat .viewport{
+    position: fixed !important;
+    inset: 0 !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    padding-bottom: 0 !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Keep bottom-nav visible; composer sits above it */
+  :root{
+    --navH_fix: 72px;
+    --safeB_fix: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Ensure the chat card becomes the main scroll layout */
+  body.view-chat .rightbar{
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+  }
+
+  body.view-chat .rightbar .chat{
+    display:flex !important;
+    flex-direction:column !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+  }
+
+  /* Only the log scrolls */
+  body.view-chat .rightbar .chatLog{
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch;
+    /* reserve space for composer + bottom nav */
+    padding-bottom: calc(var(--navH_fix) + var(--safeB_fix) + 78px) !important;
+  }
+
+  /* Composer stays visible above bottom nav */
+  body.view-chat .rightbar .chatInput{
+    display:flex !important;
+    position: sticky !important;
+    bottom: calc(var(--navH_fix) + var(--safeB_fix)) !important;
+    z-index: 50 !important;
+  }
+
+  /* In case any generic mobile rules hide right column, force it in chat view */
+  body.view-chat .sidebar{ display:none !important; }
+}
+
+/* --- CHAT MOBILE COMPOSER GAP FIX (scoped) --- */
+@media (max-width: 520px){
+  body.view-chat .rightbar{
+    height: calc(100dvh - var(--navH_fix) - var(--safeB_fix)) !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+  body.view-chat .rightbar .chat{
+    height: 100% !important;
+  }
+  /* Composer sits at the bottom of the chat panel (not above an extra offset) */
+  body.view-chat .rightbar .chatInput{
+    position: sticky !important;
+    bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
+  /* Only a small reserve so last message doesn't touch the composer */
+  body.view-chat .rightbar .chatLog{
+    padding-bottom: 12px !important;
+  }
+}
+
+</style>
+
+</head>
 <body>
 <div class="authOverlay" id="authOverlay">
 <div class="card authModal">
@@ -2718,125 +2866,461 @@ input, textarea, select { scroll-margin-top: 90px; }
 <div class="chip">Info</div>
 </div>
 <div class="section">
-<div class="hint" style="margin-bottom:10px;">
-     🚧 &gt; Hier entsteht etwas neues!!! (noch im Aufbau). &lt; 🚧 
-    </div>
 <div class="list" id="eventList" style="padding:0; gap:10px;">
-<div class="eventWrap" id="eventWrap">
-<div class="eventHeader">
-<div class="eventTitle">Ereignis Migros</div>
-<button class="evtBtn ghost" onclick="eventReset()" type="button">Neu starten</button>
-</div>
-<!-- NAV / BACK -->
-<div class="eventNav">
-<button class="evtBtn ghost" disabled="" id="evtBackBtn" onclick="eventBack()" type="button">← Zurück</button>
-<div class="eventBreadcrumb" id="evtCrumb">Start</div>
-</div>
-<!-- STEP: START -->
-<section class="evtCard" id="evt_start">
-<h3>Wo hat das Ereignis stattgefunden?</h3>
-<button class="evtBtn primary" onclick="eventShow('evt_subito','Subito / Selfcheckout')" type="button">Subito / Selfcheckout</button>
-<button class="evtBtn primary" onclick="eventShow('evt_kasse','Kasse im Laden')" type="button">Migros Kasse im Laden</button>
-</section>
-<!-- SUBITO -->
-<section class="evtCard hidden" id="evt_subito">
-<h3>Ist die Person 13 Jahre oder jünger?</h3>
-<div class="evtGrid2">
-<button class="evtBtn yes" onclick="eventShow('evt_subito_jung','≤13 Jahre')" type="button">JA</button>
-<button class="evtBtn no" onclick="eventShow('evt_subito_alt','&gt;13 Jahre')" type="button">NEIN</button>
-</div>
-</section>
-<section class="evtCard hidden" id="evt_subito_jung">
-<h3>Massnahmen</h3>
-<ul class="evtActions">
-<li><span class="tag info">Info</span> Eltern informieren</li>
-<li><span class="tag police">Polizei</span> Wenn nicht erreichbar → Polizei alarmieren</li>
-<li><span class="tag os">OS</span> OS informieren</li>
-<li><span class="tag info">Info</span> Azou oder Lüd informieren</li>
-<li><span class="tag check">Check</span> M‑SiDi Abfrage</li>
-</ul>
-<button class="evtBtn primary" onclick="eventReset()" type="button">Fertig (Neu starten)</button>
-</section>
-<section class="evtCard hidden" id="evt_subito_alt">
-<h3>Mehr als 5 Artikel ODER über CHF 50.–?</h3>
-<div class="evtGrid2">
-<button class="evtBtn yes" onclick="eventShow('evt_subito_gross','&gt;5 Artikel oder &gt;50 CHF')" type="button">JA</button>
-<button class="evtBtn no" onclick="eventShow('evt_subito_klein','&lt;5 Artikel und &lt;50 CHF')" type="button">NEIN</button>
-</div>
-</section>
-<section class="evtCard hidden" id="evt_subito_gross">
-<h3>Massnahmen</h3>
-<ul class="evtActions">
-<li><span class="tag form">Formular</span> Meldeformular Subito / Mitnahme unbezahlte Ware OS ausfüllen</li>
-<li><span class="tag info">Info</span> Eltern informieren (falls minderjährig)</li>
-<li><span class="tag police">Polizei</span> Falls nicht erreichbar → Polizei informieren</li>
-<li><span class="tag warn">Abklärung</span> Abklärung unbezahlte Ware</li>
-<li><span class="tag check">Check</span> M‑SiDi Abfrage</li>
-</ul>
-<button class="evtBtn primary" onclick="eventReset()" type="button">Fertig (Neu starten)</button>
-</section>
-<section class="evtCard hidden" id="evt_subito_klein">
-<h3>Massnahmen</h3>
-<ul class="evtActions">
-<li><span class="tag pay">Kasse</span> Nachzahlung gemäss Absprache Migros</li>
-<li><span class="tag os">OS</span> OS informieren</li>
-<li><span class="tag check">Check</span> M‑SiDi Abfrage</li>
-</ul>
-<button class="evtBtn primary" onclick="eventReset()" type="button">Fertig (Neu starten)</button>
-</section>
-<!-- KASSE -->
-<section class="evtCard hidden" id="evt_kasse">
-<h3>Warenwert CHF 300.– oder höher?</h3>
-<div class="evtGrid2">
-<button class="evtBtn yes" onclick="eventShow('evt_kasse_hoch','≥300 CHF')" type="button">JA</button>
-<button class="evtBtn no" onclick="eventShow('evt_kasse_tief','&lt;300 CHF')" type="button">NEIN</button>
-</div>
-</section>
-<section class="evtCard hidden" id="evt_kasse_hoch">
-<h3>Massnahmen</h3>
-<ul class="evtActions">
-<li><span class="tag police">Polizei</span> Polizei alarmieren</li>
-<li><span class="tag os">OS</span> OS alarmieren</li>
-<li><span class="tag form">Formular</span> Strafantrag ausfüllen</li>
-<li><span class="tag form">Formular</span> Formular „Unbezahlte Ware UE“ erstellen</li>
-<li><span class="tag info">Info</span> Azou oder Lüd informieren</li>
-<li><span class="tag info">Info</span> Bei Minderjährigen → Eltern informieren</li>
-<li><span class="tag check">Check</span> M‑SiDi Abfrage</li>
-</ul>
-<button class="evtBtn primary" onclick="eventReset()" type="button">Fertig (Neu starten)</button>
-</section>
-<section class="evtCard hidden" id="evt_kasse_tief">
-<h3>Minderjährig?</h3>
-<div class="evtGrid2">
-<button class="evtBtn yes" onclick="eventShow('evt_kasse_minder','Minderjährig')" type="button">JA</button>
-<button class="evtBtn no" onclick="eventShow('evt_kasse_voll','Volljährig')" type="button">NEIN</button>
-</div>
-</section>
-<section class="evtCard hidden" id="evt_kasse_minder">
-<h3>Massnahmen</h3>
-<ul class="evtActions">
-<li><span class="tag form">Formular</span> Formular „Unbezahlte Ware“ ausfüllen</li>
-<li><span class="tag os">OS</span> OS informieren</li>
-<li><span class="tag form">Formular</span> UE ausstellen</li>
-<li><span class="tag info">Info</span> Eltern informieren</li>
-<li><span class="tag police">Polizei</span> Falls nicht erreichbar → Polizei beiziehen</li>
-<li><span class="tag check">Check</span> M‑SiDi Abfrage</li>
-</ul>
-<button class="evtBtn primary" onclick="eventReset()" type="button">Fertig (Neu starten)</button>
-</section>
-<section class="evtCard hidden" id="evt_kasse_voll">
-<h3>Massnahmen</h3>
-<ul class="evtActions">
-<li><span class="tag form">Formular</span> Formular „Unbezahlte Ware“ ausfüllen</li>
-<li><span class="tag os">OS</span> OS informieren</li>
-<li><span class="tag form">Formular</span> UE ausstellen</li>
-<li><span class="tag check">Check</span> M‑SiDi Abfrage</li>
-</ul>
-<button class="evtBtn primary" onclick="eventReset()" type="button">Fertig (Neu starten)</button>
-</section>
-<!-- Sticky bottom controls (mobile) -->
+<div class="evtChooser" id="eventBrandChooser" style="margin-bottom:12px;">
+  <h3>Bitte auswählen</h3>
+  <div class="evtGrid2">
+    <button class="evtBtn primary" type="button" data-event-brand="migros">Ereignis Migros</button>
+    <button class="evtBtn secondary" type="button" data-event-brand="decathlon">Ereignis Decathlon</button>
+  </div>
+  <div class="evtHint" style="margin-top:10px;">Nach der Auswahl öffnet sich das passende Menü.</div>
 
 </div>
+
+<div class="eventWrap" id="eventWrapDecathlon" style="display:none;">
+  <div class="eventHeader">
+    <div class="eventTitle">Ereignis Decathlon</div>
+    <div class="eventHeaderActions">
+      <button class="evtBtn backBrand backIcon" id="evtDecaBackToBrand" type="button" title="Zurück" aria-label="Zurück"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg><span class="srOnly">Zurück</span></button>
+      <button class="evtBtn ghost" type="button" onclick="try{window.eventBrandShowChooser&&window.eventBrandShowChooser()}catch(e){}">Neu starten</button>
+    </div>
+  </div>
+
+  <div class="evtCard" style="display:block;">
+    <div class="evtBadge" style="margin-bottom:10px;">Hinweis</div>
+    <div style="font-weight:800; font-size:16px; margin-bottom:6px;">Decathlon-Menü folgt</div>
+    <div class="evtHint">Bis das Decathlon-Schema ergänzt ist, kannst du jederzeit über <b>Auswahl</b> zurück zur Marken-Auswahl.</div>
+  </div>
+</div>
+
+<div class="eventWrap" id="eventWrap" style="display:none;">
+  <div class="eventHeader">
+    <div class="eventTitle">Ereignis Migros</div>
+    
+    <div class="eventHeaderActions">
+      <button class="evtBtn backBrand backIcon" id="evtMigrosBackToBrand" type="button" title="Zurück" aria-label="Zurück"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg><span class="srOnly">Zurück</span></button>
+      <button class="evtBtn ghost" onclick="eventReset()" type="button">Neu starten</button>
+    </div>
+  </div>
+
+  <!-- NAV / BACK -->
+  <div class="eventNav">
+    <button class="evtBtn ghost" id="evtBackBtn" disabled onclick="eventBack()" type="button">← Zurück</button>
+    <div class="eventBreadcrumb" id="evtCrumb">Start</div>
+  </div>
+
+  <!-- START -->
+  <section class="evtCard" id="evt_start">
+    <h3>Wo hat das Ereignis stattgefunden?</h3>
+    <button class="evtBtn primary" onclick="eventShow('evt_subito','Subito / Selfcheckout')" type="button">Subito / Selfcheckout</button>
+    <button class="evtBtn primary" onclick="eventShow('evt_kasse','Kasse im Laden')" type="button">Migros Kasse im Laden</button>
+  </section>
+
+  <!-- SUBITO -->
+  <section class="evtCard hidden" id="evt_subito">
+    <h3>Alter der Person?</h3>
+    <div class="evtGrid2">
+      <button class="evtBtn yes" onclick="eventShow('evt_subito_u13','Bis 10 Jahre')" type="button">Bis 10 Jahre</button>
+      <button class="evtBtn no" onclick="eventShow('evt_subito_o13','über 10 Jahre')" type="button">über 10 Jahre</button>
+    </div>
+  </section>
+
+  <section class="evtCard hidden" id="evt_subito_u13">
+    <h3>Eltern erreichbar?</h3>
+    <div class="evtGrid2">
+      <button class="evtBtn yes" onclick="eventShow('evt_subito_u13_yes','Eltern erreichbar')" type="button">JA</button>
+      <button class="evtBtn no" onclick="eventShow('evt_subito_u13_no','Eltern nicht erreichbar')" type="button">NEIN</button>
+    </div>
+    <div class="hint" style="margin-top:10px;">
+      Hinweis: Kinder bis 10 Jahre sind nicht strafmündig – Eltern müssen informiert werden.
+    </div>
+  </section>
+
+  <section class="evtCard hidden" id="evt_subito_u13_yes">
+    <h3>Massnahmen</h3>
+    <ul class="evtActions" data-copytitle="Subito unter/gleich 13 (Eltern erreichbar)">
+      <li><span class="tag form">Formular</span><div>Meldeformular Subito ausfüllen.</div></li>
+      <li><span class="tag os">OS</span><div>Operative Sicherheit (OS) Migros informieren bei Unsicherheit / Härtefall.</div></li>
+      <li><span class="tag check">Check</span><div>M‑SiDi Abfrage.</div></li>
+      <li><span class="tag info">Info</span><div>Eltern informieren und Übergabe dokumentieren.</div></li>
+    </ul>
+    <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_subito_u13_yes')" type="button">📋 Massnahmen kopieren</button>
+  </section>
+
+  <section class="evtCard hidden" id="evt_subito_u13_no">
+    <h3>Massnahmen</h3>
+    <ul class="evtActions" data-copytitle="Subito unter/gleich 13 (Eltern nicht erreichbar)">
+	  <li><span class="tag form">Formular</span><div>Meldeformular Subito ausfüllen.</div></li>
+      <li><span class="tag info">Info</span><div>Eltern informieren/versuchen zu erreichen (Dokumentieren).</div></li>
+      <li><span class="tag police">Polizei</span><div>Polizei alarmieren (wenn kein Elternteil erreichbar).</div></li>
+      <li><span class="tag os">OS</span><div>OS Migros informieren.</div></li>
+      <li><span class="tag warn">Vorgesetzte</span><div>Azou oder Lüdi informieren (Spezialfall).</div></li>
+      <li><span class="tag check">Check</span><div>M‑SiDi Abfrage.</div></li>
+    </ul>
+    <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_subito_u13_no')" type="button">📋 Massnahmen kopieren</button>
+  </section>
+
+  <section class="evtCard hidden" id="evt_subito_o13">
+  <h3>Warenwert über oder unter CHF 50.–?</h3>
+  <div class="hint" style="margin-bottom:10px;">
+    Wichtig für den Strafantrag (Ersttäter: ab CHF 50.–). Bei <b>unter CHF 50.–</b> zählt zusätzlich die Anzahl Artikel (5‑Artikel‑Regel).
+  </div>
+
+  <div class="evtGrid2" style="margin-bottom:10px;">
+    <button class="evtBtn yes" onclick="window.hideSubito5(); eventShow('evt_subito_profile_ge50','Subito: Wert über CHF 50.–')" type="button">Über CHF 50.–</button>
+    <button class="evtBtn no" onclick="window.showSubito5(); window.eventCrumb('Subito: Wert unter CHF 50.–')" type="button">Unter CHF 50.–</button>
+  </div>
+
+  <div id="subito5wrap" class="hidden">
+    <h4 style="margin:6px 0 8px;">Wurden 5 oder mehr Artikel nicht gescannt?</h4>
+    <div class="evtGrid2">
+      <button class="evtBtn yes" onclick="eventShow('evt_subito_profile_lt50','Subito: Über/gleich 5 Artikel (Wert unter 50)')" type="button">Über/gleich 5 Artikel</button>
+      <button class="evtBtn no" onclick="eventShow('evt_subito_rapport_nein','Rapport: NEIN')" type="button">Unter 5 Artikel</button>
+    </div>
+  </div>
+</section>
+
+<section class="evtCard hidden" id="evt_subito_q5">
+  <h3>Wurden Über/gleich 5 Artikel nicht gescannt?</h3>
+  <div class="hint" style="margin-bottom:10px;">
+    Rapport ausfüllen, wenn <b>Über/gleich 5 Artikel</b> nicht gescannt wurden.
+  </div>
+  <div class="evtGrid2">
+    <button class="evtBtn yes" onclick="eventShow('evt_subito_profile_lt50','Subito: Über/gleich 5 Artikel (Wert unter 50)')" type="button">JA</button>
+    <button class="evtBtn no" onclick="eventShow('evt_subito_rapport_nein','Rapport: NEIN')" type="button">NEIN</button>
+  </div>
+</section>
+
+
+  <section class="evtCard hidden" id="evt_subito_profile_ge50">
+  <h3>Profil</h3>
+  <div class="hint" style="margin-bottom:10px;">
+    Bitte auswählen, damit die Massnahmen (Strafantrag) korrekt angezeigt werden.
+  </div>
+  <div class="evtGrid2">
+    <button class="evtBtn primary" onclick="eventShow('evt_subito_ge50_erst','Ersttäter')" type="button">Ersttäter</button>
+    <button class="evtBtn warn" onclick="eventShow('evt_subito_ge50_wieder','Wiederholungstäter')" type="button">Wiederholungstäter</button>
+  </div>
+</section>
+
+<section class="evtCard hidden" id="evt_subito_profile_lt50">
+  <h3>Profil</h3>
+  <div class="hint" style="margin-bottom:10px;">
+    Wert unter CHF 50.–, aber Kriterium (Über/gleich 5 Artikel) erfüllt. Strafantrag hängt vom Profil ab.
+  </div>
+  <div class="evtGrid2">
+    <button class="evtBtn primary" onclick="eventShow('evt_subito_lt50_erst','Ersttäter (<50)')" type="button">Ersttäter</button>
+    <button class="evtBtn warn" onclick="eventShow('evt_subito_lt50_wieder','Wiederholungstäter (<50)')" type="button">Wiederholungstäter</button>
+  </div>
+</section>
+
+<section class="evtCard hidden" id="evt_subito_ge50_erst">
+  <h3>Massnahmen (Subito über 10 Jahre, Wert über CHF 50.–)</h3>
+  <ul class="evtActions" data-copytitle="Subito ≥14 (≥50, Ersttäter)">
+    <li><span class="tag form">Formular</span><div>Rapport erstellen / Dokumentation (Kriterium erfüllt).</div></li>
+    <li><span class="tag info">Info</span><div><b>Strafantrag abklären</b> (Bei Subito immer OS anfragen).</div></li>
+    <li><span class="tag form">Formular</span><div>Meldeformular Subito ausfüllen / Mitnahme unbezahlte Ware dokumentieren.</div></li>
+    <li><span class="tag pay">UE</span><div>UE ausstellen (ab 13 Jahren).</div></li>
+    <li><span class="tag check">Check</span><div>M‑SiDi Abfrage.</div></li>
+    <li><span class="tag os">OS</span><div>OS Migros beiziehen bei Unsicherheit / Härtefall.</div></li>
+  </ul>
+  <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_subito_ge50_erst')" type="button">📋 Massnahmen kopieren</button>
+</section>
+
+<section class="evtCard hidden" id="evt_subito_ge50_wieder">
+  <h3>Massnahmen (Subito über 10 Jahre, Wert über CHF 50.–)</h3>
+  <ul class="evtActions" data-copytitle="Subito ≥14 (≥50, Wiederholung)">
+    <li><span class="tag form">Formular</span><div>Rapport erstellen / Dokumentation (Kriterium erfüllt).</div></li>
+    <li><span class="tag info">Info</span><div><b>Strafantrag abklären</b> (Bei Subito immer OS anfragen).</div></li>
+    <li><span class="tag form">Formular</span><div>Meldeformular Subito ausfüllen / Mitnahme unbezahlte Ware dokumentieren.</div></li>
+    <li><span class="tag pay">UE</span><div>UE ausstellen (ab 13 Jahren).</div></li>
+    <li><span class="tag check">Check</span><div>M‑SiDi Abfrage.</div></li>
+    <li><span class="tag os">OS</span><div>OS Migros beiziehen bei Unsicherheit / Härtefall.</div></li>
+  </ul>
+  <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_subito_ge50_wieder')" type="button">📋 Massnahmen kopieren</button>
+</section>
+
+<section class="evtCard hidden" id="evt_subito_lt50_erst">
+  <h3>Massnahmen (Subito über 10 Jahre, Wert unter CHF 50.–, Über/gleich 5 Artikel)</h3>
+  <ul class="evtActions" data-copytitle="Subito ≥14 (<50, Ersttäter)">
+    <li><span class="tag form">Formular</span><div>Rapport erstellen (Über/gleich 5 Artikel nicht gescannt).</div></li>
+    <li><span class="tag info">Info</span><div><b>Kein Strafantrag</b></div></li>
+    <li><span class="tag form">Formular</span><div>Meldeformular Subito ausfüllen / Mitnahme unbezahlte Ware dokumentieren.</div></li>
+    <li><span class="tag pay">UE</span><div>UE ausstellen (ab 13 Jahren).</div></li>
+    <li><span class="tag check">Check</span><div>M‑SiDi Abfrage.</div></li>
+    <li><span class="tag os">OS</span><div>OS Migros beiziehen bei Unsicherheit / Härtefall.</div></li>
+  </ul>
+  <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_subito_lt50_erst')" type="button">📋 Massnahmen kopieren</button>
+</section>
+
+<section class="evtCard hidden" id="evt_subito_lt50_wieder">
+  <h3>Massnahmen (Subito über 10 Jahre, Wert unter CHF 50.–, Über/gleich 5 Artikel)</h3>
+  <ul class="evtActions" data-copytitle="Subito ≥14 (<50, Wiederholung)">
+    <li><span class="tag form">Formular</span><div>Rapport erstellen (Über/gleich 5 Artikel nicht gescannt).</div></li>
+    <li><span class="tag info">Info</span><div><b>Strafantrag abklären</b> (Bei Subito immer OS anfragen).</div></li>
+    <li><span class="tag form">Formular</span><div>Meldeformular Subito ausfüllen / Mitnahme unbezahlte Ware dokumentieren.</div></li>
+    <li><span class="tag pay">UE</span><div>UE ausstellen (ab 13 Jahren).</div></li>
+    <li><span class="tag check">Check</span><div>M‑SiDi Abfrage.</div></li>
+    <li><span class="tag os">OS</span><div>OS Migros beiziehen bei Unsicherheit / Härtefall.</div></li>
+  </ul>
+  <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_subito_lt50_wieder')" type="button">📋 Massnahmen kopieren</button>
+</section>
+
+<section class="evtCard hidden" id="evt_subito_rapport_ja">
+    <h3>Massnahmen (Rapport)</h3>
+    <ul class="evtActions" data-copytitle="Subito ≥14 (Rapport)">
+      <li><span class="tag form">Formular</span><div>Rapport erstellen (Über/gleich 5 Artikel oder Ware ab CHF 50.– nicht erfasst).</div></li>
+      <li><span class="tag form">Formular</span><div>Meldeformular Subito ausfüllen / Mitnahme unbezahlte Ware dokumentieren.</div></li>
+      <li><span class="tag os">OS</span><div>OS Migros beiziehen bei Unsicherheit / Härtefall.</div></li>
+      <li><span class="tag pay">UE</span><div>UE ausstellen (ab 13 Jahren).</div></li>
+      <li><span class="tag check">Check</span><div>M‑SiDi Abfrage.</div></li>
+    </ul>
+    <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_subito_rapport_ja')" type="button">📋 Massnahmen kopieren</button>
+  </section>
+
+  <section class="evtCard hidden" id="evt_subito_rapport_nein">
+    <h3>Massnahmen (Rapport)</h3>
+    <ul class="evtActions" data-copytitle="Subito ≥14 (ohne Rapport)">
+	  <li><span class="tag form">Formular</span><div>Rapport erstellen (unter 5 Artikel oder Ware unter CHF 50.– nicht erfasst).</div></li>
+      <li><span class="tag pay">Pay</span><div>Nachzahlung / Absprache Migros (Korrektur an der Kasse).</div></li>
+      <li><span class="tag os">OS</span><div>OS Migros beiziehen bei Unsicherheit / Härtefall.</div></li>
+      <li><span class="tag check">Check</span><div>M‑SiDi Abfrage.</div></li>
+    </ul>
+    <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_subito_rapport_nein')" type="button">📋 Massnahmen kopieren</button>
+  </section>
+
+  <!-- KASSE -->
+  <section class="evtCard hidden" id="evt_kasse">
+    <h3>Warenwert?</h3>
+    <div class="evtGrid2">
+      <button class="evtBtn yes" onclick="eventShow('evt_kasse_300_ja','Wert über CHF 300.–')" type="button">über CHF 300.–</button>
+      <button class="evtBtn no" onclick="eventShow('evt_kasse_300_nein','Wert unter CHF 300.–')" type="button">unter CHF 300.–</button>
+    </div>
+    <div class="hint" style="margin-top:10px;">
+      Hinweis: Offizialdelikt ist im Normalfall immer klar aber bei Unsicherheit OS Migros beiziehen.
+    </div>
+  </section>
+
+  <section class="evtCard hidden" id="evt_kasse_300_ja">
+    <h3>Massnahmen (über CHF 300.–)</h3>
+    <ul class="evtActions" data-copytitle="Kasse ≥300">
+      <li><span class="tag police">Polizei</span><div>Polizei alarmieren.</div></li>
+      <li><span class="tag os">OS</span><div>OS Migros informieren.</div></li>
+      <li><span class="tag form">Formular</span><div>Strafantrag ausfüllen + Formular „Unbezahlte Ware“ ausfüllen.</div></li>
+      <li><span class="tag warn">Vorgesetzte</span><div>Azou oder Lüdi informieren (Spezialfall, i.d.R. bei über 300.- / Härtefall / Blaulichtorganisation).</div></li>
+      <li><span class="tag check">Check</span><div>M‑SiDi Abfrage.</div></li>
+    </ul>
+    <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_kasse_300_ja')" type="button">📋 Massnahmen kopieren</button>
+  </section>
+
+  <section class="evtCard hidden" id="evt_kasse_300_nein">
+    <h3>Ist die Person minderjährig?</h3>
+    <div class="evtGrid2">
+      <button class="evtBtn yes" onclick="eventShow('evt_kasse_u300_minder','Minderjährig')" type="button">JA</button>
+      <button class="evtBtn no" onclick="eventShow('evt_kasse_u300_amount_voll','Volljährig')" type="button">NEIN</button>
+    </div>
+  </section>
+
+  <section class="evtCard hidden" id="evt_kasse_u300_amount_voll">
+  <h3>Deliktbetrag (unter CHF 300.–)</h3>
+  <div class="evtGrid2">
+    <button class="evtBtn no" onclick="eventShow('evt_kasse_u300_profile_voll_lt50','Wert unter CHF 50.–')" type="button">unter CHF 50.–</button>
+    <button class="evtBtn yes" onclick="eventShow('evt_kasse_u300_profile_voll_ge50','Wert über CHF 50.–')" type="button">über CHF 50.–</button>
+  </div>
+</section>
+
+<section class="evtCard hidden" id="evt_kasse_u300_profile_voll_lt50">
+  <h3>Profil</h3>
+  <div class="evtGrid2">
+    <button class="evtBtn primary" onclick="eventShow('evt_kasse_voll_lt50_erst','Ersttäter (<50)')" type="button">Ersttäter</button>
+    <button class="evtBtn warn" onclick="eventShow('evt_kasse_voll_repeat','Wiederholungstäter')" type="button">Wiederholungstäter</button>
+  </div>
+</section>
+
+<section class="evtCard hidden" id="evt_kasse_u300_profile_voll_ge50">
+  <h3>Profil</h3>
+  <div class="evtGrid2">
+    <button class="evtBtn primary" onclick="eventShow('evt_kasse_voll_ge50_erst','Ersttäter (≥50)')" type="button">Ersttäter</button>
+    <button class="evtBtn warn" onclick="eventShow('evt_kasse_voll_repeat','Wiederholungstäter')" type="button">Wiederholungstäter</button>
+  </div>
+</section>
+
+<section class="evtCard hidden" id="evt_kasse_voll_lt50_erst">
+  <h3>Massnahmen (unter CHF 300.–, volljährig, Ersttäter, unter CHF 50.–)</h3>
+  <ul class="evtActions" data-copytitle="Kasse <300 (voll, Erst, <50)">
+    <li><span class="tag form">Formular</span><div>Formular „Unbezahlte Ware“ ausfüllen und OS Migros informieren.</div></li>
+    <li><span class="tag info">Info</span><div><b>Kein Strafantrag</b> (Ersttäter unter CHF 50.–).</div></li>
+    <li><span class="tag pay">UE</span><div>UE ausstellen (ab 13 Jahren).</div></li>
+    <li><span class="tag check">Check</span><div>M‑SiDi Abfrage.</div></li>
+  </ul>
+  <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_kasse_voll_lt50_erst')" type="button">📋 Massnahmen kopieren</button>
+</section>
+
+<section class="evtCard hidden" id="evt_kasse_voll_ge50_erst">
+  <h3>Massnahmen (unter CHF 300.–, volljährig, Ersttäter, über CHF 50.–)</h3>
+  <ul class="evtActions" data-copytitle="Kasse <300 (voll, Erst, ≥50)">
+    <li><span class="tag form">Formular</span><div>Formular „Unbezahlte Ware“ ausfüllen und OS Migros informieren.</div></li>
+    <li><span class="tag form">Formular</span><div><b>Strafantrag ausfüllen</b> (Ersttäter: ab CHF 50.–).</div></li>
+    <li><span class="tag pay">UE</span><div>UE ausstellen (ab 13 Jahren).</div></li>
+    <li><span class="tag check">Check</span><div>M‑SiDi Abfrage.</div></li>
+  </ul>
+  <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_kasse_voll_ge50_erst')" type="button">📋 Massnahmen kopieren</button>
+</section>
+
+<section class="evtCard hidden" id="evt_kasse_voll_repeat">
+  <h3>Massnahmen (unter CHF 300.–, volljährig, Wiederholungstäter)</h3>
+  <ul class="evtActions" data-copytitle="Kasse <300 (voll, Wiederholung)">
+    <li><span class="tag form">Formular</span><div>Formular „Unbezahlte Ware“ ausfüllen und OS Migros informieren.</div></li>
+    <li><span class="tag form">Formular</span><div><b>Strafantrag ausfüllen</b> (Wiederholungstäter).</div></li>
+    <li><span class="tag pay">UE</span><div>UE ausstellen (ab 13 Jahren).</div></li>
+    <li><span class="tag check">Check</span><div>M‑SiDi Abfrage.</div></li>
+    <li><span class="tag warn">Vorgesetzte</span><div>Azou oder Lüdi informieren (Spezialfall, i.d.R. bei über 300.- / Härtefall / Blaulichtorganisation)</div></li>
+  </ul>
+  <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_kasse_voll_repeat')" type="button">📋 Massnahmen kopieren</button>
+</section>
+
+
+  <section class="evtCard hidden" id="evt_kasse_u300_minder">
+    <h3>Eltern erreichbar?</h3>
+    <div class="evtGrid2">
+      <button class="evtBtn yes" onclick="eventShow('evt_kasse_u300_amount_minder_yes','Eltern erreichbar')" type="button">JA</button>
+      <button class="evtBtn no" onclick="eventShow('evt_kasse_u300_amount_minder_no','Eltern nicht erreichbar')" type="button">NEIN</button>
+    </div>
+  </section>
+
+  <section class="evtCard hidden" id="evt_kasse_u300_amount_minder_yes">
+  <h3>Deliktbetrag (unter CHF 300.–)</h3>
+  <div class="hint" style="margin-bottom:10px;">Minderjährig – Eltern erreichbar.</div>
+  <div class="evtGrid2">
+    <button class="evtBtn no" onclick="eventShow('evt_kasse_u300_profile_minder_yes_lt50','Wert unter CHF 50.–')" type="button">unter CHF 50.–</button>
+    <button class="evtBtn yes" onclick="eventShow('evt_kasse_u300_profile_minder_yes_ge50','Wert über CHF 50.–')" type="button">über CHF 50.–</button>
+  </div>
+</section>
+
+<section class="evtCard hidden" id="evt_kasse_u300_profile_minder_yes_lt50">
+  <h3>Profil</h3>
+  <div class="evtGrid2">
+    <button class="evtBtn primary" onclick="eventShow('evt_kasse_minder_yes_lt50_erst','Ersttäter (<50)')" type="button">Ersttäter</button>
+    <button class="evtBtn warn" onclick="eventShow('evt_kasse_minder_yes_repeat','Wiederholungstäter')" type="button">Wiederholungstäter</button>
+  </div>
+</section>
+
+<section class="evtCard hidden" id="evt_kasse_u300_profile_minder_yes_ge50">
+  <h3>Profil</h3>
+  <div class="evtGrid2">
+    <button class="evtBtn primary" onclick="eventShow('evt_kasse_minder_yes_ge50_erst','Ersttäter (≥50)')" type="button">Ersttäter</button>
+    <button class="evtBtn warn" onclick="eventShow('evt_kasse_minder_yes_repeat','Wiederholungstäter')" type="button">Wiederholungstäter</button>
+  </div>
+</section>
+
+<section class="evtCard hidden" id="evt_kasse_minder_yes_lt50_erst">
+  <h3>Massnahmen (unter CHF 300.–, minderjährig, Eltern erreichbar, Ersttäter, unter CHF 50.–)</h3>
+  <ul class="evtActions" data-copytitle="Kasse <300 (minder, Eltern ja, Erst, <50)">
+    <li><span class="tag parents">Eltern</span><div>Eltern beiziehen / informieren.</div></li>
+    <li><span class="tag form">Formular</span><div>Formular „Unbezahlte Ware“ ausfüllen und OS Migros informieren.</div></li>
+    <li><span class="tag info">Info</span><div><b>Kein Strafantrag</b> (Ersttäter unter CHF 50.–).</div></li>
+    <li><span class="tag pay">UE</span><div>UE ausstellen (ab 13 Jahren).</div></li>
+    <li><span class="tag check">Check</span><div>M‑SiDi Abfrage.</div></li>
+  </ul>
+  <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_kasse_minder_yes_lt50_erst')" type="button">📋 Massnahmen kopieren</button>
+</section>
+
+<section class="evtCard hidden" id="evt_kasse_minder_yes_ge50_erst">
+  <h3>Massnahmen (unter CHF 300.–, minderjährig, Eltern erreichbar, Ersttäter, über CHF 50.–)</h3>
+  <ul class="evtActions" data-copytitle="Kasse <300 (minder, Eltern ja, Erst, ≥50)">
+    <li><span class="tag parents">Eltern</span><div>Eltern beiziehen / informieren.</div></li>
+    <li><span class="tag form">Formular</span><div>Formular „Unbezahlte Ware“ ausfüllen und OS Migros informieren.</div></li>
+    <li><span class="tag form">Formular</span><div><b>Strafantrag ausfüllen</b> (Ersttäter: ab CHF 50.–).</div></li>
+    <li><span class="tag pay">UE</span><div>UE ausstellen (ab 13 Jahren).</div></li>
+    <li><span class="tag check">Check</span><div>M‑SiDi Abfrage.</div></li>
+  </ul>
+  <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_kasse_minder_yes_ge50_erst')" type="button">📋 Massnahmen kopieren</button>
+</section>
+
+<section class="evtCard hidden" id="evt_kasse_minder_yes_repeat">
+  <h3>Massnahmen (unter CHF 300.–, minderjährig, Eltern erreichbar, Wiederholungstäter)</h3>
+  <ul class="evtActions" data-copytitle="Kasse <300 (minder, Eltern ja, Wiederholung)">
+    <li><span class="tag parents">Eltern</span><div>Eltern beiziehen / informieren.</div></li>
+    <li><span class="tag form">Formular</span><div>Formular „Unbezahlte Ware“ ausfüllen und OS Migros informieren.</div></li>
+    <li><span class="tag form">Formular</span><div><b>Strafantrag ausfüllen</b> (Wiederholungstäter).</div></li>
+    <li><span class="tag pay">UE</span><div>UE ausstellen (ab 13 Jahren).</div></li>
+    <li><span class="tag check">Check</span><div>M‑SiDi Abfrage.</div></li>
+    <li><span class="tag warn">Vorgesetzte</span><div>Azou oder Lüdi informieren nur bei Spezialfall / Eskalation.</div></li>
+  </ul>
+  <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_kasse_minder_yes_repeat')" type="button">📋 Massnahmen kopieren</button>
+</section>
+
+<section class="evtCard hidden" id="evt_kasse_u300_amount_minder_no">
+  <h3>Deliktbetrag (unter CHF 300.–)</h3>
+  <div class="hint" style="margin-bottom:10px;">Minderjährig – Eltern nicht erreichbar.</div>
+  <div class="evtGrid2">
+    <button class="evtBtn no" onclick="eventShow('evt_kasse_u300_profile_minder_no_lt50','Wert unter CHF 50.–')" type="button">unter CHF 50.–</button>
+    <button class="evtBtn yes" onclick="eventShow('evt_kasse_u300_profile_minder_no_ge50','Wert über CHF 50.–')" type="button">über CHF 50.–</button>
+  </div>
+</section>
+
+<section class="evtCard hidden" id="evt_kasse_u300_profile_minder_no_lt50">
+  <h3>Profil</h3>
+  <div class="evtGrid2">
+    <button class="evtBtn primary" onclick="eventShow('evt_kasse_minder_no_lt50_erst','Ersttäter (<50)')" type="button">Ersttäter</button>
+    <button class="evtBtn warn" onclick="eventShow('evt_kasse_minder_no_repeat','Wiederholungstäter')" type="button">Wiederholungstäter</button>
+  </div>
+</section>
+
+<section class="evtCard hidden" id="evt_kasse_u300_profile_minder_no_ge50">
+  <h3>Profil</h3>
+  <div class="evtGrid2">
+    <button class="evtBtn primary" onclick="eventShow('evt_kasse_minder_no_ge50_erst','Ersttäter (≥50)')" type="button">Ersttäter</button>
+    <button class="evtBtn warn" onclick="eventShow('evt_kasse_minder_no_repeat','Wiederholungstäter')" type="button">Wiederholungstäter</button>
+  </div>
+</section>
+
+<section class="evtCard hidden" id="evt_kasse_minder_no_lt50_erst">
+  <h3>Massnahmen (unter CHF 300.–, minderjährig, Eltern nicht erreichbar, Ersttäter, unter CHF 50.–)</h3>
+  <ul class="evtActions" data-copytitle="Kasse <300 (minder, Eltern nein, Erst, <50)">
+    <li><span class="tag warn">Vorgesetzte</span><div>Azou oder Lüdi informieren (Eltern nicht erreichbar → Spezialfall).</div></li>
+    <li><span class="tag form">Formular</span><div>Formular „Unbezahlte Ware“ ausfüllen und OS Migros informieren.</div></li>
+    <li><span class="tag info">Info</span><div><b>Kein Strafantrag</b> (Ersttäter unter CHF 50.–).</div></li>
+    <li><span class="tag pay">UE</span><div>UE ausstellen (ab 13 Jahren).</div></li>
+    <li><span class="tag check">Check</span><div>M‑SiDi Abfrage.</div></li>
+  </ul>
+  <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_kasse_minder_no_lt50_erst')" type="button">📋 Massnahmen kopieren</button>
+</section>
+
+<section class="evtCard hidden" id="evt_kasse_minder_no_ge50_erst">
+  <h3>Massnahmen (unter CHF 300.–, minderjährig, Eltern nicht erreichbar, Ersttäter, über CHF 50.–)</h3>
+  <ul class="evtActions" data-copytitle="Kasse <300 (minder, Eltern nein, Erst, ≥50)">
+    <li><span class="tag warn">Vorgesetzte</span><div>Azou oder Lüdi informieren (Eltern nicht erreichbar → Spezialfall).</div></li>
+    <li><span class="tag form">Formular</span><div>Formular „Unbezahlte Ware“ ausfüllen und OS Migros informieren.</div></li>
+    <li><span class="tag form">Formular</span><div><b>Strafantrag ausfüllen</b> (Ersttäter: ab CHF 50.–).</div></li>
+    <li><span class="tag pay">UE</span><div>UE ausstellen (ab 13 Jahren).</div></li>
+    <li><span class="tag check">Check</span><div>M‑SiDi Abfrage.</div></li>
+  </ul>
+  <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_kasse_minder_no_ge50_erst')" type="button">📋 Massnahmen kopieren</button>
+</section>
+
+<section class="evtCard hidden" id="evt_kasse_minder_no_repeat">
+  <h3>Massnahmen (unter CHF 300.–, minderjährig, Eltern nicht erreichbar, Wiederholungstäter)</h3>
+  <ul class="evtActions" data-copytitle="Kasse <300 (minder, Eltern nein, Wiederholung)">
+    <li><span class="tag warn">Vorgesetzte</span><div>Azou oder Lüdi informieren (Spezialfall).</div></li>
+    <li><span class="tag form">Formular</span><div>Formular „Unbezahlte Ware“ ausfüllen und OS Migros informieren.</div></li>
+    <li><span class="tag form">Formular</span><div><b>Strafantrag ausfüllen</b> (Wiederholungstäter).</div></li>
+    <li><span class="tag pay">UE</span><div>UE ausstellen (ab 13 Jahren).</div></li>
+    <li><span class="tag check">Check</span><div>M‑SiDi Abfrage.</div></li>
+  </ul>
+  <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_kasse_minder_no_repeat')" type="button">📋 Massnahmen kopieren</button>
+</section>
+
+
+  <div class="evtCard" style="background: rgba(255,255,255,.04); border-style:dashed;">
+    <h3>Hinweis</h3>
+    <ul class="evtActions" data-copytitle="Hinweise">
+      <li><span class="tag os">OS</span><div>Operative Sicherheit (OS) ist immer <b>Migros</b>.</div></li>
+      <li><span class="tag warn">HV</span><div>Hausverbot (HV) entscheidet ausschliesslich die Operative Sicherheit.</div></li>
+      <li><span class="tag info">Info</span><div>Rapporte werden nur nach Anhaltungen, <b>nach</b> der letzten möglichen Zahlstation erstellt.</div></li>
+    </ul>
+  </div>
+</div></div>
 </div>
 </div>
 </section>
@@ -7704,6 +8188,21 @@ document.addEventListener("DOMContentLoaded", function(){
     const el = document.getElementById('evtCrumb');
     if(el) el.textContent = txt || 'Start';
   }
+
+  // Update breadcrumb without changing the current card
+  window.eventCrumb = function(txt){
+    setCrumb(txt || 'Start');
+  }
+
+  // Subito: show/hide the 5‑Artikel follow-up inside the same card
+  window.showSubito5 = function(){
+    const s5 = document.getElementById('subito5wrap');
+    if(s5) s5.classList.remove('hidden');
+  }
+  window.hideSubito5 = function(){
+    const s5 = document.getElementById('subito5wrap');
+    if(s5) s5.classList.add('hidden');
+  }
   function setBackEnabled(enabled){
     const b1 = document.getElementById('evtBackBtn');
         if(b1) b1.disabled = !enabled;
@@ -7712,6 +8211,8 @@ document.addEventListener("DOMContentLoaded", function(){
     document.querySelectorAll('#eventList .evtCard').forEach(el=>el.classList.add('hidden'));
   }
   window.eventShow = function(id, crumb){
+    // always start Subito-Wert/Artikel card in a clean state
+    if(id === "evt_subito_o13") { try{ window.window.hideSubito5(); }catch(e){} }
     const current = stack.length ? stack[stack.length-1] : 'evt_start';
     if(current !== id) stack.push(id);
     hideAllEvtCards();
@@ -7745,31 +8246,124 @@ document.addEventListener("DOMContentLoaded", function(){
     if(start) start.classList.remove('hidden');
     setCrumb('Start');
     setBackEnabled(false);
+    try{ window.window.hideSubito5(); }catch(e){}
     const wrap = document.getElementById('eventWrap');
     if(wrap) wrap.scrollIntoView({behavior:'smooth', block:'start'});
   }
-  // initialize when DOM is ready
+  
+  // Copy measures from a given card to clipboard (fallback: prompt)
+  window.copyEvtMeasures = async function(cardId){
+    try{
+      const card = document.getElementById(cardId);
+      if(!card) return;
+      const ul = card.querySelector('.evtActions');
+      if(!ul) return;
+      const title = ul.getAttribute('data-copytitle') || '';
+      const lines = [];
+      ul.querySelectorAll('li').forEach(li=>{
+        const tag = (li.querySelector('.tag')?.textContent || '').trim();
+        const txt = (li.querySelector('div')?.textContent || li.textContent || '').trim();
+        const clean = txt.replace(/\s+/g,' ').trim();
+        lines.push(tag ? `[${tag}] ${clean}` : clean);
+      });
+      const out = (title ? title + "\n" + "-".repeat(Math.min(40, title.length)) + "\n" : "") + lines.join("\n");
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        await navigator.clipboard.writeText(out);
+        alert("Massnahmen kopiert ✅");
+      } else {
+        prompt("Kopieren:", out);
+      }
+    }catch(e){
+      console.error(e);
+      try{ prompt("Kopieren:", ""); }catch(_){}
+    }
+  };
+  // === Ereignis Brand-Auswahl (Migros / Decathlon) ===
+  (function(){
+    const chooser = document.getElementById('eventBrandChooser');
+    const wrapMigros = document.getElementById('eventWrap');
+    const wrapDeca = document.getElementById('eventWrapDecathlon');
+    const btnBackDeca = document.getElementById('evtDecaBackToBrand');
+    const btnBackMigros = document.getElementById('evtMigrosBackToBrand');
+
+    function showChooser(){
+      if(chooser) chooser.style.display = '';
+      if(wrapMigros) wrapMigros.style.display = 'none';
+      if(wrapDeca) wrapDeca.style.display = 'none';
+      try{ localStorage.removeItem('eventBrand'); }catch(e){}
+    }
+
+    function showMigros(){
+      if(chooser) chooser.style.display = 'none';
+      if(wrapDeca) wrapDeca.style.display = 'none';
+      if(wrapMigros) wrapMigros.style.display = '';
+      try{ localStorage.setItem('eventBrand','migros'); }catch(e){}
+      // Ensure the Migros decision tree is reset to start for clarity
+      try{ window.eventReset(); }catch(e){}
+    }
+
+    function showDeca(){
+      if(chooser) chooser.style.display = 'none';
+      if(wrapMigros) wrapMigros.style.display = 'none';
+      if(wrapDeca) wrapDeca.style.display = '';
+      try{ localStorage.setItem('eventBrand','decathlon'); }catch(e){}
+      if(wrapDeca) wrapDeca.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    // Delegate clicks from chooser buttons
+    if(chooser){
+      chooser.addEventListener('click', (ev)=>{
+        const btn = ev.target.closest('[data-event-brand]');
+        if(!btn) return;
+        const brand = btn.getAttribute('data-event-brand');
+        if(brand === 'migros') showMigros();
+        else if(brand === 'decathlon') showDeca();
+      });
+    }
+
+    if(btnBackDeca){
+      btnBackDeca.addEventListener('click', showChooser);
+    }
+
+    if(btnBackMigros){
+      btnBackMigros.addEventListener('click', showChooser);
+    }
+
+    // Expose for other UI elements if needed
+    window.eventBrandShowChooser = showChooser;
+
+    // On load: restore last selection (optional)
+    let saved = null;
+    try{ saved = localStorage.getItem('eventBrand'); }catch(e){}
+    if(saved === 'migros') showMigros();
+    else if(saved === 'decathlon') showDeca();
+    else showChooser();
+  })();
+
+// initialize when DOM is ready
   document.addEventListener('DOMContentLoaded', ()=>{
     // add crumbs to key cards (optional)
     const map = {
       'evt_start':'Start',
       'evt_subito':'Subito / Selfcheckout',
-      'evt_subito_jung':'Subito → ≤13',
-      'evt_subito_alt':'Subito → >13',
-      'evt_subito_gross':'Subito → Massnahmen',
-      'evt_subito_klein':'Subito → Massnahmen',
+      'evt_subito_u13':'Subito → unter/gleich 13',
+      'evt_subito_u13_yes':'Subito unter/gleich 13 → Massnahmen',
+      'evt_subito_u13_no':'Subito unter/gleich 13 → Spezialfall',
+      'evt_subito_o13':'Subito → ≥14',
+      'evt_subito_rapport_ja':'Subito ≥14 → Rapport',
+      'evt_subito_rapport_nein':'Subito ≥14 → Ohne Rapport',
       'evt_kasse':'Kasse im Laden',
-      'evt_kasse_hoch':'Kasse → ≥300 → Massnahmen',
-      'evt_kasse_tief':'Kasse → <300',
-      'evt_kasse_minder':'Kasse → Minderjährig → Massnahmen',
-      'evt_kasse_voll':'Kasse → Volljährig → Massnahmen'
+      'evt_kasse_300_ja':'Kasse → ≥300',
+      'evt_kasse_300_nein':'Kasse → <300',
+      'evt_kasse_u300_voll':'Kasse <300 → Volljährig',
+      'evt_kasse_u300_minder':'Kasse <300 → Minderjährig',
+      'evt_kasse_u300_minder_yes':'Kasse <300 → Minderjährig (Eltern erreichbar)',
+      'evt_kasse_u300_minder_no':'Kasse <300 → Minderjährig (Eltern nicht erreichbar)'
     };
     Object.entries(map).forEach(([id,crumb])=>{
       const el=document.getElementById(id);
       if(el) el.setAttribute('data-crumb', crumb);
     });
-    // ensure reset state
-    try{ window.eventReset(); }catch(e){}
   });
 })();
 </script></body>

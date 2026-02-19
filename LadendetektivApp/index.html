@@ -8930,5 +8930,72 @@ document.addEventListener("DOMContentLoaded", function(){
 });
 </script>
 
+
+<script id="chat-autoscroll-v2">
+/* ===== Chat: beim Öffnen immer zur letzten Nachricht springen ===== */
+(function(){
+  function scrollChatBottom(force){
+    const log = document.getElementById("chatLog") || document.querySelector(".chatLog");
+    if(!log) return;
+
+    // Optional: nur scrollen wenn man schon fast unten war
+    if(!force){
+      const dist = (log.scrollHeight - log.scrollTop - log.clientHeight);
+      if(dist > 120) return; // user is reading older messages
+    }
+
+    // Mehrfach versuchen (Layout + async render)
+    const doIt = ()=>{ try{ log.scrollTop = log.scrollHeight + 9999; }catch(_){ } };
+    requestAnimationFrame(doIt);
+    setTimeout(doIt, 50);
+    setTimeout(doIt, 150);
+    setTimeout(doIt, 300);
+  }
+  window.__scrollChatBottom = scrollChatBottom;
+
+  // Hook in setView / setMobileView (das ist in deinem Code der eigentliche View-Switch) fileciteturn10file3
+  ["setView","setMobileView"].forEach(fnName=>{
+    const orig = window[fnName];
+    if(typeof orig !== "function") return;
+    if(orig.__chatScrollWrapped) return;
+    const wrapped = function(view){
+      const r = orig.apply(this, arguments);
+      if(String(view) === "chat"){
+        scrollChatBottom(true);
+      }
+      return r;
+    };
+    wrapped.__chatScrollWrapped = true;
+    window[fnName] = wrapped;
+  });
+
+  // Fallback: BottomNav Chat Button
+  ["mbChat","navChat","dnavChat"].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el){
+      el.addEventListener("click", ()=> setTimeout(()=>scrollChatBottom(true), 60), {passive:true});
+    }
+  });
+
+  // Wenn Chat schon aktiv ist beim Laden
+  document.addEventListener("DOMContentLoaded", ()=>{
+    if(document.body.classList.contains("view-chat")){
+      scrollChatBottom(true);
+    }
+  });
+
+  // Wenn neue Nachrichten reinkommen (DOM wächst), beim Chat-View am Ende halten
+  const log = document.getElementById("chatLog");
+  if(log && "MutationObserver" in window){
+    const mo = new MutationObserver(()=>{
+      if(document.body.classList.contains("view-chat")){
+        scrollChatBottom(false);
+      }
+    });
+    mo.observe(log, {childList:true, subtree:true});
+  }
+})();
+</script>
+
 </body>
 </html>

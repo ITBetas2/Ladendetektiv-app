@@ -2363,6 +2363,124 @@ input, textarea, select { scroll-margin-top: 90px; }
   .evtCard h3{ font-size: 17px; }
 }
 </style>
+<style id="decathlon-ui-colors">
+/* === Decathlon: bessere Übersicht (nur Ereignis Decathlon) === */
+#eventWrapDecathlon{
+  --deca-blue: #2F7BFF;
+  --deca-blue2:#1E57D8;
+  --deca-cyan:#3BE6FF;
+  --deca-surface: rgba(12, 18, 36, .78);
+  --deca-surface2: rgba(16, 24, 48, .72);
+  --deca-border: rgba(47,123,255,.28);
+  --deca-border2: rgba(59,230,255,.18);
+  --deca-text: rgba(235,245,255,.95);
+  --deca-muted: rgba(235,245,255,.72);
+}
+
+/* Header */
+#eventWrapDecathlon .eventHeader{
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--deca-border);
+  background:
+    radial-gradient(900px 220px at 10% 0%, rgba(47,123,255,.22), transparent 60%),
+    radial-gradient(700px 220px at 90% 0%, rgba(59,230,255,.12), transparent 55%),
+    linear-gradient(180deg, rgba(16,24,48,.72), rgba(10,14,28,.62));
+}
+#eventWrapDecathlon .eventTitle{
+  color: var(--deca-text);
+  text-shadow: 0 1px 0 rgba(0,0,0,.25);
+  position:relative;
+  padding-left: 14px;
+}
+#eventWrapDecathlon .eventTitle:before{
+  content:"";
+  position:absolute;
+  left:0; top:50%;
+  width:8px; height:8px;
+  transform: translateY(-50%);
+  border-radius: 99px;
+  background: linear-gradient(180deg, var(--deca-cyan), var(--deca-blue));
+  box-shadow: 0 0 0 3px rgba(47,123,255,.16);
+}
+
+/* Nav / Breadcrumb */
+#eventWrapDecathlon .eventNav{
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.08));
+}
+#eventWrapDecathlon .eventBreadcrumb{
+  display:inline-flex;
+  align-items:center;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--deca-border2);
+  background: rgba(47,123,255,.10);
+  color: var(--deca-muted);
+  font-weight: 700;
+}
+
+/* Cards */
+#eventWrapDecathlon .evtCard{
+  border: 1px solid var(--deca-border);
+  background:
+    radial-gradient(900px 320px at 20% 0%, rgba(47,123,255,.16), transparent 60%),
+    linear-gradient(180deg, var(--deca-surface), rgba(7,10,18,.70));
+  box-shadow:
+    0 10px 24px rgba(0,0,0,.25),
+    inset 0 1px 0 rgba(255,255,255,.06);
+}
+#eventWrapDecathlon .evtCard h3{
+  color: var(--deca-text);
+  letter-spacing: .2px;
+}
+#eventWrapDecathlon .evtHint{
+  border-left: 3px solid rgba(59,230,255,.55);
+  background: rgba(47,123,255,.08);
+  color: var(--deca-muted);
+}
+
+/* Buttons */
+#eventWrapDecathlon .evtBtn.primary{
+  border-color: rgba(47,123,255,.45);
+  background: linear-gradient(180deg, rgba(47,123,255,.95), rgba(30,87,216,.92));
+  box-shadow:
+    0 10px 22px rgba(47,123,255,.18),
+    inset 0 1px 0 rgba(255,255,255,.18);
+}
+#eventWrapDecathlon .evtBtn.primary:hover{
+  filter: brightness(1.06);
+}
+#eventWrapDecathlon .evtBtn.ghost{
+  border-color: rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  color: var(--deca-text);
+}
+#eventWrapDecathlon .evtBtn.ghost:hover{
+  background: rgba(255,255,255,.10);
+  border-color: rgba(59,230,255,.22);
+}
+#eventWrapDecathlon .evtBtn.warn{
+  border-color: rgba(255, 109, 109, .40);
+  background: linear-gradient(180deg, rgba(255,109,109,.20), rgba(255,109,109,.10));
+  color: rgba(255,235,235,.95);
+}
+#eventWrapDecathlon .evtBtn.warn:hover{
+  background: linear-gradient(180deg, rgba(255,109,109,.26), rgba(255,109,109,.12));
+}
+
+/* Back icon button gets a bit more contrast */
+#eventWrapDecathlon .evtBtn.backBrand.backIcon{
+  border-color: rgba(59,230,255,.22);
+  background: rgba(47,123,255,.10);
+}
+#eventWrapDecathlon .evtBtn.backBrand.backIcon:hover{
+  background: rgba(47,123,255,.14);
+}
+</style>
+
 <!-- === CHAT MOBILE INPUT FINAL FIX (scoped to chat only) === -->
 <style id="chat-mobile-final-fix">
 @media (max-width: 980px){
@@ -2449,6 +2567,198 @@ input, textarea, select { scroll-margin-top: 90px; }
   }
 }
 
+</style>
+
+
+<style id="deca-tag-colors">
+/* Only inside Ereignis Decathlon */
+#eventWrapDecathlon .tag.deca-polizei{ background: rgba(25,118,210,.22) !important; border:1px solid rgba(25,118,210,.55) !important; color:#cfe7ff !important; }
+#eventWrapDecathlon .tag.deca-hausverbot{ background: rgba(211,47,47,.22) !important; border:1px solid rgba(211,47,47,.55) !important; color:#ffd0d0 !important; }
+#eventWrapDecathlon .tag.deca-entsch{ background: rgba(123,31,162,.22) !important; border:1px solid rgba(123,31,162,.55) !important; color:#f0d0ff !important; }
+#eventWrapDecathlon .tag.deca-eltern{ background: rgba(56,142,60,.22) !important; border:1px solid rgba(56,142,60,.55) !important; color:#d7ffd9 !important; }
+/* keep existing styles for warn/info/ok unless overridden above */
+</style>
+
+
+<style id="decathlon-solid-tags">
+/* ===== SOLID TAG COLORS – ONLY DECATLON ===== */
+#eventWrapDecathlon .tag.deca-polizei {
+    background: #2196f3 !important;
+    color: #000 !important;
+    border: none !important;
+}
+
+#eventWrapDecathlon .tag.deca-hausverbot {
+    background: #f44336 !important;
+    color: #000 !important;
+    border: none !important;
+}
+
+#eventWrapDecathlon .tag.deca-entsch {
+    background: #9c27b0 !important;
+    color: #000 !important;
+    border: none !important;
+}
+
+#eventWrapDecathlon .tag.deca-eltern {
+    background: #4caf50 !important;
+    color: #000 !important;
+    border: none !important;
+}
+</style>
+
+
+<style id="decathlon-strafantrag-yellow">
+/* ===== Strafantrag ALWAYS YELLOW – ONLY DECATLON ===== */
+#eventWrapDecathlon .tag.deca-strafantrag {
+    background: #ffeb3b !important;
+    color: #000 !important;
+    border: none !important;
+}
+</style>
+
+
+<style id="decathlon-header-lightblue">
+/* ===== Ereignis Decathlon HEADER TAG ===== */
+#eventWrapDecathlon .eventTitleTag,
+#eventWrapDecathlon .tag.decathlon-main {
+    background: #4fc3f7 !important; /* light blue */
+    color: #ffffff !important;      /* white text */
+    border: none !important;
+}
+</style>
+
+
+<style id="decathlon-selection-button">
+/* ===== Auswahl Button Ereignis Decathlon ===== */
+#eventSelectionWrap button.decathlon-btn,
+#eventSelectionWrap .btn-decathlon,
+button[data-event="decathlon"] {
+    background: #4fc3f7 !important;   /* Hellblau */
+    color: #ffffff !important;        /* Weiße Schrift */
+    border: none !important;
+}
+
+#eventSelectionWrap button.decathlon-btn:hover,
+#eventSelectionWrap .btn-decathlon:hover,
+button[data-event="decathlon"]:hover {
+    background: #29b6f6 !important;
+}
+</style>
+
+
+
+<style id="decathlon-strong-button-v2">
+/* ===== KRÄFTIGER DECATLON BUTTON (korrekter Selektor) ===== */
+#eventBrandChooser .evtGrid2 > button.evtBtn[data-event-brand="decathlon"],
+#eventBrandChooser button.evtBtn.secondary[data-event-brand="decathlon"],
+#eventBrandChooser button[data-event-brand="decathlon"]{
+  background: linear-gradient(135deg, #00b4ff, #0091ea) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  box-shadow: 0 8px 22px rgba(0,145,234,0.60) !important;
+  font-weight: 800 !important;
+}
+
+#eventBrandChooser .evtGrid2 > button.evtBtn[data-event-brand="decathlon"]:hover,
+#eventBrandChooser button.evtBtn.secondary[data-event-brand="decathlon"]:hover,
+#eventBrandChooser button[data-event-brand="decathlon"]:hover{
+  background: linear-gradient(135deg, #0091ea, #0077c2) !important;
+  transform: translateY(-2px);
+}
+</style>
+
+
+<style id="migros-linebreak-style">
+#eventBrandChooser button[data-event-brand="migros"]{
+    line-height: 1.2 !important;
+    text-align: center !important;
+}
+</style>
+
+
+
+
+<style id="migros-orange-header-v4">
+/* ===== Ereignis Migros – Transparentes Orange + weisse Schrift ===== */
+#eventWrap .eventHeader{
+  background: linear-gradient(135deg, rgba(255,152,0,0.75), rgba(239,108,0,0.75)) !important;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.15) !important;
+  border-radius: 16px !important;
+  padding: 14px 16px !important;
+  box-shadow: 0 8px 22px rgba(255,152,0,0.35) !important;
+  margin-bottom: 12px !important;
+}
+
+#eventWrap .eventHeader .eventTitle{
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+}
+
+#eventWrap .eventHeader .evtBtn{
+  background: rgba(255,255,255,0.15) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255,255,255,0.25) !important;
+}
+
+#eventWrap .eventHeader .evtBtn:hover{
+  background: rgba(255,255,255,0.25) !important;
+}
+</style>
+
+
+<style id="migros-nav-like-decathlon">
+/* ===== Ereignis Migros: Mittlerer Teil (Zurück + Breadcrumb) wie bei Decathlon ===== */
+#eventWrap .eventNav{
+  display:flex !important;
+  align-items:center !important;
+  gap:12px !important;
+  padding: 12px 12px !important;
+  border-radius: 16px !important;
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.10);
+  margin-bottom: 14px !important;
+}
+
+#eventWrap .eventNav .evtBtn{
+  border-radius: 999px !important;
+  padding: 10px 14px !important;
+  background: rgba(255,255,255,0.10) !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  color: #dbe7ff !important;
+  font-weight: 650 !important;
+}
+
+#eventWrap .eventNav .evtBtn:disabled{
+  opacity: .55 !important;
+}
+
+#eventWrap .eventNav .eventBreadcrumb{
+  flex: 1 1 auto !important;
+  border-radius: 999px !important;
+  padding: 10px 14px !important;
+  background: rgba(30, 60, 120, 0.18) !important;  /* leicht blau, wie bei Decathlon */
+  border: 1px solid rgba(79, 195, 247, 0.25) !important;
+  color: #cfe7ff !important;
+  font-weight: 650 !important;
+  text-align: left !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+</style>
+
+
+<style id="placeholder-btn-style">
+/* Platzhalter Buttons: sichtbar, aber klar deaktiviert */
+#eventBrandChooser button[disabled][data-event-brand^="placeholder"]{
+  opacity: .55;
+  cursor: not-allowed;
+  filter: saturate(.85);
+}
 </style>
 
 </head>
@@ -2872,25 +3182,155 @@ input, textarea, select { scroll-margin-top: 90px; }
   <div class="evtGrid2">
     <button class="evtBtn primary" type="button" data-event-brand="migros">Ereignis Migros</button>
     <button class="evtBtn secondary" type="button" data-event-brand="decathlon">Ereignis Decathlon</button>
+    <button class="evtBtn secondary" type="button" data-event-brand="placeholder1" disabled>Platzhalter 1</button>
+    <button class="evtBtn secondary" type="button" data-event-brand="placeholder2" disabled>Platzhalter 2</button>
   </div>
   <div class="evtHint" style="margin-top:10px;">Nach der Auswahl öffnet sich das passende Menü.</div>
-
 </div>
 
 <div class="eventWrap" id="eventWrapDecathlon" style="display:none;">
   <div class="eventHeader">
     <div class="eventTitle">Ereignis Decathlon</div>
     <div class="eventHeaderActions">
-      <button class="evtBtn backBrand backIcon" id="evtDecaBackToBrand" type="button" title="Zurück" aria-label="Zurück"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg><span class="srOnly">Zurück</span></button>
-      <button class="evtBtn ghost" type="button" onclick="try{window.eventBrandShowChooser&&window.eventBrandShowChooser()}catch(e){}">Neu starten</button>
+      <button class="evtBtn backBrand backIcon" id="evtDecaBackToBrand" type="button" title="Zurück" aria-label="Zurück">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        <span class="srOnly">Zurück</span>
+      </button>
+      <button class="evtBtn ghost" id="evtDecaRestart" type="button">Neu starten</button>
     </div>
   </div>
 
-  <div class="evtCard" style="display:block;">
-    <div class="evtBadge" style="margin-bottom:10px;">Hinweis</div>
-    <div style="font-weight:800; font-size:16px; margin-bottom:6px;">Decathlon-Menü folgt</div>
-    <div class="evtHint">Bis das Decathlon-Schema ergänzt ist, kannst du jederzeit über <b>Auswahl</b> zurück zur Marken-Auswahl.</div>
+  <!-- NAV / BACK -->
+  <div class="eventNav">
+    <button class="evtBtn ghost" id="evtDecaBackBtn" disabled type="button">← Zurück</button>
+    <div class="eventBreadcrumb" id="evtDecaCrumb">Start</div>
   </div>
+
+  <!-- START -->
+  <section class="evtCard" id="deca_evt_start" data-crumb="Start">
+    <h3>Was ist passiert?</h3>
+    <button class="evtBtn primary" type="button" onclick="decaEventShow('deca_evt_theft','Diebstahl durch Kunden')">Diebstahl durch Kunden</button>
+  </section>
+
+  <!-- DIEBSTAHL: ALTER -->
+  <section class="evtCard hidden" id="deca_evt_theft" data-crumb="Diebstahl durch Kunden">
+    <h3>Alterskategorie</h3>
+    <div class="evtHint">Wähle die passende Kategorie – danach folgen die Massnahmen wie in der Schnellübersicht.</div>
+    <button class="evtBtn primary" type="button" onclick="decaEventShow('deca_evt_child_u12','Kinder bis 12')">Kinder bis 12</button>
+    <button class="evtBtn primary" type="button" onclick="decaEventShow('deca_evt_youth_profile','Jugendliche 12–18')">Jugendliche (12–18)</button>
+    <button class="evtBtn primary" type="button" onclick="decaEventShow('deca_evt_adult_profile','Erwachsene ab 18')">Erwachsene ab 18</button>
+    <button class="evtBtn warn" type="button" onclick="decaEventShow('deca_evt_official','Offizialdelikt / > CHF 300 / Raub / KV')">Offizialdelikt / &gt; CHF 300 / Raub / Körperverletzung</button>
+  </section>
+
+  <!-- JUGENDLICHE: PROFIL -->
+  <section class="evtCard hidden" id="deca_evt_youth_profile" data-crumb="Jugendliche (12–18)">
+    <h3>Kunden-Profil</h3>
+    <button class="evtBtn primary" type="button" onclick="decaEventShow('deca_evt_youth_first','Ersttäter')">Ersttäter</button>
+    <button class="evtBtn warn" type="button" onclick="decaEventShow('deca_evt_youth_repeat','Wiederholungstäter')">Wiederholungstäter</button>
+  </section>
+
+  <!-- ERWACHSENE: PROFIL -->
+  <section class="evtCard hidden" id="deca_evt_adult_profile" data-crumb="Erwachsene ab 18">
+    <h3>Kunden-Profil</h3>
+    <button class="evtBtn primary" type="button" onclick="decaEventShow('deca_evt_adult_first','Ersttäter')">Ersttäter</button>
+    <button class="evtBtn warn" type="button" onclick="decaEventShow('deca_evt_adult_repeat','Wiederholungstäter')">Wiederholungstäter</button>
+  </section>
+
+  <!-- RESULT: KIND U12 -->
+  <section class="evtCard hidden" id="deca_evt_child_u12" data-crumb="Kinder bis 12">
+    <h3>Massnahmen – Kinder bis 12</h3>
+    <ul class="evtActions" data-copytitle="Decathlon – Diebstahl durch Kunden (Kinder bis 12)">
+      <li><span class="tag info">Strafantrag</span><div>Nein</div></li>
+      <li><span class="tag warn">Avis Eltern</span><div>Ja zwingend</div></li>
+      <li><span class="tag info">Avis Polizei</span><div>Nein – nur bei Nichterreichen der Eltern</div></li>
+      <li><span class="tag info">Entschädigung</span><div>Nein</div></li>
+      <li><span class="tag info">Hausverbot</span><div>Nein</div></li>
+    </ul>
+    <div class="row2" style="margin-top:10px;">
+      <button class="evtBtn ghost" type="button" onclick="copyEvtMeasures('deca_evt_child_u12')">Massnahmen kopieren</button>
+    </div>
+  </section>
+
+  <!-- RESULT: JUGEND FIRST -->
+  <section class="evtCard hidden" id="deca_evt_youth_first" data-crumb="Jugendliche → Ersttäter">
+    <h3>Massnahmen – Jugendliche (12–18) / Ersttäter</h3>
+    <ul class="evtActions" data-copytitle="Decathlon – Diebstahl durch Kunden (Jugendliche Ersttäter)">
+      <li><span class="tag info">Strafantrag</span><div>Nein</div></li>
+      <li><span class="tag warn">Avis Eltern</span><div>Ja zwingend</div></li>
+      <li><span class="tag info">Avis Polizei</span><div>Nein – nur bei Nichterreichen der Eltern</div></li>
+      <li><span class="tag info">Entschädigung</span><div>Nein</div></li>
+      <li><span class="tag info">Hausverbot</span><div>Nein</div></li>
+    </ul>
+    <div class="row2" style="margin-top:10px;">
+      <button class="evtBtn ghost" type="button" onclick="copyEvtMeasures('deca_evt_youth_first')">Massnahmen kopieren</button>
+    </div>
+  </section>
+
+  <!-- RESULT: JUGEND REPEAT -->
+  <section class="evtCard hidden" id="deca_evt_youth_repeat" data-crumb="Jugendliche → Wiederholungstäter">
+    <h3>Massnahmen – Jugendliche (12–18) / Wiederholungstäter</h3>
+    <ul class="evtActions" data-copytitle="Decathlon – Diebstahl durch Kunden (Jugendliche Wiederholungstäter)">
+      <li><span class="tag warn">Strafantrag</span><div>Ja</div></li>
+      <li><span class="tag warn">Avis Eltern</span><div>Ja</div></li>
+      <li><span class="tag info">Avis Polizei</span><div>Nein – nur bei Nichterreichen der Eltern</div></li>
+      <li><span class="tag ok">Entschädigung</span><div>Ja*</div></li>
+      <li><span class="tag info">Hausverbot</span><div>Nein</div></li>
+    </ul>
+    <div class="evtHint" style="margin-top:10px;"><b>* Entschädigung für Umtriebe:</b> Gutschein mit 150 CHF aufladen und einkassieren. Formular „Beleg“ ausfüllen (Gutschein im Tresor aufbewahren).</div>
+    <div class="row2" style="margin-top:10px;">
+      <button class="evtBtn ghost" type="button" onclick="copyEvtMeasures('deca_evt_youth_repeat')">Massnahmen kopieren</button>
+    </div>
+  </section>
+
+  <!-- RESULT: ADULT FIRST -->
+  <section class="evtCard hidden" id="deca_evt_adult_first" data-crumb="Erwachsene → Ersttäter">
+    <h3>Massnahmen – Erwachsene ab 18 / Ersttäter</h3>
+    <ul class="evtActions" data-copytitle="Decathlon – Diebstahl durch Kunden (Erwachsene Ersttäter)">
+      <li><span class="tag warn">Strafantrag</span><div>Ja</div></li>
+      <li><span class="tag info">Avis Eltern</span><div>–</div></li>
+      <li><span class="tag info">Avis Polizei</span><div>Nein</div></li>
+      <li><span class="tag ok">Entschädigung</span><div>Ja*</div></li>
+      <li><span class="tag info">Hausverbot</span><div>Nein</div></li>
+    </ul>
+    <div class="evtHint" style="margin-top:10px;"><b>* Entschädigung für Umtriebe:</b> Gutschein mit 150 CHF aufladen und einkassieren. Formular „Beleg“ ausfüllen (Gutschein im Tresor aufbewahren).</div>
+    <div class="row2" style="margin-top:10px;">
+      <button class="evtBtn ghost" type="button" onclick="copyEvtMeasures('deca_evt_adult_first')">Massnahmen kopieren</button>
+    </div>
+  </section>
+
+  <!-- RESULT: ADULT REPEAT -->
+  <section class="evtCard hidden" id="deca_evt_adult_repeat" data-crumb="Erwachsene → Wiederholungstäter">
+    <h3>Massnahmen – Erwachsene ab 18 / Wiederholungstäter</h3>
+    <ul class="evtActions" data-copytitle="Decathlon – Diebstahl durch Kunden (Erwachsene Wiederholungstäter)">
+      <li><span class="tag warn">Strafantrag</span><div>Ja</div></li>
+      <li><span class="tag info">Avis Eltern</span><div>–</div></li>
+      <li><span class="tag info">Avis Polizei</span><div>Nein</div></li>
+      <li><span class="tag ok">Entschädigung</span><div>Ja*</div></li>
+      <li><span class="tag warn">Hausverbot</span><div>Ja</div></li>
+    </ul>
+    <div class="evtHint" style="margin-top:10px;"><b>* Entschädigung für Umtriebe:</b> Gutschein mit 150 CHF aufladen und einkassieren. Formular „Beleg“ ausfüllen (Gutschein im Tresor aufbewahren).</div>
+    <div class="row2" style="margin-top:10px;">
+      <button class="evtBtn ghost" type="button" onclick="copyEvtMeasures('deca_evt_adult_repeat')">Massnahmen kopieren</button>
+    </div>
+  </section>
+
+  <!-- RESULT: OFFICIAL -->
+  <section class="evtCard hidden" id="deca_evt_official" data-crumb="Offizialdelikt / > CHF 300 / Raub / KV">
+    <h3>Massnahmen – Offizialdelikt / hoher Deliktbetrag / Gewalt</h3>
+    <div class="evtHint" style="margin-bottom:10px;">Gilt für alle Alterskategorien: Täter begehen Offizialdelikte (z.B. Diebstahl &gt; 300 CHF), Raub oder Körperverletzungen.</div>
+    <ul class="evtActions" data-copytitle="Decathlon – Offizialdelikt / > CHF 300 / Raub / KV">
+      <li><span class="tag warn">Strafantrag</span><div>Ja</div></li>
+      <li><span class="tag warn">Avis Eltern</span><div>Ja bis 18</div></li>
+      <li><span class="tag warn">Avis Polizei</span><div>Ja</div></li>
+      <li><span class="tag ok">Entschädigung</span><div>Ja*</div></li>
+      <li><span class="tag warn">Hausverbot</span><div>Ja</div></li>
+    </ul>
+    <div class="evtHint" style="margin-top:10px;"><b>* Entschädigung für Umtriebe:</b> Gutschein mit 150 CHF aufladen und einkassieren. Formular „Beleg“ ausfüllen (Gutschein im Tresor aufbewahren).</div>
+    <div class="row2" style="margin-top:10px;">
+      <button class="evtBtn ghost" type="button" onclick="copyEvtMeasures('deca_evt_official')">Massnahmen kopieren</button>
+    </div>
+  </section>
+
 </div>
 
 <div class="eventWrap" id="eventWrap" style="display:none;">
@@ -2928,7 +3368,7 @@ input, textarea, select { scroll-margin-top: 90px; }
   <section class="evtCard hidden" id="evt_subito_u13">
     <h3>Eltern erreichbar?</h3>
     <div class="evtGrid2">
-      <button class="evtBtn yes" onclick="eventShow('evt_subito_u13_yes','Eltern erreichbar')" type="button">JA</button>
+      <button class="evtBtn yes" onclick="eventShow('evt_subito_u13_yes','Eltern erreichbar')" type="button">Ja</button>
       <button class="evtBtn no" onclick="eventShow('evt_subito_u13_no','Eltern nicht erreichbar')" type="button">NEIN</button>
     </div>
     <div class="hint" style="margin-top:10px;">
@@ -2975,7 +3415,7 @@ input, textarea, select { scroll-margin-top: 90px; }
     <h4 style="margin:6px 0 8px;">Wurden 5 oder mehr Artikel nicht gescannt?</h4>
     <div class="evtGrid2">
       <button class="evtBtn yes" onclick="eventShow('evt_subito_profile_lt50','Subito: Über/gleich 5 Artikel (Wert unter 50)')" type="button">Über/gleich 5 Artikel</button>
-      <button class="evtBtn no" onclick="eventShow('evt_subito_rapport_nein','Rapport: NEIN')" type="button">Unter 5 Artikel</button>
+      <button class="evtBtn no" onclick="eventShow('evt_subito_rapport_nein','Rapport: Ja')" type="button">Unter 5 Artikel</button>
     </div>
   </div>
 </section>
@@ -2986,8 +3426,8 @@ input, textarea, select { scroll-margin-top: 90px; }
     Rapport ausfüllen, wenn <b>Über/gleich 5 Artikel</b> nicht gescannt wurden.
   </div>
   <div class="evtGrid2">
-    <button class="evtBtn yes" onclick="eventShow('evt_subito_profile_lt50','Subito: Über/gleich 5 Artikel (Wert unter 50)')" type="button">JA</button>
-    <button class="evtBtn no" onclick="eventShow('evt_subito_rapport_nein','Rapport: NEIN')" type="button">NEIN</button>
+    <button class="evtBtn yes" onclick="eventShow('evt_subito_profile_lt50','Subito: Über/gleich 5 Artikel (Wert unter 50)')" type="button">Ja</button>
+    <button class="evtBtn no" onclick="eventShow('evt_subito_rapport_nein','Rapport: Ja')" type="button">NEIN</button>
   </div>
 </section>
 
@@ -3066,7 +3506,7 @@ input, textarea, select { scroll-margin-top: 90px; }
   <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_subito_lt50_wieder')" type="button">📋 Massnahmen kopieren</button>
 </section>
 
-<section class="evtCard hidden" id="evt_subito_rapport_ja">
+<section class="evtCard hidden" id="evt_subito_rapport_Ja">
     <h3>Massnahmen (Rapport)</h3>
     <ul class="evtActions" data-copytitle="Subito ≥14 (Rapport)">
       <li><span class="tag form">Formular</span><div>Rapport erstellen (Über/gleich 5 Artikel oder Ware ab CHF 50.– nicht erfasst).</div></li>
@@ -3075,7 +3515,7 @@ input, textarea, select { scroll-margin-top: 90px; }
       <li><span class="tag pay">UE</span><div>UE ausstellen (ab 13 Jahren).</div></li>
       <li><span class="tag check">Check</span><div>M‑SiDi Abfrage.</div></li>
     </ul>
-    <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_subito_rapport_ja')" type="button">📋 Massnahmen kopieren</button>
+    <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_subito_rapport_Ja')" type="button">📋 Massnahmen kopieren</button>
   </section>
 
   <section class="evtCard hidden" id="evt_subito_rapport_nein">
@@ -3093,7 +3533,7 @@ input, textarea, select { scroll-margin-top: 90px; }
   <section class="evtCard hidden" id="evt_kasse">
     <h3>Warenwert?</h3>
     <div class="evtGrid2">
-      <button class="evtBtn yes" onclick="eventShow('evt_kasse_300_ja','Wert über CHF 300.–')" type="button">über CHF 300.–</button>
+      <button class="evtBtn yes" onclick="eventShow('evt_kasse_300_Ja','Wert über CHF 300.–')" type="button">über CHF 300.–</button>
       <button class="evtBtn no" onclick="eventShow('evt_kasse_300_nein','Wert unter CHF 300.–')" type="button">unter CHF 300.–</button>
     </div>
     <div class="hint" style="margin-top:10px;">
@@ -3101,7 +3541,7 @@ input, textarea, select { scroll-margin-top: 90px; }
     </div>
   </section>
 
-  <section class="evtCard hidden" id="evt_kasse_300_ja">
+  <section class="evtCard hidden" id="evt_kasse_300_Ja">
     <h3>Massnahmen (über CHF 300.–)</h3>
     <ul class="evtActions" data-copytitle="Kasse ≥300">
       <li><span class="tag police">Polizei</span><div>Polizei alarmieren.</div></li>
@@ -3110,13 +3550,13 @@ input, textarea, select { scroll-margin-top: 90px; }
       <li><span class="tag warn">Vorgesetzte</span><div>Azou oder Lüdi informieren (Spezialfall, i.d.R. bei über 300.- / Härtefall / Blaulichtorganisation).</div></li>
       <li><span class="tag check">Check</span><div>M‑SiDi Abfrage.</div></li>
     </ul>
-    <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_kasse_300_ja')" type="button">📋 Massnahmen kopieren</button>
+    <button class="evtBtn ghost" onclick="copyEvtMeasures('evt_kasse_300_Ja')" type="button">📋 Massnahmen kopieren</button>
   </section>
 
   <section class="evtCard hidden" id="evt_kasse_300_nein">
     <h3>Ist die Person minderjährig?</h3>
     <div class="evtGrid2">
-      <button class="evtBtn yes" onclick="eventShow('evt_kasse_u300_minder','Minderjährig')" type="button">JA</button>
+      <button class="evtBtn yes" onclick="eventShow('evt_kasse_u300_minder','Minderjährig')" type="button">Ja</button>
       <button class="evtBtn no" onclick="eventShow('evt_kasse_u300_amount_voll','Volljährig')" type="button">NEIN</button>
     </div>
   </section>
@@ -3183,7 +3623,7 @@ input, textarea, select { scroll-margin-top: 90px; }
   <section class="evtCard hidden" id="evt_kasse_u300_minder">
     <h3>Eltern erreichbar?</h3>
     <div class="evtGrid2">
-      <button class="evtBtn yes" onclick="eventShow('evt_kasse_u300_amount_minder_yes','Eltern erreichbar')" type="button">JA</button>
+      <button class="evtBtn yes" onclick="eventShow('evt_kasse_u300_amount_minder_yes','Eltern erreichbar')" type="button">Ja</button>
       <button class="evtBtn no" onclick="eventShow('evt_kasse_u300_amount_minder_no','Eltern nicht erreichbar')" type="button">NEIN</button>
     </div>
   </section>
@@ -3215,7 +3655,7 @@ input, textarea, select { scroll-margin-top: 90px; }
 
 <section class="evtCard hidden" id="evt_kasse_minder_yes_lt50_erst">
   <h3>Massnahmen (unter CHF 300.–, minderjährig, Eltern erreichbar, Ersttäter, unter CHF 50.–)</h3>
-  <ul class="evtActions" data-copytitle="Kasse <300 (minder, Eltern ja, Erst, <50)">
+  <ul class="evtActions" data-copytitle="Kasse <300 (minder, Eltern Ja, Erst, <50)">
     <li><span class="tag parents">Eltern</span><div>Eltern beiziehen / informieren.</div></li>
     <li><span class="tag form">Formular</span><div>Formular „Unbezahlte Ware“ ausfüllen und OS Migros informieren.</div></li>
     <li><span class="tag info">Info</span><div><b>Kein Strafantrag</b> (Ersttäter unter CHF 50.–).</div></li>
@@ -3227,7 +3667,7 @@ input, textarea, select { scroll-margin-top: 90px; }
 
 <section class="evtCard hidden" id="evt_kasse_minder_yes_ge50_erst">
   <h3>Massnahmen (unter CHF 300.–, minderjährig, Eltern erreichbar, Ersttäter, über CHF 50.–)</h3>
-  <ul class="evtActions" data-copytitle="Kasse <300 (minder, Eltern ja, Erst, ≥50)">
+  <ul class="evtActions" data-copytitle="Kasse <300 (minder, Eltern Ja, Erst, ≥50)">
     <li><span class="tag parents">Eltern</span><div>Eltern beiziehen / informieren.</div></li>
     <li><span class="tag form">Formular</span><div>Formular „Unbezahlte Ware“ ausfüllen und OS Migros informieren.</div></li>
     <li><span class="tag form">Formular</span><div><b>Strafantrag ausfüllen</b> (Ersttäter: ab CHF 50.–).</div></li>
@@ -3239,7 +3679,7 @@ input, textarea, select { scroll-margin-top: 90px; }
 
 <section class="evtCard hidden" id="evt_kasse_minder_yes_repeat">
   <h3>Massnahmen (unter CHF 300.–, minderjährig, Eltern erreichbar, Wiederholungstäter)</h3>
-  <ul class="evtActions" data-copytitle="Kasse <300 (minder, Eltern ja, Wiederholung)">
+  <ul class="evtActions" data-copytitle="Kasse <300 (minder, Eltern Ja, Wiederholung)">
     <li><span class="tag parents">Eltern</span><div>Eltern beiziehen / informieren.</div></li>
     <li><span class="tag form">Formular</span><div>Formular „Unbezahlte Ware“ ausfüllen und OS Migros informieren.</div></li>
     <li><span class="tag form">Formular</span><div><b>Strafantrag ausfüllen</b> (Wiederholungstäter).</div></li>
@@ -3393,10 +3833,10 @@ input, textarea, select { scroll-margin-top: 90px; }
 </div>
 </div>
 <div class="subtabBar" id="toolsSubtabBar">
-<button class="subtabBtn" data-toolstab="duty" type="button">Aktiv im Dienst</button>
-<button class="subtabBtn" data-toolstab="docs" type="button">Infos / Dokumente</button>
-<button class="subtabBtn" data-toolstab="securi" type="button">SecuriReport</button>
-<button class="subtabBtn" data-toolstab="delinq" type="button">Delinquenten DB</button>
+<button class="subtabBtn" data-toolstab="duty" type="button">👨‍✈️ Aktiv im Dienst</button>
+<button class="subtabBtn" data-toolstab="docs" type="button">🗂️ Infos / Dokumente</button>
+<button class="subtabBtn" data-toolstab="securi" type="button">📱 SecuriReport</button>
+<button class="subtabBtn" data-toolstab="delinq" type="button">💾 Delinquenten DB</button>
 </div>
 <div id="toolsContent">
 <div class="toolsPanel" id="toolsPanelDuty">
@@ -8278,6 +8718,69 @@ document.addEventListener("DOMContentLoaded", function(){
       try{ prompt("Kopieren:", ""); }catch(_){}
     }
   };
+  
+  /* === Decathlon Decision Tree Logic (separat von Migros) === */
+  (function(){
+    const stack = [];
+    function setCrumb(txt){
+      const el = document.getElementById('evtDecaCrumb');
+      if(el) el.textContent = txt || 'Start';
+    }
+    function setBackEnabled(enabled){
+      const b = document.getElementById('evtDecaBackBtn');
+      if(b) b.disabled = !enabled;
+    }
+    function hideAll(){
+      document.querySelectorAll('#eventWrapDecathlon .evtCard').forEach(el=>el.classList.add('hidden'));
+    }
+    window.decaEventShow = function(id, crumb){
+      const current = stack.length ? stack[stack.length-1] : 'deca_evt_start';
+      if(current !== id) stack.push(id);
+      hideAll();
+      const target = document.getElementById(id);
+      if(target) target.classList.remove('hidden');
+      setCrumb(crumb || id);
+      setBackEnabled(stack.length > 1);
+      const wrap = document.getElementById('eventWrapDecathlon');
+      if(wrap) wrap.scrollIntoView({behavior:'smooth', block:'start'});
+    };
+    window.decaEventBack = function(){
+      if(stack.length <= 1) return;
+      stack.pop();
+      const prev = stack[stack.length-1] || 'deca_evt_start';
+      hideAll();
+      const target = document.getElementById(prev);
+      if(target) target.classList.remove('hidden');
+      const c = (target && target.getAttribute('data-crumb')) || 'Start';
+      setCrumb(c);
+      setBackEnabled(stack.length > 1);
+      const wrap = document.getElementById('eventWrapDecathlon');
+      if(wrap) wrap.scrollIntoView({behavior:'smooth', block:'start'});
+    };
+    window.decaEventReset = function(){
+      stack.length = 0;
+      stack.push('deca_evt_start');
+      hideAll();
+      const start = document.getElementById('deca_evt_start');
+      if(start) start.classList.remove('hidden');
+      setCrumb('Start');
+      setBackEnabled(false);
+      const wrap = document.getElementById('eventWrapDecathlon');
+      if(wrap) wrap.scrollIntoView({behavior:'smooth', block:'start'});
+    };
+
+    // Bind buttons (DOM ready)
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const back = document.getElementById('evtDecaBackBtn');
+      if(back) back.addEventListener('click', ()=>window.decaEventBack());
+      const restart = document.getElementById('evtDecaRestart');
+      if(restart) restart.addEventListener('click', ()=>window.decaEventReset());
+      // Ensure a clean start if Decathlon is shown first
+      try{ window.decaEventReset(); }catch(e){}
+    });
+  })();
+
+
   // === Ereignis Brand-Auswahl (Migros / Decathlon) ===
   (function(){
     const chooser = document.getElementById('eventBrandChooser');
@@ -8307,6 +8810,7 @@ document.addEventListener("DOMContentLoaded", function(){
       if(wrapMigros) wrapMigros.style.display = 'none';
       if(wrapDeca) wrapDeca.style.display = '';
       try{ localStorage.setItem('eventBrand','decathlon'); }catch(e){}
+      try{ window.decaEventReset && window.decaEventReset(); }catch(e){}
       if(wrapDeca) wrapDeca.scrollIntoView({behavior:'smooth', block:'start'});
     }
 
@@ -8346,14 +8850,14 @@ document.addEventListener("DOMContentLoaded", function(){
     const map = {
       'evt_start':'Start',
       'evt_subito':'Subito / Selfcheckout',
-      'evt_subito_u13':'Subito → unter/gleich 13',
-      'evt_subito_u13_yes':'Subito unter/gleich 13 → Massnahmen',
-      'evt_subito_u13_no':'Subito unter/gleich 13 → Spezialfall',
-      'evt_subito_o13':'Subito → ≥14',
-      'evt_subito_rapport_ja':'Subito ≥14 → Rapport',
-      'evt_subito_rapport_nein':'Subito ≥14 → Ohne Rapport',
+      'evt_subito_u13':'Subito → unter/gleich 10 Jahre',
+      'evt_subito_u13_yes':'Subito unter/gleich 10 Jahre → Massnahmen',
+      'evt_subito_u13_no':'Subito unter/gleich 10 Jahre → Spezialfall',
+      'evt_subito_o13':'Subito → über 10 Jahre',
+      'evt_subito_rapport_Ja':'Subito über 10 Jahre → Rapport',
+      'evt_subito_rapport_nein':'Subito über 10 Jahre → Ohne Rapport',
       'evt_kasse':'Kasse im Laden',
-      'evt_kasse_300_ja':'Kasse → ≥300',
+      'evt_kasse_300_Ja':'Kasse → ≥300',
       'evt_kasse_300_nein':'Kasse → <300',
       'evt_kasse_u300_voll':'Kasse <300 → Volljährig',
       'evt_kasse_u300_minder':'Kasse <300 → Minderjährig',
@@ -8366,5 +8870,65 @@ document.addEventListener("DOMContentLoaded", function(){
     });
   });
 })();
-</script></body>
+</script>
+<script id="decaTagClassifier">
+(function(){
+  function classify(){
+    const wrap = document.getElementById("eventWrapDecathlon");
+    if(!wrap) return;
+    const tags = wrap.querySelectorAll(".tag");
+    tags.forEach(t=>{
+      const label = (t.textContent||"").trim().toLowerCase();
+      // remove old classes if re-running
+      t.classList.remove("deca-polizei","deca-hausverbot","deca-entsch","deca-eltern");
+      if(label.includes("avis polizei")) t.classList.add("deca-polizei");
+      else if(label.includes("hausverbot")) t.classList.add("deca-hausverbot");
+      else if(label.includes("entschädigung") || label.includes("entschaedigung")) t.classList.add("deca-entsch");
+      else if(label.includes("avis eltern")) t.classList.add("deca-eltern");
+    });
+  }
+  document.addEventListener("DOMContentLoaded", classify);
+  // also re-run when switching brand or navigating within decathlon cards
+  const origShow = window.decaEventShow;
+  if(typeof origShow === "function"){
+    window.decaEventShow = function(){
+      const r = origShow.apply(this, arguments);
+      try{ classify(); }catch(_){}
+      return r;
+    };
+  }
+  const origBack = window.decaEventBack;
+  if(typeof origBack === "function"){
+    window.decaEventBack = function(){
+      const r = origBack.apply(this, arguments);
+      try{ classify(); }catch(_){}
+      return r;
+    };
+  }
+  const origReset = window.decaEventReset;
+  if(typeof origReset === "function"){
+    window.decaEventReset = function(){
+      const r = origReset.apply(this, arguments);
+      try{ classify(); }catch(_){}
+      return r;
+    };
+  }
+})();
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  const deca = document.querySelector("#eventWrapDecathlon");
+  if(!deca) return;
+  deca.querySelectorAll(".tag").forEach(tag => {
+    const txt = tag.textContent.trim().toLowerCase();
+    if(txt.includes("strafantrag")){
+      tag.classList.add("deca-strafantrag");
+    }
+  });
+});
+</script>
+
+</body>
 </html>

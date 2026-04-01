@@ -5740,7 +5740,21 @@ function renderRanking(){
     return;
   }
 
-  rows.forEach((r, i)=>{
+  const roleName = String(state.roleName || "").trim().toLowerCase();
+  const canSeeFullRanking = !!(isAdminUser() || roleName === "leitung");
+  const visibleRows = canSeeFullRanking ? rows : rows.slice(0, 3);
+
+  if(!canSeeFullRanking){
+    const info = document.createElement("div");
+    info.className = "fileCard";
+    info.innerHTML = `
+      <div class="name">Top 3 Rangliste</div>
+      <div class="small">Nur Admin und Leitung sehen alle Ränge.</div>
+    `;
+    list.appendChild(info);
+  }
+
+  visibleRows.forEach((r, i)=>{
     const card = document.createElement("div");
     card.className = "item";
     card.style.padding = "12px";

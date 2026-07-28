@@ -3462,81 +3462,226 @@ button[data-event="decathlon"]:hover {
 <div class="authOverlay hidden" id="adminOverlay">
 <div class="card authModal adminModal">
 <div class="adminHeader">
-<div class="authTitle" style="margin:0;">Admin Bereich</div>
-<button class="btn small" id="btnCloseAdmin" type="button">Schließen</button>
+<div class="adminCommandBrand">
+<div class="adminCommandShield">★</div>
+<div>
+<span>SECURI COMMAND</span>
+<div class="authTitle">Administration</div>
+<small>Mitarbeiter, Rechte und System zentral verwalten</small>
+</div>
+</div>
+<div class="adminHeaderActions">
+<span class="adminHeaderLive"><i></i> FIREBASE LIVE</span>
+<button aria-label="Adminbereich schliessen" class="btn small" id="btnCloseAdmin" type="button">×</button>
+</div>
 </div>
 <div class="adminLayout">
 <nav aria-label="Admin Navigation" class="adminNav" id="adminNav">
-<button class="adminNavBtn active" data-admin-tab="access" type="button">🔐 Zugang</button>
-<button class="adminNavBtn" data-admin-tab="roles" type="button">🧩 Rollen</button>
-<button class="adminNavBtn" data-admin-tab="chat" type="button">💬 Chat</button>
-<button class="adminNavBtn" data-admin-tab="profile" type="button">👤 Profile</button>
+<div class="adminNavLabel">CONTROL CENTER</div>
+<button class="adminNavBtn active" data-admin-tab="access" type="button"><span>🔐</span><b>Zugang</b><small>App-Freigaben</small></button>
+<button class="adminNavBtn" data-admin-tab="staff" type="button"><span>👥</span><b>Mitarbeiter</b><small>Rollen &amp; Qualifikationen</small></button>
+<button class="adminNavBtn" data-admin-tab="roles" type="button"><span>🧩</span><b>Rollen</b><small>Rechteprofile</small></button>
+<button class="adminNavBtn" data-admin-tab="chat" type="button"><span>💬</span><b>Chat</b><small>Moderation</small></button>
+<button class="adminNavBtn" data-admin-tab="profile" type="button"><span>👤</span><b>Profile</b><small>Namen verwalten</small></button>
 </nav>
 <div class="adminContent">
 <!-- Zugang -->
 <section class="adminPage" data-admin-page="access">
-<div class="adminCard">
-<div class="adminCardTitle">App Whitelist</div>
-<div class="hint" style="margin-top:6px;">Zugelassene E-Mails (eine pro Zeile). Alles wird klein geschrieben gespeichert.</div>
+<div class="adminPageHero">
+<div><span>ZUGANGSSTEUERUNG</span><h2>App-Freigaben</h2><p>Steuere, welche Konten sich an der Einsatzzentrale anmelden dürfen.</p></div>
+<div class="adminPageHeroIcon">🔐</div>
+</div>
+<div class="adminCard adminAccessCard">
+<div class="adminCardTitle"><span>◉</span> Zugelassene E-Mail-Adressen</div>
+<div class="hint" style="margin-top:6px;">Eine E-Mail pro Zeile. Aktive Mitarbeiter werden beim Speichern automatisch ergänzt.</div>
 <textarea class="adminTextarea" id="whitelistBox"></textarea>
 <div class="row2" style="margin-top:10px;">
-<button class="btn primary" id="btnSaveWhitelist" type="button">Whitelist speichern</button>
+<button class="btn primary" id="btnSaveWhitelist" type="button">✓ Zugänge speichern</button>
 <div></div>
+</div>
+</div>
+</section>
+<!-- Mitarbeiter -->
+<section class="adminPage hidden" data-admin-page="staff">
+<div class="adminPageHero adminStaffHero">
+<div><span>TEAMVERWALTUNG</span><h2>Mitarbeiter</h2><p>Rolle, Status und Dienstqualifikationen pro Person verwalten.</p></div>
+<div class="adminPageHeroIcon">👥</div>
+</div>
+<div class="adminStaffGrid">
+<div class="adminCard adminStaffEditor">
+<div class="adminCardTitle"><span>✎</span> Mitarbeiter bearbeiten</div>
+<div class="hint" id="staffEditorHint" style="margin-top:6px;">Neuen Mitarbeiter anlegen oder einen Eintrag aus der Liste auswählen.</div>
+<div class="field">
+<label>E-Mail</label>
+<input autocomplete="off" id="staffEmail" placeholder="mitarbeiter@firma.ch" type="email"/>
+</div>
+<div class="field">
+<label>Anzeigename</label>
+<input autocomplete="off" id="staffName" placeholder="z.B. Max Mustermann"/>
+</div>
+<div class="field">
+<label>Rolle</label>
+<select id="staffRoleSelect"></select>
+</div>
+<label class="adminSwitchRow">
+<span><b>Mitarbeiter aktiv</b><small>Erlaubt die Anmeldung an der App</small></span>
+<input checked="" id="staffActive" type="checkbox"/>
+<i></i>
+</label>
+<div class="adminQualificationTitle">DIENSTQUALIFIKATIONEN</div>
+<div class="adminQualificationGrid">
+<label class="adminQualificationCard adminQualShoppy">
+<input id="staffQualShoppyland" type="checkbox"/>
+<span class="adminQualificationIcon">S</span>
+<span><b>Kategorie 1</b><strong>Shoppyland</strong><small>Nur Standort Shoppyland</small></span>
+<i>✓</i>
+</label>
+<label class="adminQualificationCard adminQualManor">
+<input id="staffQualManor" type="checkbox"/>
+<span class="adminQualificationIcon">M</span>
+<span><b>Kategorie 2</b><strong>Manor</strong><small>Schönbühl, Langenthal &amp; Bern</small></span>
+<i>✓</i>
+</label>
+</div>
+<div class="adminStaffValidation" id="staffValidation">Mindestens eine Dienstqualifikation ist für aktive Mitarbeiter erforderlich.</div>
+<div class="adminStaffActions">
+<button class="btn primary" id="btnSaveStaff" type="button">✓ Mitarbeiter speichern</button>
+<button class="btn" id="btnResetStaff" type="button">Neu</button>
+<button class="btn danger" disabled="" id="btnDeleteStaff" type="button">Löschen</button>
+</div>
+</div>
+<div class="adminCard adminStaffDirectory">
+<div class="adminDirectoryHead">
+<div><div class="adminCardTitle"><span>⌘</span> Mitarbeiterverzeichnis</div><small id="staffCount">0 Einträge</small></div>
+<button class="btn small" id="btnRefreshStaff" type="button">↻</button>
+</div>
+<div class="field">
+<label>Suche</label>
+<input id="staffSearch" placeholder="Name, E-Mail, Rolle oder Qualifikation..."/>
+</div>
+<div class="adminStaffList" id="staffList"></div>
 </div>
 </div>
 </section>
 <!-- Rollen -->
 <section class="adminPage hidden" data-admin-page="roles">
-<div class="adminGrid2">
-<div class="adminCard">
-<div class="adminCardTitle">Rolle anlegen / ändern</div>
-<div class="hint" style="margin-top:6px;">Name + Rechte setzen, dann speichern.</div>
-<div class="field">
-<label>Rollenname</label>
-<input id="roleName" placeholder="z.B. Leitung oder Mitarbeiter"/>
+<div class="adminPageHero adminRolesHero">
+<div><span>ROLE CONTROL</span><h2>Rollenstudio</h2><p>Erstelle klare Rechteprofile, definiere Standardqualifikationen und behalte jede Zuweisung im Blick.</p></div>
+<div class="adminPageHeroIcon">🧩</div>
 </div>
-<div class="row2">
-<label class="pill"><input id="roleCanUpload" type="checkbox"/> Upload</label>
-<label class="pill"><input id="roleCanDownload" type="checkbox"/> Download</label>
+<div class="roleKpiGrid">
+<article class="roleKpi roleKpiPurple"><span>🧩</span><div><strong id="roleStatsTotal">0</strong><small>Rollenprofile</small></div></article>
+<article class="roleKpi roleKpiBlue"><span>👥</span><div><strong id="roleStatsAssigned">0</strong><small>Zuweisungen</small></div></article>
+<article class="roleKpi roleKpiGreen"><span>✓</span><div><strong id="roleStatsActive">0</strong><small>Aktive Mitarbeitende</small></div></article>
+<article class="roleKpi roleKpiOrange"><span>⚡</span><div><strong id="roleStatsAdmin">0</strong><small>Adminprofile</small></div></article>
 </div>
-<div class="row2" style="margin-top:8px;">
-<label class="pill"><input id="roleCanAdmin" type="checkbox"/> Admin</label>
-<div></div>
+
+<div class="adminCard roleCatalogCard">
+<div class="roleSectionHead">
+<div><div class="adminCardTitle"><span>◈</span> Rollenübersicht</div><small>Profile vergleichen, bearbeiten oder als Vorlage duplizieren.</small></div>
+<button class="btn primary" id="btnNewRole" type="button">＋ Neue Rolle</button>
 </div>
-<div class="row2" style="margin-top:10px;">
-<button class="btn primary" id="btnSaveRole" type="button">Rolle speichern</button>
-<button class="btn danger" id="btnDeleteRole" type="button">Rolle löschen</button>
+<div class="roleCatalogGrid" id="roleCatalogGrid"></div>
+</div>
+
+<div class="adminCard roleEditorCard" id="roleEditorCard">
+<div class="roleEditorHead">
+<div>
+<div class="roleEditorEyebrow" id="roleEditorState">NEUES RECHTEPROFIL</div>
+<div class="adminCardTitle"><span>✦</span> <b id="roleEditorTitle">Neue Rolle konfigurieren</b></div>
+<small>Wähle eine Vorlage oder stelle die Freigaben einzeln zusammen.</small>
+</div>
+<div class="roleTemplateBar" aria-label="Rollenvorlagen">
+<button data-role-template="employee" type="button"><span>👤</span>Mitarbeiter</button>
+<button data-role-template="lead" type="button"><span>⭐</span>Teamleitung</button>
+<button data-role-template="admin" type="button"><span>🛡️</span>Administrator</button>
 </div>
 </div>
-<div class="adminCard">
-<div class="adminCardTitle">Benutzer Rolle zuweisen</div>
-<div class="field">
-<label>E-Mail</label>
-<input id="userRoleEmail" placeholder="user@firma.ch"/>
+
+<div class="roleEditorIdentity">
+<div class="field roleNameField">
+<label>Rollenname *</label>
+<input id="roleName" maxlength="40" placeholder="z.B. Einsatzleitung"/>
+<small>Der Name ist nach dem ersten Speichern fix. Zum Umbenennen Rolle duplizieren.</small>
 </div>
-<div class="field">
-<label>Rolle</label>
+<div class="field roleDescriptionField">
+<label>Beschreibung</label>
+<input id="roleDescription" maxlength="120" placeholder="Aufgabe und Verantwortung kurz beschreiben"/>
+</div>
+<div class="field rolePriorityField">
+<label>Priorität</label>
+<select id="rolePriority">
+<option value="20">Basis</option>
+<option value="50">Erweitert</option>
+<option value="70">Führung</option>
+<option value="100">Administration</option>
+</select>
+</div>
+<div class="field roleColorField">
+<label>Akzentfarbe</label>
+<div class="roleColorControl"><input id="roleColor" type="color" value="#6c5cff"/><input id="roleColorText" maxlength="7" value="#6c5cff"/></div>
+</div>
+</div>
+
+<div class="rolePermissionsTitle"><span>BERECHTIGUNGSMATRIX</span><small>Jede Freigabe wird im Rollenprofil in Firebase gespeichert.</small></div>
+<div class="rolePermissionGroups">
+<section class="rolePermissionGroup">
+<header><span>01</span><div><b>App-Bereiche</b><small>Sichtbare Hauptmodule</small></div></header>
+<label class="rolePermission"><input id="roleCanUseTools" type="checkbox"/><span>💼</span><div><b>Tools</b><small>Tools und aktive Dienste öffnen</small></div><i></i></label>
+<label class="rolePermission"><input id="roleCanUseEvents" type="checkbox"/><span>⚡</span><div><b>Ereignis</b><small>Ereigniscenter verwenden</small></div><i></i></label>
+<label class="rolePermission"><input id="roleCanUseCases" type="checkbox"/><span>🗂️</span><div><b>Fälle</b><small>Fälle erfassen und ansehen</small></div><i></i></label>
+<label class="rolePermission"><input id="roleCanUseChat" type="checkbox"/><span>💬</span><div><b>Team-Chat</b><small>Interne Kommunikation öffnen</small></div><i></i></label>
+</section>
+<section class="rolePermissionGroup">
+<header><span>02</span><div><b>Daten &amp; Auswertung</b><small>Dokumente und Insights</small></div></header>
+<label class="rolePermission"><input id="roleCanUpload" type="checkbox"/><span>↑</span><div><b>Upload</b><small>Dateien und Inhalte hochladen</small></div><i></i></label>
+<label class="rolePermission"><input id="roleCanDownload" type="checkbox"/><span>↓</span><div><b>Download</b><small>Dateien herunterladen und öffnen</small></div><i></i></label>
+<label class="rolePermission"><input id="roleCanViewFullRanking" type="checkbox"/><span>▥</span><div><b>Gesamte Rangliste</b><small>Mehr als die Top 3 anzeigen</small></div><i></i></label>
+</section>
+<section class="rolePermissionGroup rolePermissionAdminGroup">
+<header><span>03</span><div><b>Administration</b><small>Sensible Systemsteuerung</small></div></header>
+<label class="rolePermission rolePermissionAdmin"><input id="roleCanAdmin" type="checkbox"/><span>🛡️</span><div><b>Admin Control Center</b><small>Zugänge, Mitarbeitende, Rollen und Moderation verwalten</small></div><i></i></label>
+<div class="roleAdminWarning"><span>!</span><p>Nur vertrauenswürdigen Personen zuweisen. Diese Freigabe erlaubt Änderungen an Benutzerzugängen und Rollen.</p></div>
+</section>
+</div>
+
+<div class="roleDefaultsPanel">
+<div><span>⌖</span><div><b>Standard-Dienstqualifikationen</b><small>Wer diese Rolle neu erhält, bekommt die gewählten Kategorien automatisch vorgeschlagen.</small></div></div>
+<div class="roleDefaultQuals">
+<label><input id="roleDefaultShoppyland" type="checkbox"/><span><b>Kategorie 1</b><small>Shoppyland</small></span><i>✓</i></label>
+<label><input id="roleDefaultManor" type="checkbox"/><span><b>Kategorie 2</b><small>Manor Standorte</small></span><i>✓</i></label>
+</div>
+</div>
+
+<div class="roleEditorActions">
+<div><span id="roleEditorSaveHint">Ungespeicherte neue Rolle</span></div>
+<button class="btn" disabled="" id="btnDuplicateRole" type="button">⧉ Duplizieren</button>
+<button class="btn" id="btnResetRole" type="button">Zurücksetzen</button>
+<button class="btn danger" disabled="" id="btnDeleteRole" type="button">Löschen</button>
+<button class="btn primary" id="btnSaveRole" type="button">✓ Rolle speichern</button>
+</div>
+</div>
+
+<div class="adminCard roleAssignmentCard">
+<div class="roleSectionHead">
+<div><div class="adminCardTitle"><span>⌘</span> Rollenbelegung</div><small id="roleOverviewHint">0 Zuweisungen</small></div>
+<div class="roleAssignmentSearch"><span>⌕</span><input id="roleOverviewSearch" placeholder="Name, E-Mail, Rolle oder Qualifikation..."/></div>
+</div>
+<div class="roleAssignmentList" id="roleAssignmentList"></div>
+<div class="hidden" aria-hidden="true">
+<input id="userRoleEmail"/>
 <select id="userRoleSelect"></select>
-</div>
-<div class="row2" style="margin-top:10px;">
-<button class="btn primary" id="btnSetUserRole" type="button">Rolle zuweisen</button>
-<button class="btn" id="btnRefreshRoleOverview" type="button">Aktualisieren</button>
-</div>
-<div class="divider"></div>
-<div class="adminCardTitle" style="margin-top:2px;">Übersicht</div>
-<div class="field" style="margin-top:10px;">
-<label>Suche</label>
-<input id="roleOverviewSearch" placeholder="E-Mail oder Rolle..."/>
-</div>
-<div class="hint" id="roleOverviewHint" style="margin-top:6px;">—</div>
-<div class="adminTableWrap" style="margin-top:10px;">
-<table class="adminTable" id="roleOverviewTable"></table>
-</div>
+<button id="btnSetUserRole" type="button"></button>
+<button id="btnRefreshRoleOverview" type="button"></button>
 </div>
 </div>
 </section>
 <!-- Chat -->
 <section class="adminPage hidden" data-admin-page="chat">
+<div class="adminPageHero adminChatHero">
+<div><span>TEAMKOMMUNIKATION</span><h2>Chat &amp; Moderation</h2><p>Rollen, Sperren und Systemmeldungen kontrollieren.</p></div>
+<div class="adminPageHeroIcon">💬</div>
+</div>
 <div class="adminGrid2">
 <div class="adminCard">
 <div class="adminCardTitle">Chat Rollen</div>
@@ -3581,6 +3726,10 @@ button[data-event="decathlon"]:hover {
 </section>
 <!-- Profile (Admin) -->
 <section class="adminPage hidden" data-admin-page="profile">
+<div class="adminPageHero adminProfileHero">
+<div><span>PROFILVERWALTUNG</span><h2>Benutzerprofile</h2><p>Anzeigenamen bestehender Benutzer zentral korrigieren.</p></div>
+<div class="adminPageHeroIcon">👤</div>
+</div>
 <div class="adminCard">
 <div class="adminCardTitle">Benutzername als Admin festlegen</div>
 <div class="hint" style="margin-top:6px;">
@@ -3789,6 +3938,10 @@ button[data-event="decathlon"]:hover {
 <div><small>Aktuelle Rolle</small><strong id="commandSettingsAccessRole">Mitarbeiter</strong></div>
 <span class="command-access-live">AKTIV</span>
 </div>
+<div class="command-current-qualifications">
+<span>Dienstqualifikationen</span>
+<strong id="commandSettingsQualifications">Wird geladen…</strong>
+</div>
 <p>Upload-, Download- und Verwaltungsrechte werden automatisch über deine Rolle gesteuert.</p>
 <button class="btn small hidden" id="btnOpenAdmin" type="button"><span>⚙</span> Admin Center öffnen</button>
 </section>
@@ -3908,6 +4061,7 @@ button[data-event="decathlon"]:hover {
 <option value="Manor Langenthal">Manor Langenthal</option>
 <option value="Manor Bern">Manor Bern</option>
 </select>
+<div class="service-qualification-hint" id="serviceLocationQualificationHint">Standorte werden gemäss deiner Dienstqualifikation freigeschaltet.</div>
 </div>
 <div class="row2" style="margin-top:10px; flex-wrap:wrap;">
 <div class="field" style="flex:1; min-width:180px; margin-top:0;">
@@ -4893,6 +5047,8 @@ let state = {
   cases: [],
   services: [],
   rankings: [],
+  qualifications: [],
+  qualificationsConfigured: false,
   };
 
 // ---------- Auth utils ----------
@@ -4952,6 +5108,9 @@ function updateCommandCenterUI(){
   const onlineCount = (state.onlineUsers || []).length;
   const activeCount = Number(document.getElementById("activeDutyTotal")?.textContent || 0) || 0;
   const photoURL = String(state.profile?.photoURL || "").trim();
+  const qualificationSummary = typeof effectiveServiceQualifications === "function"
+    ? effectiveServiceQualifications().map((key)=>key === "shoppyland" ? "K1 · Shoppyland" : "K2 · Manor").join(" + ")
+    : "—";
 
   const hour = new Date().getHours();
   const greeting = hour < 11 ? "GUTEN MORGEN" : (hour < 18 ? "GUTEN TAG" : "GUTEN ABEND");
@@ -4967,6 +5126,7 @@ function updateCommandCenterUI(){
     commandSettingsName: displayName,
     commandSettingsRole: roleName,
     commandSettingsAccessRole: roleName,
+    commandSettingsQualifications: qualificationSummary || "Keine Freigabe",
     commandSettingsInitials: initials,
     commandChatOnline: `${onlineCount} ${onlineCount === 1 ? "Mitglied" : "Mitglieder"} online`
   };
@@ -5074,6 +5234,87 @@ function explainFirebaseAuthError(err){
 const CFG_SECURITY = doc(db, "appConfig", "security"); // { whitelist: [email], admins:[uid] }
 const ROLES_COL = collection(db, "appConfig", "global", "roles"); // subcollection under appConfig/global
 const USERROLES_COL = collection(db, "appConfig", "global", "userRoles"); // subcollection under appConfig/global
+const SERVICE_QUALIFICATIONS = Object.freeze({
+  shoppyland: {
+    key: "shoppyland",
+    label: "Kategorie 1 · Shoppyland",
+    locations: ["Shoppyland"]
+  },
+  manor: {
+    key: "manor",
+    label: "Kategorie 2 · Manor",
+    locations: ["Manor Schönbühl", "Manor Langenthal", "Manor Bern"]
+  }
+});
+const ALL_SERVICE_QUALIFICATIONS = Object.freeze(Object.keys(SERVICE_QUALIFICATIONS));
+
+function normalizeServiceQualifications(value){
+  const list = Array.isArray(value) ? value : [];
+  return Array.from(new Set(list.map((entry)=>String(entry || "").trim().toLowerCase())
+    .filter((entry)=>ALL_SERVICE_QUALIFICATIONS.includes(entry))));
+}
+
+function isFixedAdminIdentity(email=state.session?.email, uid=state.session?.uid){
+  return String(email || "").toLowerCase() === FIXED_ADMIN.email || uid === FIXED_ADMIN.uid;
+}
+
+function effectiveServiceQualifications(){
+  if(isFixedAdminIdentity()) return [...ALL_SERVICE_QUALIFICATIONS];
+  if(state.qualificationsConfigured) return normalizeServiceQualifications(state.qualifications);
+  // Bestehende Konten bleiben während der Einführung kompatibel, bis ein Admin sie speichert.
+  return [...ALL_SERVICE_QUALIFICATIONS];
+}
+
+function allowedServiceLocations(){
+  return effectiveServiceQualifications().flatMap((key)=>SERVICE_QUALIFICATIONS[key]?.locations || []);
+}
+
+function isServiceLocationAllowed(location){
+  return allowedServiceLocations().includes(String(location || "").trim());
+}
+
+function applyServiceLocationQualifications(forcedRunningLocation=""){
+  const select = document.getElementById("serviceLocation");
+  const hint = document.getElementById("serviceLocationQualificationHint");
+  if(!select) return;
+
+  const previous = String(select.value || "").trim();
+  const allowed = allowedServiceLocations();
+  const runningLocation = String(forcedRunningLocation || (serviceStartMs > 0 ? previous : "")).trim();
+  const visibleLocations = [...allowed];
+  if(runningLocation && !visibleLocations.includes(runningLocation)) visibleLocations.push(runningLocation);
+
+  select.innerHTML = "";
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = visibleLocations.length ? "Bitte Standort auswählen" : "Keine Standortqualifikation vorhanden";
+  select.appendChild(placeholder);
+
+  visibleLocations.forEach((location)=>{
+    const option = document.createElement("option");
+    option.value = location;
+    option.textContent = location + (location === runningLocation && !allowed.includes(location) ? " · laufender Dienst" : "");
+    select.appendChild(option);
+  });
+
+  if(runningLocation && visibleLocations.includes(runningLocation)) select.value = runningLocation;
+  else if(previous && visibleLocations.includes(previous)) select.value = previous;
+  select.disabled = visibleLocations.length === 0 && serviceStartMs <= 0;
+
+  if(hint){
+    if(!state.qualificationsConfigured && !isFixedAdminIdentity()){
+      hint.textContent = "Übergangsfreigabe: alle Standorte. Bitte Qualifikationen durch Admin zuweisen.";
+      hint.dataset.state = "legacy";
+    }else if(allowed.length){
+      const labels = effectiveServiceQualifications().map((key)=>SERVICE_QUALIFICATIONS[key]?.label).filter(Boolean);
+      hint.textContent = "Freigeschaltet: " + labels.join(" + ");
+      hint.dataset.state = "ok";
+    }else{
+      hint.textContent = "Keine Dienstqualifikation zugewiesen. Bitte Administration kontaktieren.";
+      hint.dataset.state = "blocked";
+    }
+  }
+}
 
 
 
@@ -5088,14 +5329,33 @@ function uniq(arr){
 }
 state.profile = { displayName:"", photoURL:"" };
 state.roleName = "Mitarbeiter";
-state.role = { canUpload:false, canDownload:true, canAdmin:false };
+state.role = {
+  canUseTools:true,
+  canUseEvents:true,
+  canUseCases:true,
+  canUseChat:true,
+  canUpload:false,
+  canDownload:true,
+  canViewFullRanking:false,
+  canAdmin:false
+};
 state.onlineUsers = [];
 state.unsubPresence = null;
 
 
 state.unsubMyProfile = null;
+state.unsubMyRole = null;
 function perms(){
-  return state.role || { canUpload:false, canDownload:true, canAdmin:false };
+  return state.role || {
+    canUseTools:true,
+    canUseEvents:true,
+    canUseCases:true,
+    canUseChat:true,
+    canUpload:false,
+    canDownload:true,
+    canViewFullRanking:false,
+    canAdmin:false
+  };
 }
 
 
@@ -5170,6 +5430,28 @@ function applyPermsUI(){
     btnAdmin?.classList.add("hidden");
     navAdmin?.classList.add("hidden");
     dnavAdmin?.classList.add("hidden");
+    if(!document.getElementById("adminOverlay")?.classList.contains("hidden")){
+      closeAdmin();
+    }
+  }
+
+  // Hauptmodule pro Rollenprofil ein-/ausblenden.
+  const moduleRules = [
+    { key:"canUseTools", view:"files", ids:["navFiles","dnavFiles"] },
+    { key:"canUseEvents", view:"ranking", ids:["navRanking","dnavRanking"] },
+    { key:"canUseCases", view:"case", ids:["navCase","dnavCase"] },
+    { key:"canUseChat", view:"chat", ids:["navChat","dnavChat"] }
+  ];
+  moduleRules.forEach((rule)=>{
+    const allowed = p[rule.key] !== false;
+    rule.ids.forEach((id)=>document.getElementById(id)?.classList.toggle("hidden", !allowed));
+    document.querySelectorAll(`[data-command-target="${rule.view}"]`).forEach((button)=>{
+      button.classList.toggle("hidden", !allowed);
+    });
+  });
+  const currentRule = moduleRules.find((rule)=>rule.view === state.mobileView);
+  if(currentRule && p[currentRule.key] === false){
+    setTimeout(()=>setMobileView("start"), 0);
   }
 
   // Push token preview: nur Admin sichtbar
@@ -5178,8 +5460,36 @@ function applyPermsUI(){
 
 function roleDefaults(){
   return {
-    "Leitung": { name:"Leitung", canUpload:true, canDownload:true, canAdmin:true },
-    "Mitarbeiter": { name:"Mitarbeiter", canUpload:false, canDownload:true, canAdmin:false },
+    "Leitung": {
+      name:"Leitung",
+      description:"Führung mit vollständiger App- und Administrationsfreigabe",
+      color:"#9b4dff",
+      priority:100,
+      canUseTools:true,
+      canUseEvents:true,
+      canUseCases:true,
+      canUseChat:true,
+      canUpload:true,
+      canDownload:true,
+      canViewFullRanking:true,
+      canAdmin:true,
+      defaultQualifications:["shoppyland","manor"]
+    },
+    "Mitarbeiter": {
+      name:"Mitarbeiter",
+      description:"Operativer Standardzugang für den täglichen Einsatz",
+      color:"#168dff",
+      priority:20,
+      canUseTools:true,
+      canUseEvents:true,
+      canUseCases:true,
+      canUseChat:true,
+      canUpload:false,
+      canDownload:true,
+      canViewFullRanking:false,
+      canAdmin:false,
+      defaultQualifications:[]
+    },
   };
 }
 
@@ -5197,6 +5507,14 @@ async function ensureDefaultDocs(){
     const admins = uniq([...(data.admins||[]), FIXED_ADMIN.uid]);
     const whitelist = uniq([...(data.whitelist||[]), FIXED_ADMIN.email]);
     await setDoc(CFG_SECURITY, { admins, whitelist, updatedAt: serverTimestamp() }, { merge:true });
+    await setDoc(doc(db, "appConfig", "global", "userRoles", FIXED_ADMIN.email), {
+      email: FIXED_ADMIN.email,
+      role: "Leitung",
+      active: true,
+      qualifications: [...ALL_SERVICE_QUALIFICATIONS],
+      qualificationsConfigured: true,
+      updatedAt: serverTimestamp()
+    }, { merge:true });
   }catch(_e){}
   // Ensure roles exist
   const rolesSnap = await getDocs(ROLES_COL).catch(()=>null);
@@ -5209,19 +5527,25 @@ async function ensureDefaultDocs(){
 }
 
 async function isEmailAllowed(email){
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+  if(normalizedEmail === FIXED_ADMIN.email) return true;
   const secSnap = await getDoc(CFG_SECURITY).catch(()=>null);
   const wl = secSnap?.data()?.whitelist || [];
-  if(!wl.length) return true; // empty whitelist -> allow all
-  const e = (email||"").toLowerCase();
-  return wl.map(x=>String(x||"").toLowerCase()).includes(e);
+  const listed = !wl.length || wl.map(x=>String(x||"").toLowerCase()).includes(normalizedEmail);
+  if(!listed) return false;
+  const staffSnap = await getDoc(doc(db, "appConfig", "global", "userRoles", normalizedEmail)).catch(()=>null);
+  if(staffSnap?.exists() && staffSnap.data()?.active === false) return false;
+  return true;
 }
 
 async function loadMyRole(email, uid){
   // 1) Explicit user role by email
   let roleName = null;
+  let userRoleData = {};
   try{
     const ur = await getDoc(doc(db, "appConfig", "global", "userRoles", (email||"").toLowerCase())).catch(()=>null);
-    roleName = ur?.data()?.role || null;
+    userRoleData = ur?.data() || {};
+    roleName = userRoleData.role || null;
   }catch(_e){}
   // 2) Bootstrap: first user becomes admin if admins empty
   const secSnap = await getDoc(CFG_SECURITY).catch(()=>null);
@@ -5239,20 +5563,75 @@ async function loadMyRole(email, uid){
   // load role document
   const rSnap = await getDoc(doc(db, "appConfig", "global", "roles", roleName)).catch(()=>null);
   const role = rSnap?.data() || roleDefaults()[roleName] || roleDefaults()["Mitarbeiter"];
+  const legacyDefault = roleDefaults()[roleName] || roleDefaults()["Mitarbeiter"];
+  const roleFlag = (key, fallback=false)=>{
+    if(typeof role[key] === "boolean") return role[key];
+    if(typeof legacyDefault[key] === "boolean") return legacyDefault[key];
+    return fallback;
+  };
 
   state.roleName = roleName;
   state.role = {
-    canUpload: !!role.canUpload,
-    canDownload: !!role.canDownload,
-    canAdmin: !!role.canAdmin,
+    canUseTools: roleFlag("canUseTools", true),
+    canUseEvents: roleFlag("canUseEvents", true),
+    canUseCases: roleFlag("canUseCases", true),
+    canUseChat: roleFlag("canUseChat", true),
+    canUpload: roleFlag("canUpload", false),
+    canDownload: roleFlag("canDownload", true),
+    canViewFullRanking: roleFlag("canViewFullRanking", roleName === "Leitung" || !!role.canAdmin),
+    canAdmin: roleFlag("canAdmin", false),
   };
+  state.qualificationsConfigured = userRoleData.qualificationsConfigured === true || Array.isArray(userRoleData.qualifications);
+  state.qualifications = normalizeServiceQualifications(userRoleData.qualifications);
   // Hard override: FIXED_ADMIN always has Admin-Rechte
   if((String(email||"").toLowerCase() === FIXED_ADMIN.email) || (uid === FIXED_ADMIN.uid)){
     state.role.canAdmin = true;
     state.role.canUpload = true;
     state.role.canDownload = true;
+    state.role.canUseTools = true;
+    state.role.canUseEvents = true;
+    state.role.canUseCases = true;
+    state.role.canUseChat = true;
+    state.role.canViewFullRanking = true;
+    state.qualificationsConfigured = true;
+    state.qualifications = [...ALL_SERVICE_QUALIFICATIONS];
   }
+  applyServiceLocationQualifications();
   applyPermsUI();
+}
+
+function watchMyAccess(email, uid){
+  try{ state.unsubMyAccess?.(); }catch(_e){}
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+  if(!normalizedEmail || !uid) return;
+  state.unsubMyAccess = onSnapshot(doc(db, "appConfig", "global", "userRoles", normalizedEmail), async (snap)=>{
+    if(!state.session?.uid || state.session.uid !== uid) return;
+    const access = snap.data() || {};
+    if(access.active === false && !isFixedAdminIdentity(normalizedEmail, uid)){
+      alert("Dein Mitarbeiterzugang wurde deaktiviert. Du wirst abgemeldet.");
+      await doLogout();
+      return;
+    }
+    await loadMyRole(normalizedEmail, uid).catch((error)=>console.warn("Live access refresh failed", error));
+    watchMyRoleDefinition(access.role || state.roleName || "Mitarbeiter", normalizedEmail, uid);
+    if(state.session?.uid === uid) applySessionUI();
+  }, (error)=>console.warn("watchMyAccess error", error));
+}
+
+function watchMyRoleDefinition(roleName, email, uid){
+  try{ state.unsubMyRole?.(); }catch(_e){}
+  state.unsubMyRole = null;
+  if(!roleName || !email || !uid) return;
+  let initialSnapshot = true;
+  state.unsubMyRole = onSnapshot(doc(db, "appConfig", "global", "roles", roleName), async ()=>{
+    if(initialSnapshot){
+      initialSnapshot = false;
+      return;
+    }
+    if(!state.session?.uid || state.session.uid !== uid) return;
+    await loadMyRole(email, uid).catch((error)=>console.warn("Live role refresh failed", error));
+    if(state.session?.uid === uid) applySessionUI();
+  }, (error)=>console.warn("watchMyRoleDefinition error", error));
 }
 
 async function loadMyProfile(uid){
@@ -5693,6 +6072,8 @@ function setupAdminTabs(){
   const activate = (key)=>{
     btns.forEach(b=>b.classList.toggle("active", b.dataset.adminTab === key));
     pages.forEach(p=>p.classList.toggle("hidden", p.dataset.adminPage !== key));
+    const content = overlay.querySelector(".adminContent");
+    if(content) content.scrollTop = 0;
     try{ localStorage.setItem("adminTab:last", key); }catch(_e){}
   };
 
@@ -5713,11 +6094,78 @@ function openAdmin(){
 function closeAdmin(){
   document.getElementById("adminOverlay")?.classList.add("hidden");
   stopRoleOverview(); // Listener sauber beenden
+  stopStaffOverview();
 }
 
 
 let _unsubRoleOverviewUsers = null;
 let _unsubRoleOverviewRoles = null;
+let _unsubStaffUsers = null;
+let _unsubStaffRoles = null;
+let _unsubStaffSecurity = null;
+let _staffUsers = [];
+let _staffRoles = {};
+let _staffWhitelist = [];
+let _editingStaffEmail = "";
+let _roleStudioRoles = {};
+let _roleStudioUsers = [];
+let _editingRoleName = "";
+
+const ROLE_PERMISSION_META = [
+  { key:"canUseTools", label:"Tools", short:"Tools" },
+  { key:"canUseEvents", label:"Ereigniscenter", short:"Ereignis" },
+  { key:"canUseCases", label:"Fälle", short:"Fälle" },
+  { key:"canUseChat", label:"Team-Chat", short:"Chat" },
+  { key:"canUpload", label:"Upload", short:"Upload" },
+  { key:"canDownload", label:"Download", short:"Download" },
+  { key:"canViewFullRanking", label:"Gesamte Rangliste", short:"Rangliste" },
+  { key:"canAdmin", label:"Admin Control Center", short:"Admin" }
+];
+
+const ROLE_TEMPLATE_PRESETS = {
+  employee: {
+    description:"Operativer Standardzugang für den täglichen Einsatz",
+    color:"#168dff",
+    priority:20,
+    canUseTools:true,
+    canUseEvents:true,
+    canUseCases:true,
+    canUseChat:true,
+    canUpload:false,
+    canDownload:true,
+    canViewFullRanking:false,
+    canAdmin:false,
+    defaultQualifications:[]
+  },
+  lead: {
+    description:"Erweiterte Einsatzführung mit vollständiger Auswertung",
+    color:"#ff8b2c",
+    priority:70,
+    canUseTools:true,
+    canUseEvents:true,
+    canUseCases:true,
+    canUseChat:true,
+    canUpload:true,
+    canDownload:true,
+    canViewFullRanking:true,
+    canAdmin:false,
+    defaultQualifications:["shoppyland","manor"]
+  },
+  admin: {
+    description:"Vollzugriff auf App, Mitarbeitende, Rollen und Systemsteuerung",
+    color:"#a64dff",
+    priority:100,
+    canUseTools:true,
+    canUseEvents:true,
+    canUseCases:true,
+    canUseChat:true,
+    canUpload:true,
+    canDownload:true,
+    canViewFullRanking:true,
+    canAdmin:true,
+    defaultQualifications:["shoppyland","manor"]
+  }
+};
 
 function stopRoleOverview(){
   try{ _unsubRoleOverviewUsers?.(); }catch(_e){}
@@ -5726,81 +6174,570 @@ function stopRoleOverview(){
   _unsubRoleOverviewRoles = null;
 }
 
+function stopStaffOverview(){
+  try{ _unsubStaffUsers?.(); }catch(_e){}
+  try{ _unsubStaffRoles?.(); }catch(_e){}
+  try{ _unsubStaffSecurity?.(); }catch(_e){}
+  _unsubStaffUsers = null;
+  _unsubStaffRoles = null;
+  _unsubStaffSecurity = null;
+}
+
+function qualificationText(keys){
+  const normalized = normalizeServiceQualifications(keys);
+  return normalized.map((key)=>SERVICE_QUALIFICATIONS[key]?.label || key).join(", ");
+}
+
+function mergedStaffRows(){
+  const byEmail = new Map();
+  _staffUsers.forEach((entry)=>{
+    const email = String(entry.email || entry.id || "").trim().toLowerCase();
+    if(email) byEmail.set(email, { ...entry, email });
+  });
+  _staffWhitelist.forEach((entry)=>{
+    const email = String(entry || "").trim().toLowerCase();
+    if(!email || byEmail.has(email)) return;
+    byEmail.set(email, {
+      email,
+      role: email === FIXED_ADMIN.email ? "Leitung" : "Mitarbeiter",
+      active: true,
+      qualifications: email === FIXED_ADMIN.email ? [...ALL_SERVICE_QUALIFICATIONS] : undefined,
+      qualificationsConfigured: email === FIXED_ADMIN.email,
+      legacyWhitelistOnly: true
+    });
+  });
+  return Array.from(byEmail.values()).sort((a,b)=>{
+    const nameA = String(a.displayName || a.name || a.email || "");
+    const nameB = String(b.displayName || b.name || b.email || "");
+    return nameA.localeCompare(nameB, "de");
+  });
+}
+
+function populateStaffRoleSelect(){
+  const select = document.getElementById("staffRoleSelect");
+  if(!select) return;
+  const previous = select.value;
+  const names = Object.keys(_staffRoles).sort((a,b)=>a.localeCompare(b, "de"));
+  select.innerHTML = "";
+  names.forEach((name)=>{
+    const option = document.createElement("option");
+    option.value = name;
+    option.textContent = name;
+    select.appendChild(option);
+  });
+  if(previous && names.includes(previous)) select.value = previous;
+  else if(names.includes("Mitarbeiter")) select.value = "Mitarbeiter";
+  if(!_editingStaffEmail) applySelectedRoleDefaultsToStaff();
+}
+
+function applySelectedRoleDefaultsToStaff(){
+  if(_editingStaffEmail) return;
+  const roleName = String(document.getElementById("staffRoleSelect")?.value || "");
+  const defaults = normalizedRoleProfile(roleName, _staffRoles[roleName] || {}).defaultQualifications;
+  const shoppy = document.getElementById("staffQualShoppyland");
+  const manor = document.getElementById("staffQualManor");
+  if(shoppy) shoppy.checked = defaults.includes("shoppyland");
+  if(manor) manor.checked = defaults.includes("manor");
+}
+
+function renderStaffDirectory(){
+  const list = document.getElementById("staffList");
+  const count = document.getElementById("staffCount");
+  const search = String(document.getElementById("staffSearch")?.value || "").trim().toLowerCase();
+  if(!list) return;
+
+  const rows = mergedStaffRows().filter((entry)=>{
+    const quals = qualificationText(entry.qualifications).toLowerCase();
+    const haystack = [entry.displayName, entry.name, entry.email, entry.role, quals].join(" ").toLowerCase();
+    return !search || haystack.includes(search);
+  });
+  if(count) count.textContent = `${rows.length} ${rows.length === 1 ? "Eintrag" : "Einträge"}`;
+
+  if(!rows.length){
+    list.innerHTML = `<div class="adminStaffEmpty"><span>⌕</span><strong>Keine Mitarbeiter gefunden</strong><small>Suche anpassen oder einen neuen Mitarbeiter anlegen.</small></div>`;
+    return;
+  }
+
+  list.innerHTML = rows.map((entry)=>{
+    const email = String(entry.email || "");
+    const name = String(entry.displayName || entry.name || email.split("@")[0] || "Mitarbeiter");
+    const role = String(entry.role || "Mitarbeiter");
+    const configured = entry.qualificationsConfigured === true || Array.isArray(entry.qualifications);
+    const qualifications = normalizeServiceQualifications(entry.qualifications);
+    const active = entry.active !== false;
+    const initials = name.split(/\s+/).slice(0,2).map((part)=>part.slice(0,1).toUpperCase()).join("") || "MA";
+    const qualPills = configured
+      ? qualifications.map((key)=>`<span class="adminQualPill ${key}">${key === "shoppyland" ? "K1 · Shoppyland" : "K2 · Manor"}</span>`).join("")
+      : `<span class="adminQualPill legacy">Übergang · alle Standorte</span>`;
+    return `
+      <article class="adminStaffItem${active ? "" : " is-inactive"}">
+        <div class="adminStaffAvatar">${escapeHtml(initials)}<i></i></div>
+        <div class="adminStaffInfo">
+          <div class="adminStaffNameLine"><strong>${escapeHtml(name)}</strong><span>${escapeHtml(role)}</span></div>
+          <small>${escapeHtml(email)}</small>
+          <div class="adminStaffQuals">${qualPills}</div>
+        </div>
+        <div class="adminStaffItemActions">
+          <span class="adminStaffState ${active ? "active" : "inactive"}">${active ? "AKTIV" : "INAKTIV"}</span>
+          <button class="btn small" data-staff-edit="${escapeHtml(encodeURIComponent(email))}" type="button">Bearbeiten</button>
+        </div>
+      </article>`;
+  }).join("");
+}
+
+function resetStaffEditor(){
+  _editingStaffEmail = "";
+  const email = document.getElementById("staffEmail");
+  const name = document.getElementById("staffName");
+  const active = document.getElementById("staffActive");
+  const shoppy = document.getElementById("staffQualShoppyland");
+  const manor = document.getElementById("staffQualManor");
+  const del = document.getElementById("btnDeleteStaff");
+  const hint = document.getElementById("staffEditorHint");
+  if(email){ email.value = ""; email.disabled = false; }
+  if(name) name.value = "";
+  if(active) active.checked = true;
+  if(shoppy) shoppy.checked = false;
+  if(manor) manor.checked = false;
+  if(del) del.disabled = true;
+  if(hint) hint.textContent = "Neuen Mitarbeiter anlegen oder einen Eintrag aus der Liste auswählen.";
+  populateStaffRoleSelect();
+  applySelectedRoleDefaultsToStaff();
+}
+
+function loadStaffEditor(email){
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+  const entry = mergedStaffRows().find((row)=>row.email === normalizedEmail);
+  if(!entry) return;
+  _editingStaffEmail = normalizedEmail;
+  const emailEl = document.getElementById("staffEmail");
+  const nameEl = document.getElementById("staffName");
+  const roleEl = document.getElementById("staffRoleSelect");
+  const activeEl = document.getElementById("staffActive");
+  const shoppyEl = document.getElementById("staffQualShoppyland");
+  const manorEl = document.getElementById("staffQualManor");
+  const deleteEl = document.getElementById("btnDeleteStaff");
+  const hint = document.getElementById("staffEditorHint");
+  const configured = entry.qualificationsConfigured === true || Array.isArray(entry.qualifications);
+  const qualifications = configured ? normalizeServiceQualifications(entry.qualifications) : [...ALL_SERVICE_QUALIFICATIONS];
+  if(emailEl){ emailEl.value = normalizedEmail; emailEl.disabled = true; }
+  if(nameEl) nameEl.value = entry.displayName || entry.name || "";
+  if(roleEl && Array.from(roleEl.options).some((option)=>option.value === entry.role)) roleEl.value = entry.role;
+  if(activeEl) activeEl.checked = entry.active !== false;
+  if(shoppyEl) shoppyEl.checked = qualifications.includes("shoppyland");
+  if(manorEl) manorEl.checked = qualifications.includes("manor");
+  if(deleteEl) deleteEl.disabled = normalizedEmail === FIXED_ADMIN.email;
+  if(hint){
+    hint.textContent = configured
+      ? `Bearbeitung: ${normalizedEmail}`
+      : "Bestehender Eintrag ohne Qualifikationen: Beim Speichern werden die gewählten Kategorien verbindlich.";
+  }
+}
+
+function startStaffOverview(){
+  if(!perms().canAdmin) return;
+  stopStaffOverview();
+  _unsubStaffRoles = onSnapshot(ROLES_COL, (snap)=>{
+    _staffRoles = {};
+    snap.forEach((docSnap)=>{ _staffRoles[docSnap.id] = docSnap.data() || {}; });
+    populateStaffRoleSelect();
+    renderStaffDirectory();
+  });
+  _unsubStaffUsers = onSnapshot(USERROLES_COL, (snap)=>{
+    _staffUsers = snap.docs.map((docSnap)=>({ id:docSnap.id, ...(docSnap.data() || {}) }));
+    renderStaffDirectory();
+  });
+  _unsubStaffSecurity = onSnapshot(CFG_SECURITY, (snap)=>{
+    _staffWhitelist = snap.data()?.whitelist || [];
+    renderStaffDirectory();
+  });
+
+  const search = document.getElementById("staffSearch");
+  const list = document.getElementById("staffList");
+  if(search && !search.dataset.bound){
+    search.dataset.bound = "1";
+    search.addEventListener("input", renderStaffDirectory);
+  }
+  if(list && !list.dataset.bound){
+    list.dataset.bound = "1";
+    list.addEventListener("click", (event)=>{
+      const button = event.target.closest("[data-staff-edit]");
+      if(!button) return;
+      loadStaffEditor(decodeURIComponent(button.dataset.staffEdit || ""));
+      document.querySelector(".adminStaffEditor")?.scrollIntoView({ behavior:"smooth", block:"start" });
+    });
+  }
+  const roleSelect = document.getElementById("staffRoleSelect");
+  if(roleSelect && !roleSelect.dataset.qualificationDefaultsBound){
+    roleSelect.dataset.qualificationDefaultsBound = "1";
+    roleSelect.addEventListener("change", applySelectedRoleDefaultsToStaff);
+  }
+  renderStaffDirectory();
+}
+
+async function syncStaffWhitelist(email, active){
+  const secSnap = await getDoc(CFG_SECURITY);
+  const current = (secSnap.data()?.whitelist || []).map((entry)=>String(entry || "").toLowerCase());
+  const next = active ? uniq([...current, email, FIXED_ADMIN.email]) : current.filter((entry)=>entry !== email);
+  const whitelist = uniq([...next, FIXED_ADMIN.email]);
+  await setDoc(CFG_SECURITY, { whitelist, updatedAt:serverTimestamp() }, { merge:true });
+  const box = document.getElementById("whitelistBox");
+  if(box) box.value = whitelist.join("\n");
+}
+
+async function saveStaffMember(){
+  if(!perms().canAdmin) return;
+  let email = String(document.getElementById("staffEmail")?.value || "").trim().toLowerCase();
+  const displayName = String(document.getElementById("staffName")?.value || "").trim();
+  let role = String(document.getElementById("staffRoleSelect")?.value || "").trim();
+  let active = !!document.getElementById("staffActive")?.checked;
+  let qualifications = [];
+  if(document.getElementById("staffQualShoppyland")?.checked) qualifications.push("shoppyland");
+  if(document.getElementById("staffQualManor")?.checked) qualifications.push("manor");
+
+  if(!email || !email.includes("@")) return alert("Bitte eine gültige E-Mail eingeben.");
+  if(!role) return alert("Bitte eine Rolle auswählen.");
+  if(active && !qualifications.length) return alert("Aktive Mitarbeiter benötigen mindestens eine Dienstqualifikation.");
+  if(email === FIXED_ADMIN.email){
+    active = true;
+    role = "Leitung";
+    qualifications = [...ALL_SERVICE_QUALIFICATIONS];
+  }
+
+  await setDoc(doc(db, "appConfig", "global", "userRoles", email), {
+    email,
+    displayName,
+    role,
+    active,
+    qualifications,
+    qualificationsConfigured: true,
+    updatedAt: serverTimestamp(),
+    updatedByUid: state.session?.uid || "",
+    updatedByEmail: String(state.session?.email || "").toLowerCase()
+  }, { merge:true });
+  await syncStaffWhitelist(email, active);
+
+  if(displayName){
+    try{
+      const userQuery = query(collection(db, "users"), where("email", "==", email), limit(1));
+      const userSnap = await getDocs(userQuery);
+      if(!userSnap.empty){
+        const uid = userSnap.docs[0].id;
+        await setDoc(doc(db, "users", uid), { displayName, displayNameLower:displayName.toLowerCase(), updatedAt:serverTimestamp() }, { merge:true });
+        await setDoc(doc(db, "presence", uid), { displayName, updatedAt:serverTimestamp() }, { merge:true }).catch(()=>{});
+      }
+    }catch(error){
+      console.warn("Display name sync skipped", error);
+    }
+  }
+
+  _editingStaffEmail = email;
+  const emailEl = document.getElementById("staffEmail");
+  if(emailEl) emailEl.disabled = true;
+  const deleteEl = document.getElementById("btnDeleteStaff");
+  if(deleteEl) deleteEl.disabled = email === FIXED_ADMIN.email;
+  const hint = document.getElementById("staffEditorHint");
+  if(hint) hint.textContent = "Gespeichert: Rolle, Zugang und Dienstqualifikationen sind aktiv.";
+  toast("✅ Mitarbeiter gespeichert.");
+}
+
+async function deleteStaffMember(){
+  if(!perms().canAdmin) return;
+  const email = String(_editingStaffEmail || document.getElementById("staffEmail")?.value || "").trim().toLowerCase();
+  if(!email) return alert("Bitte zuerst einen Mitarbeiter auswählen.");
+  if(email === FIXED_ADMIN.email) return alert("Das feste Administratorkonto kann nicht gelöscht werden.");
+  if(!confirm(`${email} wirklich entfernen? Der App-Zugang wird ebenfalls entzogen.`)) return;
+  await deleteDoc(doc(db, "appConfig", "global", "userRoles", email));
+  await syncStaffWhitelist(email, false);
+  resetStaffEditor();
+  toast("Mitarbeiter entfernt.");
+}
+
+function roleFlagValue(role, key, fallback){
+  return typeof role?.[key] === "boolean" ? role[key] : fallback;
+}
+
+function normalizedRoleProfile(name, raw={}){
+  const builtIn = roleDefaults()[name] || {};
+  const merged = { ...builtIn, ...raw };
+  const customFallback = {
+    canUseTools:true,
+    canUseEvents:true,
+    canUseCases:true,
+    canUseChat:true,
+    canUpload:false,
+    canDownload:true,
+    canViewFullRanking:!!merged.canAdmin,
+    canAdmin:false
+  };
+  const color = /^#[0-9a-f]{6}$/i.test(String(merged.color || "")) ? merged.color : "#6c5cff";
+  return {
+    name:name || merged.name || "Rolle",
+    description:String(merged.description || "Individuelles Rechteprofil").trim(),
+    color,
+    priority:Number(merged.priority || builtIn.priority || 50),
+    defaultQualifications:normalizeServiceQualifications(merged.defaultQualifications),
+    ...Object.fromEntries(ROLE_PERMISSION_META.map((permission)=>[
+      permission.key,
+      roleFlagValue(merged, permission.key, roleFlagValue(builtIn, permission.key, customFallback[permission.key]))
+    ]))
+  };
+}
+
+function roleAssignedCount(roleName){
+  return _roleStudioUsers.filter((entry)=>String(entry.role || entry.roleId || "Mitarbeiter") === roleName).length;
+}
+
+function roleEnabledPermissions(profile){
+  return ROLE_PERMISSION_META.filter((permission)=>profile[permission.key]);
+}
+
+function renderRoleStudio(){
+  const catalog = document.getElementById("roleCatalogGrid");
+  const assignments = document.getElementById("roleAssignmentList");
+  const hint = document.getElementById("roleOverviewHint");
+  if(!catalog || !assignments) return;
+
+  const roles = Object.keys(_roleStudioRoles)
+    .map((name)=>normalizedRoleProfile(name, _roleStudioRoles[name]))
+    .sort((a,b)=>(b.priority || 0) - (a.priority || 0) || a.name.localeCompare(b.name, "de"));
+  const activeUsers = _roleStudioUsers.filter((entry)=>entry.active !== false);
+  const setStat = (id, value)=>{ const element = document.getElementById(id); if(element) element.textContent = String(value); };
+  setStat("roleStatsTotal", roles.length);
+  setStat("roleStatsAssigned", _roleStudioUsers.length);
+  setStat("roleStatsActive", activeUsers.length);
+  setStat("roleStatsAdmin", roles.filter((role)=>role.canAdmin).length);
+
+  if(!roles.length){
+    catalog.innerHTML = `<div class="roleStudioEmpty"><span>🧩</span><b>Noch keine Rollen</b><small>Lege dein erstes Rechteprofil an.</small></div>`;
+  }else{
+    catalog.innerHTML = roles.map((role)=>{
+      const assigned = roleAssignedCount(role.name);
+      const enabled = roleEnabledPermissions(role);
+      const permissionPills = enabled.slice(0,4).map((permission)=>`<span>${escapeHtml(permission.short)}</span>`).join("");
+      const remaining = enabled.length - 4;
+      const quals = role.defaultQualifications.length
+        ? role.defaultQualifications.map((key)=>`<span class="${key}">${key === "shoppyland" ? "K1 · Shoppyland" : "K2 · Manor"}</span>`).join("")
+        : `<span class="none">Qualifikation bei Zuweisung</span>`;
+      return `
+        <article class="roleCatalogItem${_editingRoleName === role.name ? " is-selected" : ""}" style="--role-accent:${role.color}">
+          <div class="roleCatalogTop">
+            <div class="roleCatalogIcon">${escapeHtml(role.name.slice(0,1).toUpperCase())}</div>
+            <div><b>${escapeHtml(role.name)}</b><small>Priorität ${role.priority}</small></div>
+            <span class="roleCatalogCount">${assigned} ${assigned === 1 ? "Person" : "Personen"}</span>
+          </div>
+          <p>${escapeHtml(role.description)}</p>
+          <div class="roleCatalogPermissions">${permissionPills}${remaining > 0 ? `<span>+${remaining}</span>` : ""}</div>
+          <div class="roleCatalogQuals">${quals}</div>
+          <div class="roleCatalogActions">
+            <button data-role-action="duplicate" data-role-name="${escapeHtml(encodeURIComponent(role.name))}" type="button">⧉ Duplizieren</button>
+            <button class="primary" data-role-action="edit" data-role-name="${escapeHtml(encodeURIComponent(role.name))}" type="button">Bearbeiten →</button>
+          </div>
+        </article>`;
+    }).join("");
+  }
+
+  const search = String(document.getElementById("roleOverviewSearch")?.value || "").trim().toLowerCase();
+  const rows = _roleStudioUsers.map((entry)=>{
+    const email = String(entry.email || entry.id || "");
+    const roleName = String(entry.role || entry.roleId || "Mitarbeiter");
+    const profile = normalizedRoleProfile(roleName, _roleStudioRoles[roleName] || {});
+    const configured = entry.qualificationsConfigured === true || Array.isArray(entry.qualifications);
+    return {
+      ...entry,
+      email,
+      roleName,
+      profile,
+      name:String(entry.displayName || entry.name || email.split("@")[0] || "Mitarbeiter"),
+      active:entry.active !== false,
+      qualificationsText:configured ? (qualificationText(entry.qualifications) || "Keine Qualifikation") : "Übergang · alle Standorte",
+      configured
+    };
+  }).filter((entry)=>{
+    const haystack = [entry.name, entry.email, entry.roleName, entry.qualificationsText].join(" ").toLowerCase();
+    return !search || haystack.includes(search);
+  }).sort((a,b)=>a.name.localeCompare(b.name, "de"));
+
+  if(hint) hint.textContent = `${rows.length} ${rows.length === 1 ? "Zuweisung" : "Zuweisungen"} sichtbar`;
+  if(!rows.length){
+    assignments.innerHTML = `<div class="roleStudioEmpty"><span>⌕</span><b>Keine Zuweisung gefunden</b><small>Suche anpassen oder Mitarbeitende im Mitarbeiter-Tab anlegen.</small></div>`;
+  }else{
+    assignments.innerHTML = rows.map((entry)=>{
+      const initials = entry.name.split(/\s+/).slice(0,2).map((part)=>part.slice(0,1).toUpperCase()).join("") || "MA";
+      const enabledCount = roleEnabledPermissions(entry.profile).length;
+      return `
+        <article class="roleAssignmentItem${entry.active ? "" : " is-inactive"}" style="--role-accent:${entry.profile.color}">
+          <div class="roleAssignmentAvatar">${escapeHtml(initials)}<i></i></div>
+          <div class="roleAssignmentIdentity">
+            <b>${escapeHtml(entry.name)}</b>
+            <small title="${escapeHtml(entry.email)}">${escapeHtml(entry.email)}</small>
+          </div>
+          <div class="roleAssignmentMeta">
+            <span class="roleAssignmentRole">${escapeHtml(entry.roleName)}</span>
+            <small>${enabledCount} Freigaben</small>
+          </div>
+          <div class="roleAssignmentQual">
+            <b>Dienstqualifikation</b>
+            <small>${escapeHtml(entry.qualificationsText)}</small>
+          </div>
+          <span class="roleAssignmentState ${entry.active ? "active" : "inactive"}">${entry.active ? "AKTIV" : "INAKTIV"}</span>
+          <button class="roleAssignmentEdit" data-role-staff="${escapeHtml(encodeURIComponent(entry.email))}" type="button">Mitarbeiter öffnen →</button>
+        </article>`;
+    }).join("");
+  }
+}
+
+function setRoleEditorValues(profile){
+  const setValue = (id, value)=>{ const element = document.getElementById(id); if(element) element.value = String(value ?? ""); };
+  const setChecked = (id, checked)=>{ const element = document.getElementById(id); if(element) element.checked = !!checked; };
+  setValue("roleDescription", profile.description || "");
+  setValue("rolePriority", profile.priority || 50);
+  setValue("roleColor", profile.color || "#6c5cff");
+  setValue("roleColorText", profile.color || "#6c5cff");
+  ROLE_PERMISSION_META.forEach((permission)=>setChecked("role" + permission.key.slice(0,1).toUpperCase() + permission.key.slice(1), profile[permission.key]));
+  setChecked("roleDefaultShoppyland", profile.defaultQualifications?.includes("shoppyland"));
+  setChecked("roleDefaultManor", profile.defaultQualifications?.includes("manor"));
+}
+
+function applyRoleTemplate(templateName){
+  const template = ROLE_TEMPLATE_PRESETS[templateName] || ROLE_TEMPLATE_PRESETS.employee;
+  setRoleEditorValues(template);
+  const hint = document.getElementById("roleEditorSaveHint");
+  if(hint) hint.textContent = "Vorlage geladen · noch nicht gespeichert";
+}
+
+function resetRoleEditor(){
+  _editingRoleName = "";
+  const name = document.getElementById("roleName");
+  if(name){ name.value = ""; name.disabled = false; }
+  applyRoleTemplate("employee");
+  const stateEl = document.getElementById("roleEditorState");
+  const title = document.getElementById("roleEditorTitle");
+  const duplicate = document.getElementById("btnDuplicateRole");
+  const remove = document.getElementById("btnDeleteRole");
+  if(stateEl) stateEl.textContent = "NEUES RECHTEPROFIL";
+  if(title) title.textContent = "Neue Rolle konfigurieren";
+  if(duplicate) duplicate.disabled = true;
+  if(remove) remove.disabled = true;
+  renderRoleStudio();
+}
+
+function loadRoleEditor(roleName, shouldScroll=true){
+  if(!_roleStudioRoles[roleName] && !roleDefaults()[roleName]) return;
+  _editingRoleName = roleName;
+  const profile = normalizedRoleProfile(roleName, _roleStudioRoles[roleName] || {});
+  const name = document.getElementById("roleName");
+  if(name){ name.value = roleName; name.disabled = true; }
+  setRoleEditorValues(profile);
+  const assigned = roleAssignedCount(roleName);
+  const protectedRole = ["Leitung","Mitarbeiter"].includes(roleName);
+  const stateEl = document.getElementById("roleEditorState");
+  const title = document.getElementById("roleEditorTitle");
+  const hint = document.getElementById("roleEditorSaveHint");
+  const duplicate = document.getElementById("btnDuplicateRole");
+  const remove = document.getElementById("btnDeleteRole");
+  if(stateEl) stateEl.textContent = "ROLLE BEARBEITEN";
+  if(title) title.textContent = roleName;
+  if(hint) hint.textContent = `${assigned} ${assigned === 1 ? "Mitarbeiter zugewiesen" : "Mitarbeitende zugewiesen"} · Änderungen live nach Speichern`;
+  if(duplicate) duplicate.disabled = false;
+  if(remove){
+    remove.disabled = protectedRole || assigned > 0;
+    remove.title = protectedRole ? "Systemrollen können nicht gelöscht werden." : (assigned > 0 ? "Rolle ist noch Mitarbeitenden zugewiesen." : "");
+  }
+  renderRoleStudio();
+  if(shouldScroll) document.getElementById("roleEditorCard")?.scrollIntoView({ behavior:"smooth", block:"start" });
+}
+
+function duplicateRoleDefinition(roleName=_editingRoleName){
+  if(!roleName) return;
+  const profile = normalizedRoleProfile(roleName, _roleStudioRoles[roleName] || {});
+  _editingRoleName = "";
+  const name = document.getElementById("roleName");
+  if(name){ name.value = `${roleName} Kopie`; name.disabled = false; }
+  setRoleEditorValues({ ...profile, description:`Kopie von ${roleName}: ${profile.description}` });
+  const stateEl = document.getElementById("roleEditorState");
+  const title = document.getElementById("roleEditorTitle");
+  const hint = document.getElementById("roleEditorSaveHint");
+  const duplicate = document.getElementById("btnDuplicateRole");
+  const remove = document.getElementById("btnDeleteRole");
+  if(stateEl) stateEl.textContent = "NEUE ROLLE AUS VORLAGE";
+  if(title) title.textContent = `${roleName} duplizieren`;
+  if(hint) hint.textContent = "Kopie anpassen und als neue Rolle speichern";
+  if(duplicate) duplicate.disabled = true;
+  if(remove) remove.disabled = true;
+  renderRoleStudio();
+  document.getElementById("roleEditorCard")?.scrollIntoView({ behavior:"smooth", block:"start" });
+}
+
+function setupRoleStudioEvents(){
+  const catalog = document.getElementById("roleCatalogGrid");
+  const assignments = document.getElementById("roleAssignmentList");
+  const search = document.getElementById("roleOverviewSearch");
+  const color = document.getElementById("roleColor");
+  const colorText = document.getElementById("roleColorText");
+  const templates = document.querySelector(".roleTemplateBar");
+
+  if(catalog && !catalog.dataset.bound){
+    catalog.dataset.bound = "1";
+    catalog.addEventListener("click", (event)=>{
+      const button = event.target.closest("[data-role-action]");
+      if(!button) return;
+      const roleName = decodeURIComponent(button.dataset.roleName || "");
+      if(button.dataset.roleAction === "duplicate") duplicateRoleDefinition(roleName);
+      else loadRoleEditor(roleName);
+    });
+  }
+  if(assignments && !assignments.dataset.bound){
+    assignments.dataset.bound = "1";
+    assignments.addEventListener("click", (event)=>{
+      const button = event.target.closest("[data-role-staff]");
+      if(!button) return;
+      document.querySelector('[data-admin-tab="staff"]')?.click();
+      loadStaffEditor(decodeURIComponent(button.dataset.roleStaff || ""));
+      setTimeout(()=>document.querySelector(".adminStaffEditor")?.scrollIntoView({ behavior:"smooth", block:"start" }), 50);
+    });
+  }
+  if(search && !search.dataset.bound){
+    search.dataset.bound = "1";
+    search.addEventListener("input", renderRoleStudio);
+  }
+  if(color && !color.dataset.bound){
+    color.dataset.bound = "1";
+    color.addEventListener("input", ()=>{ if(colorText) colorText.value = color.value; });
+  }
+  if(colorText && !colorText.dataset.bound){
+    colorText.dataset.bound = "1";
+    colorText.addEventListener("input", ()=>{
+      if(/^#[0-9a-f]{6}$/i.test(colorText.value) && color) color.value = colorText.value;
+    });
+  }
+  if(templates && !templates.dataset.bound){
+    templates.dataset.bound = "1";
+    templates.addEventListener("click", (event)=>{
+      const button = event.target.closest("[data-role-template]");
+      if(button) applyRoleTemplate(button.dataset.roleTemplate);
+    });
+  }
+}
+
 function startRoleOverview(){
   if(!perms().canAdmin) return;
-
-  // keine doppelten Listener
   stopRoleOverview();
+  setupRoleStudioEvents();
+  _roleStudioRoles = {};
+  _roleStudioUsers = [];
+  if(!document.getElementById("roleName")?.value) resetRoleEditor();
 
-  const tbl = document.getElementById("roleOverviewTable");
-  const hint = document.getElementById("roleOverviewHint");
-  const searchEl = document.getElementById("roleOverviewSearch");
-  const refreshBtn = document.getElementById("btnRefreshRoleOverview");
-  if(!tbl || !hint) return;
-
-  let rolesMap = {};
-  let userRows = [];
-
-  const paint = () => {
-    const q = (searchEl?.value || "").trim().toLowerCase();
-
-    const rows = userRows
-      .map(u => {
-        const roleId = (u.role || u.roleId || "").trim();
-        const roleMeta = rolesMap[roleId] || {};
-        const label = roleMeta.label || roleMeta.name || roleId || "—";
-        const rights = roleMeta.rights || roleMeta.permissions || roleMeta.perms || {};
-        const rightsTxt = Object.keys(rights).filter(k => rights[k]).join(", ");
-        return { email: u.email, roleId, label, rightsTxt };
-      })
-      .filter(r => {
-        if(!q) return true;
-        return (r.email || "").includes(q) || (r.roleId || "").toLowerCase().includes(q) || (r.label || "").toLowerCase().includes(q);
-      })
-      .sort((a,b) => (a.email||"").localeCompare(b.email||""));
-
-    hint.textContent = `${rows.length} Einträge`;
-
-    // Tabelle rendern
-    const header = `
-      <tr>
-        <th style="text-align:left; font-size:12px; opacity:.8; padding:0 10px;">E-Mail</th>
-        <th style="text-align:left; font-size:12px; opacity:.8; padding:0 10px;">Rolle</th>
-        <th style="text-align:left; font-size:12px; opacity:.8; padding:0 10px;">Rechte</th>
-      </tr>`;
-    const body = rows.map(r => `
-      <tr style="background:rgba(0,0,0,.22); border:1px solid var(--border);">
-        <td style="padding:10px; border-radius:12px 0 0 12px; word-break:break-word;">${escapeHtml(r.email || "—")}</td>
-        <td style="padding:10px; min-width:130px;">${escapeHtml(r.label || r.roleId || "—")}</td>
-        <td style="padding:10px; border-radius:0 12px 12px 0; opacity:.9;">${escapeHtml(r.rightsTxt || "—")}</td>
-      </tr>`).join("");
-
-    tbl.innerHTML = header + body;
-  };
-
-  // UI-Events einmal binden
-  if(searchEl && !searchEl.dataset.bound){
-    searchEl.addEventListener("input", paint);
-    searchEl.dataset.bound = "1";
-  }
-  if(refreshBtn && !refreshBtn.dataset.bound){
-    refreshBtn.addEventListener("click", paint);
-    refreshBtn.dataset.bound = "1";
-  }
-
-  // Live Daten: Rollen + UserRoles
-  _unsubRoleOverviewRoles = onSnapshot(ROLES_COL, (snap) => {
-    rolesMap = {};
-    snap.forEach(d => rolesMap[d.id] = d.data() || {});
-    paint();
+  _unsubRoleOverviewRoles = onSnapshot(ROLES_COL, (snap)=>{
+    _roleStudioRoles = {};
+    snap.forEach((docSnap)=>{ _roleStudioRoles[docSnap.id] = docSnap.data() || {}; });
+    renderRoleStudio();
   });
-
-  _unsubRoleOverviewUsers = onSnapshot(USERROLES_COL, (snap) => {
-    userRows = snap.docs.map(d => ({ email: d.id, ...(d.data()||{}) }));
-    paint();
+  _unsubRoleOverviewUsers = onSnapshot(USERROLES_COL, (snap)=>{
+    _roleStudioUsers = snap.docs.map((docSnap)=>({ email:docSnap.id, ...(docSnap.data() || {}) }));
+    renderRoleStudio();
   });
-
-  paint();
+  renderRoleStudio();
 }
 
 
@@ -5813,19 +6750,23 @@ async function loadAdminUI(){
   const box = document.getElementById("whitelistBox");
   if(box) box.value = wl;
 
-  // roles dropdown
-  const sel = document.getElementById("userRoleSelect");
-  if(sel){
+  // roles dropdowns
+  const roleSnapshot = await getDocs(ROLES_COL);
+  ["userRoleSelect", "staffRoleSelect"].forEach((selectId)=>{
+    const sel = document.getElementById(selectId);
+    if(!sel) return;
+    const previous = sel.value;
     sel.innerHTML = "";
-    const rSnap = await getDocs(ROLES_COL);
-    rSnap.forEach(d=>{
+    roleSnapshot.forEach(d=>{
       const opt = document.createElement("option");
       opt.value = d.id;
       opt.textContent = d.id;
       sel.appendChild(opt);
     });
-  }
+    if(previous && Array.from(sel.options).some((option)=>option.value === previous)) sel.value = previous;
+  });
   startRoleOverview();
+  startStaffOverview();
 }
 
 async function saveWhitelist(){
@@ -5841,22 +6782,56 @@ async function saveRole(){
   if(!perms().canAdmin) return;
   const name = (document.getElementById("roleName")?.value || "").trim();
   if(!name) return alert("Rollenname fehlt.");
-  const canUpload = !!document.getElementById("roleCanUpload")?.checked;
-  const canDownload = !!document.getElementById("roleCanDownload")?.checked;
-  const canAdmin = !!document.getElementById("roleCanAdmin")?.checked;
-  await setDoc(doc(db,"appConfig","global","roles", name), { name, canUpload, canDownload, canAdmin, updatedAt: serverTimestamp() }, { merge:true });
-  alert("Rolle gespeichert.");
-  await loadAdminUI();
+  if(name.includes("/")) return alert("Der Rollenname darf keinen Schrägstrich enthalten.");
+  if(name.length < 2) return alert("Der Rollenname muss mindestens 2 Zeichen haben.");
+  if(!_editingRoleName && _roleStudioRoles[name] && !confirm(`Die Rolle „${name}“ existiert bereits. Wirklich überschreiben?`)) return;
+
+  const colorValue = String(document.getElementById("roleColorText")?.value || document.getElementById("roleColor")?.value || "#6c5cff");
+  const color = /^#[0-9a-f]{6}$/i.test(colorValue) ? colorValue : "#6c5cff";
+  const defaultQualifications = [];
+  if(document.getElementById("roleDefaultShoppyland")?.checked) defaultQualifications.push("shoppyland");
+  if(document.getElementById("roleDefaultManor")?.checked) defaultQualifications.push("manor");
+  const data = {
+    name,
+    description:String(document.getElementById("roleDescription")?.value || "").trim(),
+    color,
+    priority:Number(document.getElementById("rolePriority")?.value || 50),
+    defaultQualifications,
+    ...Object.fromEntries(ROLE_PERMISSION_META.map((permission)=>[
+      permission.key,
+      !!document.getElementById("role" + permission.key.slice(0,1).toUpperCase() + permission.key.slice(1))?.checked
+    ])),
+    updatedAt:serverTimestamp(),
+    updatedByUid:state.session?.uid || "",
+    updatedByEmail:String(state.session?.email || "").toLowerCase()
+  };
+  await setDoc(doc(db,"appConfig","global","roles", name), data, { merge:true });
+  _roleStudioRoles[name] = { ...data, updatedAt:null };
+  _editingRoleName = name;
+  renderRoleStudio();
+  loadRoleEditor(name, false);
+  toast(`✓ Rolle „${name}“ gespeichert.`);
 }
 
 async function deleteRole(){
   if(!perms().canAdmin) return;
   const name = (document.getElementById("roleName")?.value || "").trim();
   if(!name) return alert("Rollenname fehlt.");
-  if(!confirm("Rolle wirklich löschen?")) return;
+  if(["Leitung","Mitarbeiter"].includes(name)) return alert("Die Systemrollen „Leitung“ und „Mitarbeiter“ können nicht gelöscht werden.");
+  let assigned = roleAssignedCount(name);
+  try{
+    const assignedSnap = await getDocs(query(USERROLES_COL, where("role", "==", name), limit(1)));
+    if(!assignedSnap.empty) assigned = Math.max(1, assigned);
+  }catch(error){
+    console.warn("Rollenbelegung konnte vor dem Löschen nicht geprüft werden.", error);
+    return alert("Die Rollenbelegung konnte nicht sicher geprüft werden. Bitte später erneut versuchen.");
+  }
+  if(assigned > 0) return alert(`Die Rolle ist noch ${assigned} Mitarbeitenden zugewiesen. Weise ihnen zuerst eine andere Rolle zu.`);
+  if(!confirm(`Rolle „${name}“ wirklich dauerhaft löschen?`)) return;
   await deleteDoc(doc(db,"appConfig","global","roles", name));
-  alert("Rolle gelöscht.");
-  await loadAdminUI();
+  delete _roleStudioRoles[name];
+  resetRoleEditor();
+  toast(`Rolle „${name}“ gelöscht.`);
 }
 
 async function setUserRole(){
@@ -6739,8 +7714,7 @@ function renderRanking(){
     return;
   }
 
-  const roleName = String(state.roleName || "").trim().toLowerCase();
-  const canSeeFullRanking = !!(isAdminUser() || roleName === "leitung");
+  const canSeeFullRanking = !!(isAdminUser() || perms().canViewFullRanking);
   const visibleRows = canSeeFullRanking ? rows : rows.slice(0, 3);
 
   if(!canSeeFullRanking){
@@ -6923,7 +7897,10 @@ async function restoreServiceAfterLogin(){
             if(dateEl && s.date) dateEl.value = s.date;
             if(pnEl && (s.personalNumber || s.pn)) pnEl.value = (s.personalNumber || s.pn);
             if(nameEl && s.name) nameEl.value = s.name;
-            if(locationEl && s.location) locationEl.value = s.location;
+            if(locationEl && s.location){
+              applyServiceLocationQualifications(s.location);
+              locationEl.value = s.location;
+            }
 
             const startEl = document.getElementById("serviceStartTime");
             if(startEl && s.startTime){
@@ -6940,8 +7917,10 @@ async function restoreServiceAfterLogin(){
       serviceStartMs = startMs;
 
       const locationEl = document.getElementById("serviceLocation");
-      if(locationEl && !locationEl.value && cachedValid && cached.location){
-        locationEl.value = cached.location;
+      const fallbackLocation = presenceLocation || (cachedValid ? String(cached.location || "").trim() : "");
+      if(locationEl && !locationEl.value && fallbackLocation){
+        applyServiceLocationQualifications(fallbackLocation);
+        locationEl.value = fallbackLocation;
       }
       const restoredLocation = (locationEl?.value || "").trim();
       if(restoredLocation && restoredLocation !== presenceLocation){
@@ -7300,6 +8279,9 @@ async function startService(){
   if(!pn) return alert("Bitte Personalnummer eingeben.");
   if(!name) return alert("Bitte Name eingeben.");
   if(!location) return alert("Bitte Standort auswählen.");
+  if(!isServiceLocationAllowed(location)){
+    return alert("Für diesen Standort fehlt dir die erforderliche Dienstqualifikation. Bitte wende dich an die Administration.");
+  }
 
   const uid = state.session.uid;
 
@@ -7678,6 +8660,17 @@ async function notify(){
 // ---------- Mobile Tabs ----------
 
 function setMobileView(view){
+  const permissionByView = {
+    files:"canUseTools",
+    ranking:"canUseEvents",
+    case:"canUseCases",
+    chat:"canUseChat"
+  };
+  const requiredPermission = permissionByView[view];
+  if(requiredPermission && perms()[requiredPermission] === false){
+    toast("Dieser Bereich ist für deine Rolle nicht freigeschaltet.");
+    view = "start";
+  }
   const isMobile = window.matchMedia("(max-width: 980px)").matches;
   // Auf Desktop nutzen wir ebenfalls „Single-View“, damit es übersichtlich ist.
   const compact = !isMobile;
@@ -7876,7 +8869,18 @@ async function bindUI(){
   click("btnSaveWhitelist", () => saveWhitelist().catch((e)=>{ console.error(e); alert("Whitelist speichern fehlgeschlagen: " + (e?.message||e)); }));
   click("btnSaveRole", () => saveRole().catch((e)=>{ console.error(e); alert("Rolle speichern fehlgeschlagen: " + (e?.message||e)); }));
   click("btnDeleteRole", () => deleteRole().catch((e)=>{ console.error(e); alert("Rolle löschen fehlgeschlagen: " + (e?.message||e)); }));
+  click("btnNewRole", () => {
+    resetRoleEditor();
+    document.getElementById("roleEditorCard")?.scrollIntoView({ behavior:"smooth", block:"start" });
+    setTimeout(()=>document.getElementById("roleName")?.focus(), 250);
+  });
+  click("btnDuplicateRole", () => duplicateRoleDefinition());
+  click("btnResetRole", () => _editingRoleName ? loadRoleEditor(_editingRoleName, false) : resetRoleEditor());
   click("btnSetUserRole", () => setUserRole().catch((e)=>{ console.error(e); alert("User Rolle setzen fehlgeschlagen: " + (e?.message||e)); }));
+  click("btnSaveStaff", () => saveStaffMember().catch((e)=>{ console.error(e); alert("Mitarbeiter speichern fehlgeschlagen: " + (e?.message||e)); }));
+  click("btnResetStaff", () => resetStaffEditor());
+  click("btnDeleteStaff", () => deleteStaffMember().catch((e)=>{ console.error(e); alert("Mitarbeiter löschen fehlgeschlagen: " + (e?.message||e)); }));
+  click("btnRefreshStaff", () => renderStaffDirectory());
   click("btnAdminUserLoad", () => adminLoadUser().catch((e)=>{ console.error(e); alert("User laden fehlgeschlagen: " + (e?.message||e)); }));
   click("btnAdminUserSave", () => adminSaveUserName().catch((e)=>{ console.error(e); alert("Name speichern fehlgeschlagen: " + (e?.message||e)); }));
 
@@ -7962,6 +8966,7 @@ async function bindUI(){
       await loadMyProfile(user.uid).catch(()=>{});
       watchMyProfile(user.uid);
       await loadMyRole(user.email || "", user.uid).catch(()=>{});
+      watchMyAccess(user.email || "", user.uid);
       // session name should reflect profile
       if(state.profile.displayName) state.session.user = state.profile.displayName;
 
@@ -7970,6 +8975,7 @@ async function bindUI(){
 
       // Restore running duty timer after refresh/app close
       await restoreServiceAfterLogin();
+      applyServiceLocationQualifications();
       // Force Home (start) as default view after login on mobile
       try{
         const isMobile = window.matchMedia("(max-width: 980px)").matches;
@@ -8002,6 +9008,10 @@ async function bindUI(){
       stopPresence();
       if(state.unsubPresence) state.unsubPresence();
       state.unsubPresence = null;
+      try{ state.unsubMyAccess?.(); }catch(_e){}
+      state.unsubMyAccess = null;
+      try{ state.unsubMyRole?.(); }catch(_e){}
+      state.unsubMyRole = null;
       state.onlineUsers = [];
       renderPresenceBar();
 
@@ -11312,6 +12322,488 @@ body.view-case #casePanel,body.view-chat .rightbar,body.view-settings .sidebar{
   .sidebar .command-settings-system{margin:0 11px 11px!important;padding:15px!important;border-radius:17px!important}
   .sidebar .command-settings-system{margin-bottom:28px!important}
   .command-settings-push-actions{grid-template-columns:1fr}
+}
+</style>
+
+<style id="securi-command-admin-v5">
+/* =========================================================
+   SECURI COMMAND · ADMIN CONTROL CENTER
+   ========================================================= */
+.service-qualification-hint{
+  position:relative;margin-top:8px;padding:9px 10px 9px 29px;border:1px solid rgba(90,164,214,.16);
+  border-radius:10px;background:rgba(2,10,18,.58);color:#9cafc3;font-size:9px;line-height:1.4
+}
+.service-qualification-hint::before{
+  content:"◆";position:absolute;left:10px;top:9px;color:#4ec8ff;font-size:10px;text-shadow:0 0 9px #00a8ff
+}
+.service-qualification-hint[data-state="ok"]{border-color:rgba(38,221,139,.23);color:#b9f5d7}
+.service-qualification-hint[data-state="ok"]::before{color:#27e692;text-shadow:0 0 9px #27e692}
+.service-qualification-hint[data-state="legacy"]{border-color:rgba(255,173,48,.25);color:#ffd99b}
+.service-qualification-hint[data-state="legacy"]::before{color:#ffad30;text-shadow:0 0 9px #ffad30}
+.service-qualification-hint[data-state="blocked"]{border-color:rgba(255,70,103,.28);color:#ffc2cd}
+.service-qualification-hint[data-state="blocked"]::before{color:#ff496a;text-shadow:0 0 9px #ff496a}
+.command-current-qualifications{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px;padding:9px 10px;
+  border:1px solid rgba(45,176,241,.15);border-radius:11px;background:rgba(0,116,190,.055)
+}
+.command-current-qualifications span{color:#778aa0;font-size:8px;text-transform:uppercase;letter-spacing:.06em}
+.command-current-qualifications strong{color:#78d3ff;font-size:8px;text-align:right}
+
+#adminOverlay{
+  padding:16px!important;background:
+    radial-gradient(900px 560px at 8% 0,rgba(0,127,255,.19),transparent 67%),
+    radial-gradient(780px 540px at 96% 100%,rgba(129,48,255,.13),transparent 66%),
+    rgba(1,5,11,.94)!important;backdrop-filter:blur(18px)!important
+}
+#adminOverlay .adminModal{
+  display:flex;flex-direction:column;width:min(1240px,calc(100vw - 32px))!important;max-width:none!important;
+  height:min(900px,calc(100dvh - 32px));max-height:none!important;padding:0!important;overflow:hidden!important;
+  border:1px solid rgba(83,164,225,.28)!important;border-radius:26px!important;
+  background:
+    radial-gradient(720px 280px at 70% -12%,rgba(0,139,255,.11),transparent 70%),
+    linear-gradient(155deg,rgba(7,19,31,.99),rgba(2,8,15,.995))!important;
+  box-shadow:0 40px 120px rgba(0,0,0,.76),0 0 70px rgba(0,112,255,.10),inset 0 1px rgba(255,255,255,.05)!important
+}
+#adminOverlay .adminHeader{
+  position:relative!important;top:auto!important;display:flex;align-items:center;justify-content:space-between;gap:20px;
+  flex:0 0 auto;min-height:90px;padding:16px 20px!important;border-bottom:1px solid rgba(99,167,218,.15)!important;
+  background:rgba(3,12,21,.86)!important;backdrop-filter:blur(20px)!important
+}
+#adminOverlay .adminHeader::after{
+  content:"";position:absolute;left:18%;right:42%;bottom:-1px;height:2px;
+  background:linear-gradient(90deg,transparent,#22c8ff,transparent);box-shadow:0 0 14px #00a8ff
+}
+.adminCommandBrand{display:flex;align-items:center;gap:14px;min-width:0}
+.adminCommandShield{
+  position:relative;display:grid;place-items:center;width:52px;aspect-ratio:.92;flex:0 0 auto;
+  clip-path:polygon(50% 0,92% 19%,85% 68%,50% 100%,15% 68%,8% 19%);
+  background:linear-gradient(135deg,#00d3ff,#166aff 52%,#9c42ff);color:#fff;font-size:19px;
+  text-shadow:0 0 9px #fff;filter:drop-shadow(0 0 12px rgba(0,147,255,.55))
+}
+.adminCommandShield::before{content:"";position:absolute;inset:4px;z-index:-1;clip-path:inherit;background:#071527}
+.adminCommandBrand>div:last-child{display:flex;min-width:0;flex-direction:column}
+.adminCommandBrand>div:last-child>span{color:#55cbff;font-size:8px;font-weight:950;letter-spacing:.17em}
+#adminOverlay .adminCommandBrand .authTitle{
+  margin:3px 0 2px!important;color:#fff;font-size:24px!important;font-weight:950;line-height:1;letter-spacing:-.035em
+}
+.adminCommandBrand small{color:#8496ac;font-size:10px}
+.adminHeaderActions{display:flex;align-items:center;gap:12px}
+.adminHeaderLive{
+  display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid rgba(35,225,137,.22);
+  border-radius:999px;background:rgba(30,211,129,.07);color:#57eda6;font-size:8px;font-weight:950;letter-spacing:.08em
+}
+.adminHeaderLive i{width:7px;height:7px;border-radius:50%;background:#26e692;box-shadow:0 0 10px #26e692}
+#adminOverlay #btnCloseAdmin{
+  display:grid;place-items:center;width:42px;height:42px;padding:0!important;border:1px solid rgba(113,173,217,.20)!important;
+  border-radius:13px!important;background:rgba(255,255,255,.045)!important;color:#d8e4f1!important;font-size:25px!important;line-height:1
+}
+
+#adminOverlay .adminLayout{display:grid!important;grid-template-columns:235px minmax(0,1fr);gap:0!important;flex:1;min-height:0;margin:0!important}
+#adminOverlay .adminNav{
+  position:relative!important;top:auto!important;display:flex!important;min-width:0!important;height:100%;padding:20px 14px!important;
+  border-right:1px solid rgba(94,161,212,.13);background:rgba(2,9,16,.58);overflow-y:auto
+}
+.adminNavLabel{margin:0 9px 6px;color:#5f7187;font-size:8px;font-weight:950;letter-spacing:.15em}
+#adminOverlay .adminNavBtn{
+  position:relative;display:grid!important;grid-template-columns:36px minmax(0,1fr);grid-template-rows:auto auto;align-items:center;
+  gap:2px 10px;min-height:60px;padding:10px!important;border:1px solid transparent!important;border-radius:14px!important;
+  background:transparent!important;color:#8b9bb0!important;text-align:left!important;transition:.18s ease
+}
+#adminOverlay .adminNavBtn>span{
+  grid-row:1/3;display:grid;place-items:center;width:36px;height:36px;border:1px solid rgba(93,157,207,.14);
+  border-radius:11px;background:rgba(57,126,182,.07);font-size:16px
+}
+#adminOverlay .adminNavBtn>b{color:#c9d5e2;font-size:11px;font-weight:900}
+#adminOverlay .adminNavBtn>small{color:#627287;font-size:8px}
+#adminOverlay .adminNavBtn::after{
+  content:"›";position:absolute;right:10px;top:50%;color:#4b5d72;font-size:18px;translate:0 -50%
+}
+#adminOverlay .adminNavBtn:hover{border-color:rgba(42,155,236,.18)!important;background:rgba(0,126,221,.07)!important;transform:translateX(2px)}
+#adminOverlay .adminNavBtn.active{
+  border-color:rgba(22,155,248,.40)!important;background:linear-gradient(135deg,rgba(0,131,235,.21),rgba(94,56,219,.12))!important;
+  color:#fff!important;box-shadow:0 8px 24px rgba(0,103,219,.13),inset 0 1px rgba(255,255,255,.05)!important
+}
+#adminOverlay .adminNavBtn.active>span{border-color:rgba(45,177,255,.38);background:rgba(0,139,235,.15);filter:drop-shadow(0 0 7px #008cff)}
+#adminOverlay .adminNavBtn.active>b{color:#fff}
+#adminOverlay .adminNavBtn.active>small{color:#8dcfff}
+#adminOverlay .adminNavBtn.active::after{color:#5ed2ff}
+
+#adminOverlay .adminContent{
+  min-width:0!important;min-height:0;overflow-x:hidden;overflow-y:auto;padding:20px!important;
+  scroll-behavior:smooth;overscroll-behavior:contain
+}
+#adminOverlay .adminPage{width:100%;max-width:1020px;margin:0 auto;padding-bottom:26px}
+.adminPageHero{
+  --admin-accent:#00a8ff;position:relative;display:flex;align-items:center;justify-content:space-between;overflow:hidden;
+  min-height:145px;margin-bottom:15px;padding:22px 24px;border:1px solid color-mix(in srgb,var(--admin-accent) 34%,transparent);
+  border-radius:20px;background:
+    radial-gradient(300px 150px at 89% 50%,color-mix(in srgb,var(--admin-accent) 20%,transparent),transparent 70%),
+    linear-gradient(135deg,color-mix(in srgb,var(--admin-accent) 11%,#071522),rgba(3,12,21,.92));
+  box-shadow:0 17px 42px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.045)
+}
+.adminPageHero::before{
+  content:"";position:absolute;left:24%;right:24%;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--admin-accent),transparent);
+  box-shadow:0 0 11px var(--admin-accent)
+}
+.adminPageHero>div:first-child{position:relative;z-index:2;max-width:74%}
+.adminPageHero>div:first-child>span{color:var(--admin-accent);font-size:8px;font-weight:950;letter-spacing:.16em}
+.adminPageHero h2{margin:5px 0;color:#fff;font-size:27px;line-height:1;letter-spacing:-.04em}
+.adminPageHero p{margin:0;color:#9aabbe;font-size:11px;line-height:1.45}
+.adminPageHeroIcon{
+  display:grid;place-items:center;width:82px;height:82px;border:1px solid color-mix(in srgb,var(--admin-accent) 30%,transparent);
+  border-radius:50%;background:color-mix(in srgb,var(--admin-accent) 9%,transparent);font-size:36px;
+  filter:drop-shadow(0 0 18px color-mix(in srgb,var(--admin-accent) 48%,transparent))
+}
+.adminStaffHero{--admin-accent:#27e692}.adminRolesHero{--admin-accent:#b84cff}
+.adminChatHero{--admin-accent:#3d91ff}.adminProfileHero{--admin-accent:#a75bff}
+
+#adminOverlay .adminCard{
+  position:relative;padding:17px!important;border:1px solid rgba(103,169,219,.17)!important;border-radius:19px!important;
+  background:
+    radial-gradient(250px 100px at 100% 0,rgba(0,132,231,.055),transparent 70%),
+    linear-gradient(150deg,rgba(7,20,32,.97),rgba(3,12,21,.97))!important;
+  box-shadow:0 15px 38px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.035)!important
+}
+#adminOverlay .adminCardTitle{display:flex;align-items:center;gap:8px;color:#f5f8fc;font-size:13px!important;font-weight:950}
+#adminOverlay .adminCardTitle>span{
+  display:grid;place-items:center;width:25px;height:25px;border:1px solid rgba(58,167,236,.21);border-radius:8px;
+  background:rgba(0,132,224,.08);color:#5acaff;font-size:11px
+}
+#adminOverlay .hint{color:#8d9eb2!important;line-height:1.5}
+#adminOverlay .field{gap:7px;margin-top:12px}
+#adminOverlay .field label{color:#9cadc0;font-size:9px;font-weight:900;letter-spacing:.07em;text-transform:uppercase}
+#adminOverlay input,#adminOverlay select,#adminOverlay textarea{
+  min-height:47px;border:1px solid rgba(103,168,219,.19)!important;border-radius:13px!important;
+  background:rgba(1,8,15,.64)!important;color:#f3f8ff!important;box-shadow:inset 0 1px rgba(255,255,255,.025)
+}
+#adminOverlay input:focus,#adminOverlay select:focus,#adminOverlay textarea:focus{
+  border-color:#159fff!important;box-shadow:0 0 0 4px rgba(0,153,255,.10)!important
+}
+#adminOverlay .adminTextarea{min-height:170px!important;margin-top:12px!important;resize:vertical}
+#adminOverlay .btn{border-radius:12px!important;font-weight:850}
+#adminOverlay .btn.primary{background:linear-gradient(135deg,#087ee9,#5649dc)!important}
+#adminOverlay .adminGrid2{gap:14px!important}
+#adminOverlay .pill{padding:9px 10px;border:1px solid rgba(101,164,213,.14);border-radius:11px;background:rgba(2,9,16,.47);color:#c3d0de}
+
+/* Employee editor */
+.adminStaffGrid{display:grid;grid-template-columns:minmax(320px,.82fr) minmax(420px,1.18fr);gap:14px}
+.adminQualificationTitle{margin:16px 0 9px;color:#718399;font-size:8px;font-weight:950;letter-spacing:.15em}
+.adminSwitchRow{
+  position:relative;display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:13px;padding:11px;
+  border:1px solid rgba(103,168,216,.16);border-radius:14px;background:rgba(1,9,16,.48);cursor:pointer
+}
+.adminSwitchRow>span{display:flex;flex-direction:column;gap:3px}
+.adminSwitchRow b{color:#eaf2fa;font-size:11px}.adminSwitchRow small{color:#708297;font-size:8px}
+.adminSwitchRow input{position:absolute;opacity:0;pointer-events:none}
+.adminSwitchRow>i{position:relative;width:42px;height:24px;flex:0 0 auto;border-radius:999px;background:#263547;box-shadow:inset 0 1px 3px rgba(0,0,0,.35);transition:.18s}
+.adminSwitchRow>i::after{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#8494a7;transition:.18s}
+.adminSwitchRow input:checked+i{background:rgba(26,203,124,.28);box-shadow:0 0 13px rgba(27,218,132,.15)}
+.adminSwitchRow input:checked+i::after{left:21px;background:#2ae491;box-shadow:0 0 9px #24d989}
+.adminQualificationGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.adminQualificationCard{
+  --qual:#00a8ff;position:relative;display:grid;grid-template-columns:38px minmax(0,1fr) 20px;align-items:center;gap:9px;
+  min-height:92px;padding:11px;border:1px solid rgba(105,164,210,.16);border-radius:15px;
+  background:rgba(1,9,16,.50);cursor:pointer;transition:.18s
+}
+.adminQualificationCard>input{position:absolute;opacity:0;pointer-events:none}
+.adminQualificationIcon{
+  display:grid;place-items:center;width:38px;height:38px;border:1px solid color-mix(in srgb,var(--qual) 38%,transparent);
+  border-radius:11px;background:color-mix(in srgb,var(--qual) 10%,transparent);color:var(--qual);font-weight:950;
+  box-shadow:0 0 15px color-mix(in srgb,var(--qual) 10%,transparent)
+}
+.adminQualificationCard>span:nth-of-type(2){display:flex;min-width:0;flex-direction:column;gap:3px}
+.adminQualificationCard b{color:var(--qual);font-size:7px;letter-spacing:.07em;text-transform:uppercase}
+.adminQualificationCard strong{color:#e9f1fa;font-size:10px}.adminQualificationCard small{color:#66788d;font-size:7px;line-height:1.25}
+.adminQualificationCard>i{
+  display:grid;place-items:center;width:18px;height:18px;border:1px solid rgba(116,166,204,.22);border-radius:6px;
+  color:transparent;font-size:10px;font-style:normal
+}
+.adminQualificationCard:has(input:checked){
+  border-color:color-mix(in srgb,var(--qual) 56%,transparent);
+  background:linear-gradient(145deg,color-mix(in srgb,var(--qual) 13%,transparent),rgba(2,10,18,.72));
+  box-shadow:0 8px 22px color-mix(in srgb,var(--qual) 8%,transparent)
+}
+.adminQualificationCard:has(input:checked)>i{border-color:var(--qual);background:var(--qual);color:#041019;box-shadow:0 0 9px color-mix(in srgb,var(--qual) 50%,transparent)}
+.adminQualShoppy{--qual:#2de697}.adminQualManor{--qual:#4badff}
+.adminStaffValidation{margin-top:10px;padding:9px 10px;border-left:3px solid #ffad32;border-radius:8px;background:rgba(255,157,29,.065);color:#c9aa79;font-size:8px;line-height:1.4}
+.adminStaffActions{display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-top:13px}
+.adminStaffActions .btn{min-height:43px}
+
+/* Employee directory */
+.adminDirectoryHead{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.adminDirectoryHead>div{display:flex;flex-direction:column;gap:5px}.adminDirectoryHead small{color:#718399;font-size:9px}
+#btnRefreshStaff{width:37px;height:37px;padding:0!important;font-size:17px}
+.adminStaffList{display:flex;flex-direction:column;gap:9px;max-height:520px;margin-top:12px;padding-right:3px;overflow-y:auto}
+.adminStaffItem{
+  display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:11px;padding:11px;
+  border:1px solid rgba(100,164,214,.15);border-radius:15px;background:linear-gradient(145deg,rgba(10,26,40,.90),rgba(3,12,21,.92))
+}
+.adminStaffItem.is-inactive{opacity:.58;filter:saturate(.55)}
+.adminStaffAvatar{
+  position:relative;display:grid;place-items:center;width:44px;height:44px;border:1px solid rgba(50,175,244,.38);
+  border-radius:13px;background:linear-gradient(145deg,#17486e,#10243a);color:#e9f7ff;font-size:11px;font-weight:950
+}
+.adminStaffAvatar i{position:absolute;right:-2px;bottom:2px;width:9px;height:9px;border:2px solid #07131f;border-radius:50%;background:#28e493;box-shadow:0 0 8px #28e493}
+.adminStaffItem.is-inactive .adminStaffAvatar i{background:#708095;box-shadow:none}
+.adminStaffInfo{min-width:0}.adminStaffNameLine{display:flex;align-items:center;gap:7px;min-width:0}
+.adminStaffNameLine strong{overflow:hidden;color:#f4f8fc;font-size:11px;text-overflow:ellipsis;white-space:nowrap}
+.adminStaffNameLine>span{padding:3px 6px;border:1px solid rgba(177,72,255,.25);border-radius:6px;background:rgba(159,49,225,.08);color:#dda2ff;font-size:7px;font-weight:900}
+.adminStaffInfo>small{display:block;margin-top:3px;overflow:hidden;color:#718298;font-size:8px;text-overflow:ellipsis;white-space:nowrap}
+.adminStaffQuals{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
+.adminQualPill{padding:3px 6px;border:1px solid rgba(95,162,212,.16);border-radius:999px;background:rgba(45,112,166,.07);color:#8fa5ba;font-size:7px;font-weight:850}
+.adminQualPill.shoppyland{border-color:rgba(40,220,140,.25);background:rgba(29,203,126,.07);color:#6beab0}
+.adminQualPill.manor{border-color:rgba(66,165,240,.26);background:rgba(40,135,216,.08);color:#75c6ff}
+.adminQualPill.legacy{border-color:rgba(255,174,51,.25);background:rgba(255,157,26,.07);color:#e8b86d}
+.adminStaffItemActions{display:flex;align-items:flex-end;flex-direction:column;gap:7px}
+.adminStaffState{padding:3px 6px;border-radius:999px;font-size:6px;font-weight:950;letter-spacing:.08em}
+.adminStaffState.active{border:1px solid rgba(38,225,137,.25);background:rgba(28,211,127,.08);color:#54eaa4}
+.adminStaffState.inactive{border:1px solid rgba(255,83,108,.22);background:rgba(255,62,94,.07);color:#ff9aaa}
+.adminStaffItemActions .btn{min-height:32px;padding:6px 9px!important;font-size:8px!important}
+.adminStaffEmpty{display:grid;justify-items:center;gap:5px;padding:36px 16px;color:#718399;text-align:center}
+.adminStaffEmpty>span{font-size:30px}.adminStaffEmpty strong{color:#b6c3d2;font-size:11px}.adminStaffEmpty small{font-size:8px}
+.adminTableState{display:inline-flex;padding:4px 7px;border-radius:999px;font-size:8px;font-weight:900}
+.adminTableState.active{background:rgba(33,220,134,.10);color:#52e9a2}.adminTableState.inactive{background:rgba(255,70,101,.09);color:#ff91a3}
+
+/* Role Studio */
+.roleKpiGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.roleKpi{
+  --kpi:#9b4dff;display:flex;align-items:center;gap:11px;min-height:76px;padding:12px;
+  border:1px solid color-mix(in srgb,var(--kpi) 24%,transparent);border-radius:16px;
+  background:radial-gradient(120px 80px at 0 0,color-mix(in srgb,var(--kpi) 12%,transparent),transparent 72%),rgba(5,16,27,.88);
+  box-shadow:0 11px 28px rgba(0,0,0,.18)
+}
+.roleKpi>span{
+  display:grid;place-items:center;width:43px;height:43px;flex:0 0 auto;border:1px solid color-mix(in srgb,var(--kpi) 32%,transparent);
+  border-radius:13px;background:color-mix(in srgb,var(--kpi) 10%,transparent);color:var(--kpi);font-size:18px;
+  filter:drop-shadow(0 0 8px color-mix(in srgb,var(--kpi) 55%,transparent))
+}
+.roleKpi>div{display:flex;min-width:0;flex-direction:column}.roleKpi strong{color:#fff;font-size:22px;line-height:1}
+.roleKpi small{margin-top:5px;color:#7d8fa5;font-size:8px;text-transform:uppercase;letter-spacing:.07em}
+.roleKpiPurple{--kpi:#b84cff}.roleKpiBlue{--kpi:#2caeff}.roleKpiGreen{--kpi:#27e692}.roleKpiOrange{--kpi:#ff963d}
+.roleCatalogCard,.roleEditorCard,.roleAssignmentCard{margin-top:14px}
+.roleSectionHead,.roleEditorHead{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.roleSectionHead>div:first-child,.roleEditorHead>div:first-child{display:flex;min-width:0;flex-direction:column;gap:5px}
+.roleSectionHead small,.roleEditorHead small{color:#76899f;font-size:8px;line-height:1.35}
+.roleSectionHead>.btn{min-height:39px;padding:8px 13px!important;white-space:nowrap}
+.roleCatalogGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.roleCatalogItem{
+  --role-accent:#6c5cff;position:relative;display:flex;min-width:0;min-height:236px;overflow:hidden;flex-direction:column;padding:13px;
+  border:1px solid color-mix(in srgb,var(--role-accent) 27%,rgba(92,153,200,.15));border-radius:16px;
+  background:radial-gradient(180px 100px at 0 0,color-mix(in srgb,var(--role-accent) 12%,transparent),transparent 72%),linear-gradient(150deg,rgba(9,24,38,.96),rgba(3,12,21,.96));
+  transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease
+}
+.roleCatalogItem::before{content:"";position:absolute;left:18px;right:40%;top:0;height:1px;background:linear-gradient(90deg,var(--role-accent),transparent);box-shadow:0 0 9px var(--role-accent)}
+.roleCatalogItem:hover,.roleCatalogItem.is-selected{transform:translateY(-2px);border-color:color-mix(in srgb,var(--role-accent) 60%,transparent);box-shadow:0 13px 30px color-mix(in srgb,var(--role-accent) 9%,rgba(0,0,0,.25))}
+.roleCatalogTop{display:grid;grid-template-columns:39px minmax(0,1fr) auto;align-items:center;gap:9px}
+.roleCatalogIcon{
+  display:grid;place-items:center;width:39px;height:39px;border:1px solid color-mix(in srgb,var(--role-accent) 45%,transparent);
+  border-radius:12px;background:color-mix(in srgb,var(--role-accent) 12%,transparent);color:#fff;font-size:13px;font-weight:950;
+  box-shadow:0 0 15px color-mix(in srgb,var(--role-accent) 14%,transparent)
+}
+.roleCatalogTop>div:nth-child(2){display:flex;min-width:0;flex-direction:column;gap:3px}
+.roleCatalogTop b{overflow:hidden;color:#f5f8fd;font-size:12px;text-overflow:ellipsis;white-space:nowrap}
+.roleCatalogTop small{color:#6f8297;font-size:7px;text-transform:uppercase;letter-spacing:.07em}
+.roleCatalogCount{padding:4px 7px;border:1px solid color-mix(in srgb,var(--role-accent) 24%,transparent);border-radius:999px;background:color-mix(in srgb,var(--role-accent) 7%,transparent);color:#c4d0dc;font-size:7px;white-space:nowrap}
+.roleCatalogItem>p{min-height:34px;margin:11px 0 8px;color:#899caf;font-size:8px;line-height:1.45}
+.roleCatalogPermissions,.roleCatalogQuals{display:flex;gap:5px;flex-wrap:wrap}
+.roleCatalogPermissions>span{padding:4px 6px;border:1px solid rgba(100,167,217,.15);border-radius:6px;background:rgba(33,102,156,.07);color:#9eb1c5;font-size:6.5px;font-weight:850}
+.roleCatalogQuals{min-height:21px;margin-top:8px}
+.roleCatalogQuals>span{padding:4px 6px;border-radius:999px;font-size:6.5px;font-weight:850}
+.roleCatalogQuals .shoppyland{border:1px solid rgba(40,220,140,.23);background:rgba(29,203,126,.07);color:#67e8ad}
+.roleCatalogQuals .manor{border:1px solid rgba(66,165,240,.24);background:rgba(40,135,216,.08);color:#75c6ff}
+.roleCatalogQuals .none{border:1px solid rgba(134,150,169,.16);background:rgba(120,139,160,.055);color:#778a9f}
+.roleCatalogActions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:auto;padding-top:11px}
+.roleCatalogActions button{
+  min-height:34px;border:1px solid rgba(102,166,216,.17);border-radius:10px;background:rgba(43,99,143,.07);color:#a9b9c9;
+  font:inherit;font-size:7.5px;font-weight:900;cursor:pointer
+}
+.roleCatalogActions button:hover{border-color:rgba(45,174,255,.38);color:#fff}
+.roleCatalogActions button.primary{border-color:color-mix(in srgb,var(--role-accent) 38%,transparent);background:color-mix(in srgb,var(--role-accent) 11%,transparent);color:#fff}
+
+.roleEditorCard{scroll-margin-top:16px}
+.roleEditorEyebrow{color:#b75cff;font-size:7px;font-weight:950;letter-spacing:.14em}
+.roleEditorHead .adminCardTitle b{font-size:14px}
+.roleTemplateBar{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.roleTemplateBar button{
+  display:flex;align-items:center;gap:6px;min-height:36px;padding:7px 9px;border:1px solid rgba(104,166,214,.16);
+  border-radius:10px;background:rgba(3,12,21,.56);color:#aebdcc;font:inherit;font-size:7.5px;font-weight:850;cursor:pointer
+}
+.roleTemplateBar button:hover{border-color:rgba(177,73,255,.45);background:rgba(156,57,230,.10);color:#fff}
+.roleTemplateBar button>span{font-size:12px}
+.roleEditorIdentity{
+  display:grid;grid-template-columns:1.1fr 1.65fr .72fr 1fr;gap:10px;margin-top:15px;padding:13px;
+  border:1px solid rgba(104,166,215,.13);border-radius:15px;background:rgba(1,8,15,.38)
+}
+.roleEditorIdentity .field{margin-top:0!important}.roleEditorIdentity .field>small{color:#61758b;font-size:6.5px;line-height:1.35}
+#adminOverlay #roleName:disabled{opacity:.72;cursor:not-allowed}
+.roleColorControl{display:grid;grid-template-columns:47px minmax(0,1fr);gap:7px}
+#adminOverlay .roleColorControl input[type="color"]{
+  width:47px;min-height:47px;padding:5px!important;border-radius:12px!important;background:rgba(1,8,15,.64)!important;cursor:pointer
+}
+.rolePermissionsTitle{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:17px 1px 9px}
+.rolePermissionsTitle>span{color:#7c8ea3;font-size:8px;font-weight:950;letter-spacing:.14em}
+.rolePermissionsTitle>small{color:#63768c;font-size:7px}
+.rolePermissionGroups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.rolePermissionGroup{
+  display:flex;min-width:0;flex-direction:column;gap:7px;padding:11px;border:1px solid rgba(101,166,216,.14);
+  border-radius:15px;background:linear-gradient(150deg,rgba(7,20,32,.76),rgba(2,9,16,.72))
+}
+.rolePermissionGroup>header{display:flex;align-items:center;gap:8px;margin-bottom:2px;padding:0 2px 8px;border-bottom:1px solid rgba(110,164,205,.10)}
+.rolePermissionGroup>header>span{display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:rgba(109,72,228,.12);color:#b58bff;font-size:7px;font-weight:950}
+.rolePermissionGroup>header>div{display:flex;flex-direction:column;gap:2px}.rolePermissionGroup>header b{color:#eaf1f8;font-size:9px}.rolePermissionGroup>header small{color:#687a8f;font-size:6.5px}
+.rolePermission{
+  position:relative;display:grid;grid-template-columns:31px minmax(0,1fr) 27px;align-items:center;gap:8px;min-height:55px;padding:7px;
+  border:1px solid rgba(101,163,210,.11);border-radius:11px;background:rgba(1,8,15,.40);cursor:pointer;transition:.16s
+}
+#adminOverlay .rolePermission>input,#adminOverlay .roleDefaultQuals input{
+  position:absolute;width:1px;height:1px;min-height:0!important;opacity:0;pointer-events:none
+}
+.rolePermission>span{
+  display:grid;place-items:center;width:31px;height:31px;border:1px solid rgba(102,165,214,.15);border-radius:9px;
+  background:rgba(38,104,155,.07);color:#88a2ba;font-size:12px;font-weight:950
+}
+.rolePermission>div{display:flex;min-width:0;flex-direction:column;gap:3px}.rolePermission b{color:#c2cfdd;font-size:8px}.rolePermission small{color:#63768b;font-size:6.5px;line-height:1.3}
+.rolePermission>i{position:relative;width:27px;height:16px;border-radius:999px;background:#263444;transition:.16s}
+.rolePermission>i::after{content:"";position:absolute;left:2px;top:2px;width:12px;height:12px;border-radius:50%;background:#7b8999;transition:.16s}
+.rolePermission:has(input:checked){border-color:rgba(53,177,248,.30);background:rgba(0,128,211,.075)}
+.rolePermission:has(input:checked)>span{border-color:rgba(45,179,250,.34);background:rgba(0,143,229,.13);color:#62ceff;filter:drop-shadow(0 0 6px #009ef2)}
+.rolePermission:has(input:checked) b{color:#f1f7fc}.rolePermission:has(input:checked)>i{background:rgba(28,205,126,.40)}
+.rolePermission:has(input:checked)>i::after{left:13px;background:#2ae492;box-shadow:0 0 7px #23dc88}
+.rolePermissionAdminGroup{border-color:rgba(185,74,255,.19);background:linear-gradient(150deg,rgba(70,22,91,.15),rgba(2,9,16,.74))}
+.rolePermissionAdmin:has(input:checked){border-color:rgba(187,73,255,.44);background:rgba(151,43,218,.12)}
+.rolePermissionAdmin:has(input:checked)>span{border-color:rgba(197,87,255,.42);background:rgba(159,51,221,.15);color:#e6abff;filter:drop-shadow(0 0 7px #a33cff)}
+.roleAdminWarning{display:grid;grid-template-columns:24px minmax(0,1fr);gap:7px;margin-top:auto;padding:8px;border:1px solid rgba(255,160,47,.15);border-radius:10px;background:rgba(255,139,27,.045)}
+.roleAdminWarning>span{display:grid;place-items:center;width:24px;height:24px;border-radius:7px;background:rgba(255,152,38,.12);color:#ffb25b;font-size:9px;font-weight:950}
+.roleAdminWarning p{margin:0;color:#9a8165;font-size:6.5px;line-height:1.45}
+
+.roleDefaultsPanel{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:11px;padding:12px;
+  border:1px solid rgba(44,202,149,.17);border-radius:15px;background:linear-gradient(145deg,rgba(12,61,49,.15),rgba(2,10,18,.58))
+}
+.roleDefaultsPanel>div:first-child{display:grid;grid-template-columns:34px minmax(0,1fr);align-items:center;gap:9px;max-width:46%}
+.roleDefaultsPanel>div:first-child>span{display:grid;place-items:center;width:34px;height:34px;border:1px solid rgba(45,222,146,.24);border-radius:10px;background:rgba(31,205,132,.08);color:#4be7a1;font-size:15px}
+.roleDefaultsPanel>div:first-child>div{display:flex;flex-direction:column;gap:3px}.roleDefaultsPanel b{color:#def8ec;font-size:9px}.roleDefaultsPanel small{color:#718d82;font-size:6.5px;line-height:1.35}
+.roleDefaultQuals{display:grid!important;grid-template-columns:1fr 1fr!important;gap:7px;min-width:420px}
+.roleDefaultQuals>label{
+  position:relative;display:grid;grid-template-columns:minmax(0,1fr) 19px;align-items:center;gap:8px;min-height:49px;padding:8px 9px;
+  border:1px solid rgba(94,166,210,.14);border-radius:11px;background:rgba(1,9,16,.52);cursor:pointer
+}
+.roleDefaultQuals>label>span{display:flex;flex-direction:column;gap:2px}.roleDefaultQuals>label b{color:#dce7f1;font-size:7.5px}.roleDefaultQuals>label small{color:#70849a;font-size:6.5px}
+.roleDefaultQuals>label>i{display:grid;place-items:center;width:19px;height:19px;border:1px solid rgba(103,165,211,.20);border-radius:6px;color:transparent;font-size:9px;font-style:normal}
+.roleDefaultQuals>label:has(input:checked){border-color:rgba(42,220,143,.37);background:rgba(25,186,117,.075)}
+.roleDefaultQuals>label:has(input:checked)>i{border-color:#27de8c;background:#27de8c;color:#03150e;box-shadow:0 0 8px rgba(39,222,140,.45)}
+.roleEditorActions{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(104,164,208,.10)}
+.roleEditorActions>div:first-child{margin-right:auto;color:#71859b;font-size:7px}
+.roleEditorActions .btn{min-height:39px;padding:8px 11px!important;font-size:8px!important}
+.roleEditorActions #btnSaveRole{min-width:145px}
+
+.roleAssignmentSearch{position:relative;width:min(350px,44%)}.roleAssignmentSearch>span{position:absolute;z-index:2;left:12px;top:50%;color:#6c8198;font-size:14px;translate:0 -50%}
+#adminOverlay .roleAssignmentSearch>input{width:100%;min-height:39px;padding-left:34px!important;font-size:8px}
+.roleAssignmentList{display:flex;flex-direction:column;gap:8px;max-height:570px;margin-top:13px;padding-right:3px;overflow-y:auto}
+.roleAssignmentItem{
+  --role-accent:#6c5cff;display:grid;grid-template-columns:44px minmax(170px,1.2fr) minmax(125px,.7fr) minmax(170px,1fr) auto;
+  grid-template-rows:auto auto;align-items:center;gap:3px 11px;padding:11px;border:1px solid rgba(102,164,212,.14);
+  border-radius:14px;background:linear-gradient(145deg,rgba(9,23,36,.90),rgba(3,12,21,.92))
+}
+.roleAssignmentItem.is-inactive{opacity:.55;filter:saturate(.55)}
+.roleAssignmentAvatar{
+  position:relative;grid-row:1/3;display:grid;place-items:center;width:44px;height:44px;border:1px solid color-mix(in srgb,var(--role-accent) 40%,transparent);
+  border-radius:13px;background:color-mix(in srgb,var(--role-accent) 12%,#0b2133);color:#fff;font-size:10px;font-weight:950
+}
+.roleAssignmentAvatar>i{position:absolute;right:-2px;bottom:2px;width:8px;height:8px;border:2px solid #07131f;border-radius:50%;background:#28e493;box-shadow:0 0 7px #28e493}
+.roleAssignmentItem.is-inactive .roleAssignmentAvatar>i{background:#6e7f93;box-shadow:none}
+.roleAssignmentIdentity{grid-row:1/3;display:flex;min-width:0;flex-direction:column;gap:4px}
+.roleAssignmentIdentity>b{overflow:hidden;color:#f0f5fa;font-size:10px;text-overflow:ellipsis;white-space:nowrap}
+.roleAssignmentIdentity>small{overflow:hidden;color:#71849a;font-size:7px;text-overflow:ellipsis;white-space:nowrap}
+.roleAssignmentMeta{grid-row:1/3;display:flex;min-width:0;flex-direction:column;align-items:flex-start;gap:4px}
+.roleAssignmentRole{max-width:100%;overflow:hidden;padding:4px 7px;border:1px solid color-mix(in srgb,var(--role-accent) 30%,transparent);border-radius:7px;background:color-mix(in srgb,var(--role-accent) 8%,transparent);color:#e4d4ff;font-size:7px;font-weight:900;text-overflow:ellipsis;white-space:nowrap}
+.roleAssignmentMeta small{color:#677a90;font-size:6.5px}
+.roleAssignmentQual{grid-row:1/3;display:flex;min-width:0;flex-direction:column;gap:4px}.roleAssignmentQual b{color:#71849a;font-size:6.5px;text-transform:uppercase;letter-spacing:.06em}
+.roleAssignmentQual small{overflow:hidden;color:#b8c6d5;font-size:7.5px;text-overflow:ellipsis;white-space:nowrap}
+.roleAssignmentState{align-self:end;justify-self:end;padding:4px 7px;border-radius:999px;font-size:6px;font-weight:950;letter-spacing:.07em}
+.roleAssignmentState.active{border:1px solid rgba(38,225,137,.24);background:rgba(28,211,127,.08);color:#54eaa4}
+.roleAssignmentState.inactive{border:1px solid rgba(255,83,108,.22);background:rgba(255,62,94,.07);color:#ff9aaa}
+.roleAssignmentEdit{align-self:start;justify-self:end;padding:0;border:0;background:none;color:#6cbef0;font:inherit;font-size:7px;font-weight:850;cursor:pointer}
+.roleAssignmentEdit:hover{color:#fff}
+.roleStudioEmpty{grid-column:1/-1;display:grid;justify-items:center;gap:5px;padding:30px 15px;color:#708399;text-align:center}
+.roleStudioEmpty>span{font-size:28px}.roleStudioEmpty>b{color:#bdc9d6;font-size:10px}.roleStudioEmpty>small{font-size:7px}
+
+@media (max-width:1040px){
+  .roleCatalogGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .roleEditorIdentity{grid-template-columns:1fr 1fr}.roleNameField,.roleDescriptionField{grid-column:auto}
+  .rolePermissionGroups{grid-template-columns:1fr 1fr}.rolePermissionAdminGroup{grid-column:1/-1}
+}
+@media (max-width:820px){
+  #adminOverlay{padding:0!important}
+  #adminOverlay .adminModal{
+    width:100vw!important;height:100dvh!important;max-height:100dvh!important;border:0!important;border-radius:0!important
+  }
+  #adminOverlay .adminHeader{min-height:69px;padding:10px 12px!important}
+  .adminCommandShield{width:41px}.adminCommandBrand{gap:10px}
+  #adminOverlay .adminCommandBrand .authTitle{font-size:18px!important}
+  .adminCommandBrand>div:last-child>span{font-size:7px}.adminCommandBrand small{display:none}
+  .adminHeaderLive{display:none}.adminHeaderActions{gap:7px}
+  #adminOverlay #btnCloseAdmin{width:38px;height:38px}
+  #adminOverlay .adminLayout{display:flex!important;flex-direction:column}
+  #adminOverlay .adminNav{
+    flex:0 0 auto;display:flex!important;flex-direction:row!important;height:auto!important;padding:8px 9px!important;
+    border-right:0;border-bottom:1px solid rgba(94,161,212,.13);overflow-x:auto!important;overflow-y:hidden!important
+  }
+  .adminNavLabel{display:none}
+  #adminOverlay .adminNavBtn{
+    grid-template-columns:28px auto!important;grid-template-rows:1fr!important;min-width:max-content!important;min-height:44px!important;
+    padding:7px 9px!important;gap:6px!important
+  }
+  #adminOverlay .adminNavBtn>span{grid-row:1!important;width:28px;height:28px;font-size:13px}
+  #adminOverlay .adminNavBtn>b{font-size:9px}#adminOverlay .adminNavBtn>small,#adminOverlay .adminNavBtn::after{display:none}
+  #adminOverlay .adminContent{flex:1;min-height:0;padding:11px!important;-webkit-overflow-scrolling:touch}
+  #adminOverlay .adminPage{padding-bottom:24px}
+  .adminPageHero{min-height:116px;margin-bottom:11px;padding:17px;border-radius:17px}
+  .adminPageHero h2{font-size:22px}.adminPageHero p{font-size:9px}.adminPageHeroIcon{width:64px;height:64px;font-size:28px}
+  #adminOverlay .adminCard{padding:14px!important;border-radius:16px!important}
+  #adminOverlay .adminGrid2,.adminStaffGrid{grid-template-columns:1fr!important;gap:11px!important}
+  .adminStaffDirectory{min-height:340px}
+  .adminStaffList{max-height:none}
+  .adminQualificationGrid{grid-template-columns:1fr}
+  .adminQualificationCard{min-height:79px}
+  .adminStaffActions{grid-template-columns:1fr 1fr}
+  .adminStaffActions #btnSaveStaff{grid-column:1/-1}
+  .roleKpiGrid{grid-template-columns:1fr 1fr}
+  .roleCatalogGrid{grid-template-columns:1fr}
+  .roleEditorHead,.roleSectionHead{align-items:flex-start}
+  .roleEditorHead{flex-direction:column}.roleTemplateBar{justify-content:flex-start}
+  .rolePermissionGroups{grid-template-columns:1fr}.rolePermissionAdminGroup{grid-column:auto}
+  .roleDefaultsPanel{align-items:flex-start;flex-direction:column}
+  .roleDefaultsPanel>div:first-child{max-width:none}.roleDefaultQuals{width:100%;min-width:0}
+  .roleEditorActions{display:grid;grid-template-columns:1fr 1fr}
+  .roleEditorActions>div:first-child{grid-column:1/-1;margin:0}
+  .roleEditorActions #btnSaveRole{grid-column:1/-1;grid-row:2;min-width:0}
+  .roleAssignmentCard .roleSectionHead{flex-direction:column}
+  .roleAssignmentSearch{width:100%;max-width:none}
+  .roleAssignmentItem{grid-template-columns:42px minmax(0,1fr) auto;grid-template-rows:auto auto auto;gap:6px 9px}
+  .roleAssignmentAvatar{grid-row:1/3}.roleAssignmentIdentity{grid-row:1}.roleAssignmentMeta{grid-row:2}.roleAssignmentQual{grid-column:1/3;grid-row:3;padding-top:6px}
+  .roleAssignmentState{grid-column:3;grid-row:1}.roleAssignmentEdit{grid-column:3;grid-row:2/4;align-self:center}
+  #adminOverlay .row2{flex-wrap:wrap}
+  #adminOverlay .row2>.btn{flex:1;min-width:130px}
+}
+@media (max-width:440px){
+  .adminPageHero>div:first-child{max-width:76%}.adminPageHeroIcon{width:56px;height:56px;font-size:24px}
+  .adminPageHero h2{font-size:19px}
+  .adminStaffItem{grid-template-columns:39px minmax(0,1fr);gap:9px}
+  .adminStaffAvatar{width:39px;height:39px}
+  .adminStaffItemActions{grid-column:1/-1;align-items:center;justify-content:space-between;flex-direction:row;padding-top:5px}
+  .adminStaffItemActions .btn{min-width:100px}
+  .roleKpi{min-height:67px;padding:9px}.roleKpi>span{width:36px;height:36px;font-size:15px}.roleKpi strong{font-size:18px}.roleKpi small{font-size:6.5px}
+  .roleSectionHead{flex-direction:column}.roleSectionHead>.btn{width:100%}
+  .roleEditorIdentity{grid-template-columns:1fr}
+  .roleTemplateBar{display:grid;width:100%;grid-template-columns:1fr 1fr}.roleTemplateBar button:last-child{grid-column:1/-1}
+  .roleDefaultQuals{grid-template-columns:1fr!important}
+  .roleEditorActions{grid-template-columns:1fr}.roleEditorActions>div:first-child,.roleEditorActions #btnSaveRole{grid-column:1}
+  .roleEditorActions #btnSaveRole{grid-row:auto}
+  .roleAssignmentItem{grid-template-columns:39px minmax(0,1fr);padding:10px}
+  .roleAssignmentAvatar{width:39px;height:39px}.roleAssignmentIdentity{grid-column:2}.roleAssignmentMeta{grid-column:2}
+  .roleAssignmentQual{grid-column:1/-1}.roleAssignmentState{grid-column:1;grid-row:4;justify-self:start}
+  .roleAssignmentEdit{grid-column:2;grid-row:4;justify-self:end}
 }
 </style>
 

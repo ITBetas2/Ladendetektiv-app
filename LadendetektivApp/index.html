@@ -6098,6 +6098,7 @@ async function editNotes(it){
 // ---------- Drag & Drop Upload zone ----------
 async function setupDropzone(){
   const dz = $("dropzone");
+  if(!dz) return; // Drive-only mode: keine Upload-Dropzone vorhanden
   dz.addEventListener("dragover", (e) => {
     e.preventDefault();
     dz.classList.add("drag");
@@ -6114,14 +6115,20 @@ async function setupDropzone(){
 
 // ---------- Search ----------
 function setupSearch(){
-  $("searchInput").addEventListener("input", (e) => {
-    state.search = e.target.value;
-    renderItems();
-  });
-  $("typeFilter").addEventListener("change", (e) => {
-    state.typeFilter = e.target.value;
-    renderItems();
-  });
+  const searchInput = $("searchInput");
+  const typeFilter = $("typeFilter");
+  if(searchInput){
+    searchInput.addEventListener("input", (e) => {
+      state.search = e.target.value;
+      renderItems();
+    });
+  }
+  if(typeFilter){
+    typeFilter.addEventListener("change", (e) => {
+      state.typeFilter = e.target.value;
+      renderItems();
+    });
+  }
 }
 
 
@@ -9682,89 +9689,183 @@ document.addEventListener("DOMContentLoaded", function(){
 
 
 <!-- ===== MOBILE FIX: Tools-Navigation zuverlässig klickbar ===== -->
-<style id="tools-mobile-click-fix-v3">
+<!-- ===== FINAL FIX: Mobile Tools-Tabs wirklich entsperrt ===== -->
+
+<!-- ===== FINAL: stabile Tools-Navigation Mobile ===== -->
+<style id="tools-tabs-stable-final">
 @media (max-width:900px){
-  #toolsSubtabBar,
-  #toolsSubtabBar .tools-nav-card,
-  #toolsSubtabBar .tools-nav-card *{
+  #toolsSubtabBar{
+    position:relative !important;
+    z-index:50 !important;
     pointer-events:auto !important;
   }
-  #toolsSubtabBar .tools-nav-card{
-    position:relative;
-    z-index:2;
-    touch-action:manipulation;
-    -webkit-tap-highlight-color:transparent;
-    cursor:pointer;
+  #toolsSubtabBar [data-toolstab]{
+    pointer-events:auto !important;
+    touch-action:manipulation !important;
+    cursor:pointer !important;
   }
+  #toolsSubtabBar [data-toolstab] *{pointer-events:none !important;}
+  #toolsContent{position:relative !important;z-index:1 !important;}
 }
 </style>
-<script id="tools-mobile-tabs-fix-v3">
+<script id="tools-tabs-stable-final-script">
 (function(){
-  function activateToolsTab(tab){
-    var resolved = (tab === 'docs' || tab === 'securi' || tab === 'delinq') ? tab : 'duty';
-
-    try {
-      window.state = window.state || {};
-      window.state.toolsSubTab = resolved;
-      localStorage.setItem('toolsSubTab', resolved);
-    } catch (_) {}
-
-    var panels = {
-      duty: document.getElementById('toolsPanelDuty'),
-      docs: document.getElementById('toolsPanelDocs'),
-      securi: document.getElementById('toolsPanelSecuri'),
-      delinq: document.getElementById('toolsPanelDelinq')
-    };
-
-    Object.keys(panels).forEach(function(key){
-      var panel = panels[key];
-      if (!panel) return;
-      panel.classList.toggle('active', key === resolved);
-      panel.style.display = key === resolved ? 'block' : 'none';
+  function switchTool(tab){
+    var valid={duty:1,docs:1,securi:1,delinq:1};
+    var key=valid[tab]?tab:'duty';
+    var ids={duty:'toolsPanelDuty',docs:'toolsPanelDocs',securi:'toolsPanelSecuri',delinq:'toolsPanelDelinq'};
+    Object.keys(ids).forEach(function(k){
+      var panel=document.getElementById(ids[k]);
+      if(!panel) return;
+      var active=k===key;
+      panel.classList.toggle('active',active);
+      panel.hidden=!active;
+      panel.style.display=active?'block':'none';
     });
-
-    var bar = document.getElementById('toolsSubtabBar');
-    if (bar) {
-      bar.querySelectorAll('[data-toolstab]').forEach(function(button){
-        var active = button.getAttribute('data-toolstab') === resolved;
-        button.classList.toggle('active', active);
-        button.setAttribute('aria-selected', active ? 'true' : 'false');
+    var bar=document.getElementById('toolsSubtabBar');
+    if(bar){
+      bar.querySelectorAll('[data-toolstab]').forEach(function(btn){
+        var active=btn.getAttribute('data-toolstab')===key;
+        btn.classList.toggle('active',active);
+        btn.setAttribute('aria-selected',active?'true':'false');
       });
     }
+    try{ localStorage.setItem('toolsSubTab',key); }catch(_){}
+    try{ if(window.state) window.state.toolsSubTab=key; }catch(_){}
+  }
+  window.setToolsSubTab=switchTool;
+
+  function onActivate(e){
+    var btn=e.target && e.target.closest ? e.target.closest('#toolsSubtabBar [data-toolstab]') : null;
+    if(!btn) return;
+    switchTool(btn.getAttribute('data-toolstab'));
   }
 
-  function bindToolsButtons(){
-    var bar = document.getElementById('toolsSubtabBar');
-    if (!bar || bar.dataset.mobileTabsFixed === '1') return;
-    bar.dataset.mobileTabsFixed = '1';
+  // Kein preventDefault bei Touch: dadurch keine passive-event Warnung und kein blockiertes Scrollen.
+  document.addEventListener('click',onActivate,true);
+  document.addEventListener('pointerup',function(e){
+    if(e.pointerType==='touch' || e.pointerType==='pen') onActivate(e);
+  },true);
 
-    bar.querySelectorAll('[data-toolstab]').forEach(function(button){
-      var run = function(event){
-        if (event) {
-          event.preventDefault();
-          event.stopPropagation();
-        }
-        activateToolsTab(button.getAttribute('data-toolstab'));
-      };
+  function init(){
+    var saved='duty';
+    try{saved=localStorage.getItem('toolsSubTab')||'duty';}catch(_){}
+    switchTool(saved);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+})();
+</script>
 
-      button.addEventListener('click', run, true);
-      button.addEventListener('touchend', run, {capture:true, passive:false});
-      button.addEventListener('pointerup', function(event){
-        if (event.pointerType === 'touch') run(event);
-      }, true);
+
+<!-- ===== MOBILE REBUILD: native Auswahl statt klickanfälliger Tool-Tabs ===== -->
+<style id="mobile-tools-dropdown-rebuild-style">
+  #mobileToolsChooser{display:none;}
+  @media (max-width:900px){
+    #toolsSubtabBar{display:none !important;}
+    #mobileToolsChooser{
+      display:block !important;
+      position:relative;
+      z-index:5;
+      margin:10px 10px 14px;
+      padding:14px;
+      border:1px solid rgba(77,163,255,.28);
+      border-radius:18px;
+      background:linear-gradient(145deg,rgba(77,163,255,.12),rgba(124,92,255,.08),rgba(0,0,0,.18));
+      box-shadow:0 12px 30px rgba(0,0,0,.22);
+    }
+    #mobileToolsChooser .mobile-tools-label{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:8px;
+      color:#83c5ff;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.11em;
+      text-transform:uppercase;
+    }
+    #mobileToolsSelect{
+      display:block;
+      width:100%;
+      min-height:52px;
+      padding:12px 42px 12px 14px !important;
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:14px;
+      background-color:#111a33;
+      color:var(--text);
+      font-size:16px !important;
+      font-weight:800;
+      appearance:auto;
+      -webkit-appearance:menulist;
+      touch-action:auto !important;
+      pointer-events:auto !important;
+    }
+    #mobileToolsChooser .mobile-tools-hint{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.35;
+    }
+    #toolsContent{position:relative !important;z-index:1 !important;}
+  }
+</style>
+<script id="mobile-tools-dropdown-rebuild-script">
+(function(){
+  function switchMobileTool(key){
+    var valid={duty:1,docs:1,securi:1,delinq:1};
+    key=valid[key]?key:'duty';
+    var ids={duty:'toolsPanelDuty',docs:'toolsPanelDocs',securi:'toolsPanelSecuri',delinq:'toolsPanelDelinq'};
+    Object.keys(ids).forEach(function(k){
+      var panel=document.getElementById(ids[k]);
+      if(!panel) return;
+      var active=k===key;
+      panel.classList.toggle('active',active);
+      panel.hidden=!active;
+      panel.style.display=active?'block':'none';
     });
-
-    var saved = 'duty';
-    try { saved = localStorage.getItem('toolsSubTab') || 'duty'; } catch (_) {}
-    activateToolsTab(saved);
+    var select=document.getElementById('mobileToolsSelect');
+    if(select && select.value!==key) select.value=key;
+    try{localStorage.setItem('toolsSubTab',key);}catch(_){ }
+    try{window.state=window.state||{};window.state.toolsSubTab=key;}catch(_){ }
   }
 
-  window.activateToolsTab = activateToolsTab;
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bindToolsButtons);
-  } else {
-    bindToolsButtons();
+  function initMobileChooser(){
+    var toolsContent=document.getElementById('toolsContent');
+    if(!toolsContent || document.getElementById('mobileToolsChooser')) return;
+
+    var box=document.createElement('div');
+    box.id='mobileToolsChooser';
+    box.innerHTML='\
+      <div class="mobile-tools-label"><span>🧰</span><span>Tool auswählen</span></div>\
+      <select id="mobileToolsSelect" aria-label="Tool auswählen">\
+        <option value="duty">🟢 Aktiv im Dienst</option>\
+        <option value="docs">📁 Infos &amp; Dokumente</option>\
+        <option value="securi">📱 SecuriReport</option>\
+        <option value="delinq">🗃️ Delinquenten DB</option>\
+      </select>\
+      <div class="mobile-tools-hint">Tippe auf das Feld und wähle den gewünschten Bereich aus.</div>';
+    toolsContent.parentNode.insertBefore(box,toolsContent);
+
+    var select=document.getElementById('mobileToolsSelect');
+    select.addEventListener('change',function(){switchMobileTool(this.value);});
+    select.addEventListener('input',function(){switchMobileTool(this.value);});
+
+    var saved='duty';
+    try{saved=localStorage.getItem('toolsSubTab')||'duty';}catch(_){ }
+    switchMobileTool(saved);
+
+    var oldSetter=window.setToolsSubTab;
+    window.setToolsSubTab=function(key){
+      switchMobileTool(key);
+      if(window.innerWidth>900 && typeof oldSetter==='function'){
+        try{oldSetter(key);}catch(_){ }
+      }
+    };
   }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initMobileChooser,{once:true});
+  else initMobileChooser();
 })();
 </script>
 

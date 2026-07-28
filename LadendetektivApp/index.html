@@ -3139,6 +3139,16 @@ button[data-event="decathlon"]:hover {
 <label>Name</label>
 <input id="serviceName" placeholder="z.B.Max Mustermann"/>
 </div>
+<div class="field" style="margin-top:10px;">
+<label for="serviceLocation">Standort</label>
+<select id="serviceLocation" required="">
+<option value="">Bitte Standort auswählen</option>
+<option value="Shoppyland">Shoppyland</option>
+<option value="Manor Schönbühl">Manor Schönbühl</option>
+<option value="Manor Langenthal">Manor Langenthal</option>
+<option value="Manor Bern">Manor Bern</option>
+</select>
+</div>
 <div class="row2" style="margin-top:10px; flex-wrap:wrap;">
 <div class="field" style="flex:1; min-width:180px; margin-top:0;">
 <label>Dienstbeginn</label>
@@ -5917,9 +5927,11 @@ async function restoreServiceAfterLogin(){
             const dateEl = document.getElementById("serviceDate");
             const pnEl = document.getElementById("servicePN");
             const nameEl = document.getElementById("serviceName");
+            const locationEl = document.getElementById("serviceLocation");
             if(dateEl && s.date) dateEl.value = s.date;
             if(pnEl && (s.personalNumber || s.pn)) pnEl.value = (s.personalNumber || s.pn);
             if(nameEl && s.name) nameEl.value = s.name;
+            if(locationEl && s.location) locationEl.value = s.location;
 
             const startEl = document.getElementById("serviceStartTime");
             if(startEl && s.startTime){
@@ -5934,6 +5946,11 @@ async function restoreServiceAfterLogin(){
       if(!startMs) startMs = presenceStartMs || (cachedValid ? cached.startMs : 0);
       if(!startMs) return; // can't restore without a start time
       serviceStartMs = startMs;
+
+      const locationEl = document.getElementById("serviceLocation");
+      if(locationEl && !locationEl.value && cachedValid && cached.location){
+        locationEl.value = cached.location;
+      }
 
       const startEl = document.getElementById("serviceStartTime");
       if(startEl){
@@ -5966,6 +5983,7 @@ async function restoreServiceAfterLogin(){
         date: (document.getElementById("serviceDate")?.value || "").trim(),
         pn: (document.getElementById("servicePN")?.value || "").trim(),
         name: (document.getElementById("serviceName")?.value || "").trim(),
+        location: (document.getElementById("serviceLocation")?.value || "").trim(),
         serviceId: activeServiceId
       });
     } else {
@@ -6025,6 +6043,7 @@ async function renderServices(){
     const date = s.date || "";
     const pn = s.personalNumber || "—";
     const name = s.name || "—";
+    const location = s.location || "—";
     const start = s.startAtMs ? msToHHMM(s.startAtMs) : (s.startTime || "—");
     const end = s.endAtMs ? msToHHMM(s.endAtMs) : (s.endTime || "—");
     const dur = (s.durationSec != null) ? durationStr(s.durationSec) : "—";
@@ -6032,7 +6051,7 @@ async function renderServices(){
     card.innerHTML = `
       <div class="meta" style="min-width:0; flex:1;">
         <div class="title">${escapeHtml(date)} • ${escapeHtml(name)} (${escapeHtml(pn)})</div>
-        <div class="desc">Beginn: ${escapeHtml(start)} • Ende: ${escapeHtml(end)} • Dauer: ${escapeHtml(dur)}</div>
+        <div class="desc">Standort: ${escapeHtml(location)} • Beginn: ${escapeHtml(start)} • Ende: ${escapeHtml(end)} • Dauer: ${escapeHtml(dur)}</div>
       </div>
       <button class="btn small danger" type="button" aria-label="Dienst löschen" title="Dienst löschen">🗑️</button>
     `;
@@ -6236,6 +6255,7 @@ const now = new Date();
   const dateEl = document.getElementById("serviceDate");
   const pnEl = document.getElementById("servicePN");
   const nameEl = document.getElementById("serviceName");
+  const locationEl = document.getElementById("serviceLocation");
   const startEl = document.getElementById("serviceStartTime");
   const endWrap = document.getElementById("serviceEndWrap");
   const endEl = document.getElementById("serviceEndTime");
@@ -6243,6 +6263,7 @@ const now = new Date();
   if(dateEl) dateEl.value = d;
   if(pnEl) pnEl.value = force ? "" : (pnEl.value || "").trim(); // clear after save
   if(nameEl) nameEl.value = (state.profile?.displayName || state.session?.user || displayNameFromEmail(state.session?.email) || "");
+  if(locationEl) locationEl.value = "";
   if(startEl){ startEl.value = ""; startEl.disabled = true; }
   if(endEl){ endEl.value = ""; endEl.disabled = false; }
 
@@ -6272,9 +6293,11 @@ async function startService(){
   const date = (document.getElementById("serviceDate")?.value || "").trim();
   const pn = (document.getElementById("servicePN")?.value || "").trim();
   const name = (document.getElementById("serviceName")?.value || "").trim();
+  const location = (document.getElementById("serviceLocation")?.value || "").trim();
   if(!date) return alert("Bitte Datum wählen.");
   if(!pn) return alert("Bitte Personalnummer eingeben.");
   if(!name) return alert("Bitte Name eingeben.");
+  if(!location) return alert("Bitte Standort auswählen.");
 
   const uid = state.session.uid;
 
@@ -6290,6 +6313,7 @@ async function startService(){
     date,
     personalNumber: pn,
     name,
+    location,
     startTime: startHH,
     startAt: serverTimestamp(),
     startMs: nowMs,
@@ -6303,7 +6327,7 @@ async function startService(){
 
   // Local cache is only a fallback for UI (not the source of truth)
   serviceStartMs = nowMs;
-  saveServiceLocal({ uid, startMs: serviceStartMs, date, pn, name, serviceId: activeServiceId });
+  saveServiceLocal({ uid, startMs: serviceStartMs, date, pn, name, location, serviceId: activeServiceId });
 
   const startEl = document.getElementById("serviceStartTime");
   if(startEl){
@@ -6359,12 +6383,14 @@ async function saveService(){
   const date = (document.getElementById("serviceDate")?.value || "").trim();
   const pn = (document.getElementById("servicePN")?.value || "").trim();
   const name = (document.getElementById("serviceName")?.value || "").trim();
+  const location = (document.getElementById("serviceLocation")?.value || "").trim();
   const startHH = (document.getElementById("serviceStartTime")?.value || "").trim();
   const endHH = (document.getElementById("serviceEndTime")?.value || "").trim();
 
   if(!date) return alert("Bitte Datum wählen.");
   if(!pn) return alert("Bitte Personalnummer eingeben.");
   if(!name) return alert("Bitte Name eingeben.");
+  if(!location) return alert("Bitte Standort auswählen.");
   if(!serviceStartMs || !startHH) return alert("Bitte zuerst „Dienstbeginn“ drücken.");
   if(!endHH) return alert("Bitte Dienstende (Zeit) eingeben.");
 
@@ -6402,6 +6428,7 @@ async function saveService(){
       date,
       personalNumber: pn,
       name,
+      location,
       startTime: startHH,
       endTime: endHH,
       startAt: Timestamp.fromDate(new Date(startMs)),
@@ -6416,6 +6443,7 @@ async function saveService(){
       date,
       personalNumber: pn,
       name,
+      location,
       startTime: startHH,
       endTime: endHH,
       startAt: Timestamp.fromDate(new Date(startMs)),
@@ -6436,6 +6464,7 @@ async function saveService(){
     datum: date,
     personalnummer: pn,
     name: name,
+    standort: location,
     dienstbeginn: startHH,
     dienstende: endHH
   });

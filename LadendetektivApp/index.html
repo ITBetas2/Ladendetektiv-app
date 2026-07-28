@@ -2,6 +2,8 @@
 
 <html lang="de">
 <head>
+<!-- SECURI_COMMAND_BUILD: SC-2026.07.28.002 -->
+<meta content="SC-2026.07.28.002" name="app-build-version"/>
 <!-- PWA / App Icons -->
 <link href="/manifest.webmanifest" rel="manifest"/>
 <link href="/favicon.ico" rel="icon"/>
@@ -9,7 +11,7 @@
 <meta content="#030712" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<meta charset="utf-8"/>
+<!-- <meta charset="utf-8"/> -->
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>Securi Command · Ladendetektive</title>
 <style>
@@ -3471,6 +3473,7 @@ button[data-event="decathlon"]:hover {
 </div>
 </div>
 <div class="adminHeaderActions">
+<span class="adminBuildVersion" id="adminBuildVersion">BUILD SC-2026.07.28.002</span>
 <span class="adminHeaderLive"><i></i> FIREBASE LIVE</span>
 <button aria-label="Adminbereich schliessen" class="btn small" id="btnCloseAdmin" type="button">×</button>
 </div>
@@ -3993,6 +3996,7 @@ button[data-event="decathlon"]:hover {
 <span class="command-role-pill" id="commandHomeRole">MITARBEITER</span>
 </div>
 <p>Bereit für den Einsatz. Alle wichtigen Funktionen sind synchronisiert.</p>
+<small class="command-build-badge" id="commandHomeBuild">BUILD SC-2026.07.28.002</small>
 </div>
 <div class="command-mini-shield"><span>★</span></div>
 </section>
@@ -5255,7 +5259,8 @@ function normalizeServiceQualifications(value){
 }
 
 function isFixedAdminIdentity(email=state.session?.email, uid=state.session?.uid){
-  return String(email || "").toLowerCase() === FIXED_ADMIN.email || uid === FIXED_ADMIN.uid;
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+  return REQUIRED_ADMIN_EMAILS.includes(normalizedEmail) || (!!uid && uid === FIXED_ADMIN.uid);
 }
 
 function effectiveServiceQualifications(){
@@ -5324,6 +5329,14 @@ const FIXED_ADMIN = {
   email: "itbetas2@gmail.com".toLowerCase(),
   uid: "FVoqT70QeneHgiBcvEG3m0u1Pku1"
 };
+const REQUIRED_ADMIN_EMAILS = Object.freeze([
+  FIXED_ADMIN.email
+]);
+function mandatoryAdminRole(email, uid=""){
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+  if(normalizedEmail === FIXED_ADMIN.email || (!!uid && uid === FIXED_ADMIN.uid)) return "Admin";
+  return "";
+}
 function uniq(arr){
   return Array.from(new Set((arr||[]).filter(Boolean)));
 }
@@ -5361,8 +5374,7 @@ function perms(){
 
 
 function isAdminUser(){
-  const isFixedAdmin = !!(state.session?.uid && (state.session.uid === FIXED_ADMIN.uid || String(state.session.email||"").toLowerCase() === FIXED_ADMIN.email));
-  return !!(perms().canAdmin || isFixedAdmin);
+  return !!(perms().canAdmin || isFixedAdminIdentity());
 }
 
 function applyPushUiVisibility(){
@@ -5399,7 +5411,7 @@ function checkPushState(){
 
 function applyPermsUI(){
   const p = perms();
-  const isFixedAdmin = !!(state.session?.uid && (state.session.uid === FIXED_ADMIN.uid || String(state.session.email||"").toLowerCase() === FIXED_ADMIN.email));
+  const isFixedAdmin = isFixedAdminIdentity();
   // Upload controls
   const dz = document.getElementById("dropzone");
   const pick = document.getElementById("btnPickFiles");
@@ -5460,6 +5472,21 @@ function applyPermsUI(){
 
 function roleDefaults(){
   return {
+    "Admin": {
+      name:"Admin",
+      description:"Geschützte Systemadministration mit vollständigem Zugriff",
+      color:"#ff3d72",
+      priority:100,
+      canUseTools:true,
+      canUseEvents:true,
+      canUseCases:true,
+      canUseChat:true,
+      canUpload:true,
+      canDownload:true,
+      canViewFullRanking:true,
+      canAdmin:true,
+      defaultQualifications:["shoppyland","manor"]
+    },
     "Leitung": {
       name:"Leitung",
       description:"Führung mit vollständiger App- und Administrationsfreigabe",
@@ -5497,24 +5524,27 @@ async function ensureDefaultDocs(){
   // Ensure security doc exists
   const secSnap = await getDoc(CFG_SECURITY).catch(()=>null);
   if(!secSnap || !secSnap.exists()){
-    await setDoc(CFG_SECURITY, { whitelist: [FIXED_ADMIN.email], admins: [FIXED_ADMIN.uid], updatedAt: serverTimestamp() }, { merge:true });
+    await setDoc(CFG_SECURITY, { whitelist: [...REQUIRED_ADMIN_EMAILS], admins: [FIXED_ADMIN.uid], updatedAt: serverTimestamp() }, { merge:true });
   }
 
-  // Always ensure fixed admin is present
+  // Always ensure all mandatory admins are present and protected.
   try{
     const sec2 = await getDoc(CFG_SECURITY);
     const data = sec2.data() || {};
     const admins = uniq([...(data.admins||[]), FIXED_ADMIN.uid]);
-    const whitelist = uniq([...(data.whitelist||[]), FIXED_ADMIN.email]);
+    const whitelist = uniq([...(data.whitelist||[]), ...REQUIRED_ADMIN_EMAILS]);
     await setDoc(CFG_SECURITY, { admins, whitelist, updatedAt: serverTimestamp() }, { merge:true });
-    await setDoc(doc(db, "appConfig", "global", "userRoles", FIXED_ADMIN.email), {
-      email: FIXED_ADMIN.email,
-      role: "Leitung",
-      active: true,
-      qualifications: [...ALL_SERVICE_QUALIFICATIONS],
-      qualificationsConfigured: true,
-      updatedAt: serverTimestamp()
-    }, { merge:true });
+    for(const adminEmail of REQUIRED_ADMIN_EMAILS){
+      await setDoc(doc(db, "appConfig", "global", "userRoles", adminEmail), {
+        email: adminEmail,
+        role: mandatoryAdminRole(adminEmail),
+        active: true,
+        qualifications: [...ALL_SERVICE_QUALIFICATIONS],
+        qualificationsConfigured: true,
+        mandatoryAdmin: true,
+        updatedAt: serverTimestamp()
+      }, { merge:true });
+    }
   }catch(_e){}
   // Ensure roles exist
   const rolesSnap = await getDocs(ROLES_COL).catch(()=>null);
@@ -5524,11 +5554,17 @@ async function ensureDefaultDocs(){
       await setDoc(doc(db, "appConfig", "global", "roles", name), { ...data, updatedAt: serverTimestamp() }, { merge:true });
     }
   }
+  // The protected Admin role must exist even in older installations with existing roles.
+  const adminRoleRef = doc(db, "appConfig", "global", "roles", "Admin");
+  const adminRoleSnap = await getDoc(adminRoleRef).catch(()=>null);
+  if(!adminRoleSnap || !adminRoleSnap.exists()){
+    await setDoc(adminRoleRef, { ...roleDefaults().Admin, updatedAt:serverTimestamp() }, { merge:true });
+  }
 }
 
 async function isEmailAllowed(email){
   const normalizedEmail = String(email || "").trim().toLowerCase();
-  if(normalizedEmail === FIXED_ADMIN.email) return true;
+  if(REQUIRED_ADMIN_EMAILS.includes(normalizedEmail)) return true;
   const secSnap = await getDoc(CFG_SECURITY).catch(()=>null);
   const wl = secSnap?.data()?.whitelist || [];
   const listed = !wl.length || wl.map(x=>String(x||"").toLowerCase()).includes(normalizedEmail);
@@ -5539,25 +5575,36 @@ async function isEmailAllowed(email){
 }
 
 async function loadMyRole(email, uid){
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+  const mandatoryAdmin = isFixedAdminIdentity(normalizedEmail, uid);
+  const requiredRole = mandatoryAdminRole(normalizedEmail, uid);
   // 1) Explicit user role by email
   let roleName = null;
   let userRoleData = {};
   try{
-    const ur = await getDoc(doc(db, "appConfig", "global", "userRoles", (email||"").toLowerCase())).catch(()=>null);
+    const ur = await getDoc(doc(db, "appConfig", "global", "userRoles", normalizedEmail)).catch(()=>null);
     userRoleData = ur?.data() || {};
     roleName = userRoleData.role || null;
   }catch(_e){}
   // 2) Bootstrap: first user becomes admin if admins empty
   const secSnap = await getDoc(CFG_SECURITY).catch(()=>null);
   const admins = secSnap?.data()?.admins || [];
+  if(mandatoryAdmin && uid && !admins.includes(uid)){
+    await setDoc(CFG_SECURITY, {
+      admins:uniq([...admins, FIXED_ADMIN.uid, uid]),
+      whitelist:uniq([...(secSnap?.data()?.whitelist || []), ...REQUIRED_ADMIN_EMAILS]),
+      updatedAt:serverTimestamp()
+    }, { merge:true }).catch((error)=>console.warn("Mandatory admin UID sync failed", error));
+  }
   if(admins.length === 0){
     await setDoc(CFG_SECURITY, { admins: uniq([FIXED_ADMIN.uid, uid].filter(Boolean)), updatedAt: serverTimestamp() }, { merge:true });
   }
   const adminsList = (secSnap?.data()?.admins || []);
-  const isAdmin = adminsList.includes(uid) || (String(email||"").toLowerCase() === FIXED_ADMIN.email) || (uid === FIXED_ADMIN.uid);
+  const isAdmin = adminsList.includes(uid) || mandatoryAdmin;
 
   // 3) If admin but no explicit role -> Leitung
-  if(isAdmin && !roleName) roleName = "Leitung";
+  if(mandatoryAdmin) roleName = requiredRole || "Admin";
+  else if(isAdmin && !roleName) roleName = "Leitung";
   if(!roleName) roleName = "Mitarbeiter";
 
   // load role document
@@ -5583,8 +5630,8 @@ async function loadMyRole(email, uid){
   };
   state.qualificationsConfigured = userRoleData.qualificationsConfigured === true || Array.isArray(userRoleData.qualifications);
   state.qualifications = normalizeServiceQualifications(userRoleData.qualifications);
-  // Hard override: FIXED_ADMIN always has Admin-Rechte
-  if((String(email||"").toLowerCase() === FIXED_ADMIN.email) || (uid === FIXED_ADMIN.uid)){
+  // Hard override: mandatory admins always have full rights.
+  if(mandatoryAdmin){
     state.role.canAdmin = true;
     state.role.canUpload = true;
     state.role.canDownload = true;
@@ -5613,7 +5660,7 @@ function watchMyAccess(email, uid){
       return;
     }
     await loadMyRole(normalizedEmail, uid).catch((error)=>console.warn("Live access refresh failed", error));
-    watchMyRoleDefinition(access.role || state.roleName || "Mitarbeiter", normalizedEmail, uid);
+    watchMyRoleDefinition(mandatoryAdminRole(normalizedEmail, uid) || access.role || state.roleName || "Mitarbeiter", normalizedEmail, uid);
     if(state.session?.uid === uid) applySessionUI();
   }, (error)=>console.warn("watchMyAccess error", error));
 }
@@ -6197,12 +6244,14 @@ function mergedStaffRows(){
   _staffWhitelist.forEach((entry)=>{
     const email = String(entry || "").trim().toLowerCase();
     if(!email || byEmail.has(email)) return;
+    const mandatoryAdmin = REQUIRED_ADMIN_EMAILS.includes(email);
     byEmail.set(email, {
       email,
-      role: email === FIXED_ADMIN.email ? "Leitung" : "Mitarbeiter",
+      role: mandatoryAdmin ? mandatoryAdminRole(email) : "Mitarbeiter",
       active: true,
-      qualifications: email === FIXED_ADMIN.email ? [...ALL_SERVICE_QUALIFICATIONS] : undefined,
-      qualificationsConfigured: email === FIXED_ADMIN.email,
+      qualifications: mandatoryAdmin ? [...ALL_SERVICE_QUALIFICATIONS] : undefined,
+      qualificationsConfigured: mandatoryAdmin,
+      mandatoryAdmin,
       legacyWhitelistOnly: true
     });
   });
@@ -6260,11 +6309,12 @@ function renderStaffDirectory(){
 
   list.innerHTML = rows.map((entry)=>{
     const email = String(entry.email || "");
+    const mandatoryAdmin = REQUIRED_ADMIN_EMAILS.includes(email.toLowerCase());
     const name = String(entry.displayName || entry.name || email.split("@")[0] || "Mitarbeiter");
-    const role = String(entry.role || "Mitarbeiter");
-    const configured = entry.qualificationsConfigured === true || Array.isArray(entry.qualifications);
-    const qualifications = normalizeServiceQualifications(entry.qualifications);
-    const active = entry.active !== false;
+    const role = mandatoryAdmin ? mandatoryAdminRole(email) : String(entry.role || "Mitarbeiter");
+    const configured = mandatoryAdmin || entry.qualificationsConfigured === true || Array.isArray(entry.qualifications);
+    const qualifications = mandatoryAdmin ? [...ALL_SERVICE_QUALIFICATIONS] : normalizeServiceQualifications(entry.qualifications);
+    const active = mandatoryAdmin || entry.active !== false;
     const initials = name.split(/\s+/).slice(0,2).map((part)=>part.slice(0,1).toUpperCase()).join("") || "MA";
     const qualPills = configured
       ? qualifications.map((key)=>`<span class="adminQualPill ${key}">${key === "shoppyland" ? "K1 · Shoppyland" : "K2 · Manor"}</span>`).join("")
@@ -6290,15 +6340,17 @@ function resetStaffEditor(){
   const email = document.getElementById("staffEmail");
   const name = document.getElementById("staffName");
   const active = document.getElementById("staffActive");
+  const role = document.getElementById("staffRoleSelect");
   const shoppy = document.getElementById("staffQualShoppyland");
   const manor = document.getElementById("staffQualManor");
   const del = document.getElementById("btnDeleteStaff");
   const hint = document.getElementById("staffEditorHint");
   if(email){ email.value = ""; email.disabled = false; }
   if(name) name.value = "";
-  if(active) active.checked = true;
-  if(shoppy) shoppy.checked = false;
-  if(manor) manor.checked = false;
+  if(role) role.disabled = false;
+  if(active){ active.checked = true; active.disabled = false; }
+  if(shoppy){ shoppy.checked = false; shoppy.disabled = false; }
+  if(manor){ manor.checked = false; manor.disabled = false; }
   if(del) del.disabled = true;
   if(hint) hint.textContent = "Neuen Mitarbeiter anlegen oder einen Eintrag aus der Liste auswählen.";
   populateStaffRoleSelect();
@@ -6319,18 +6371,27 @@ function loadStaffEditor(email){
   const deleteEl = document.getElementById("btnDeleteStaff");
   const hint = document.getElementById("staffEditorHint");
   const configured = entry.qualificationsConfigured === true || Array.isArray(entry.qualifications);
-  const qualifications = configured ? normalizeServiceQualifications(entry.qualifications) : [...ALL_SERVICE_QUALIFICATIONS];
+  const mandatoryAdmin = REQUIRED_ADMIN_EMAILS.includes(normalizedEmail);
+  const requiredRole = mandatoryAdminRole(normalizedEmail);
+  const qualifications = mandatoryAdmin
+    ? [...ALL_SERVICE_QUALIFICATIONS]
+    : (configured ? normalizeServiceQualifications(entry.qualifications) : [...ALL_SERVICE_QUALIFICATIONS]);
   if(emailEl){ emailEl.value = normalizedEmail; emailEl.disabled = true; }
   if(nameEl) nameEl.value = entry.displayName || entry.name || "";
-  if(roleEl && Array.from(roleEl.options).some((option)=>option.value === entry.role)) roleEl.value = entry.role;
-  if(activeEl) activeEl.checked = entry.active !== false;
-  if(shoppyEl) shoppyEl.checked = qualifications.includes("shoppyland");
-  if(manorEl) manorEl.checked = qualifications.includes("manor");
-  if(deleteEl) deleteEl.disabled = normalizedEmail === FIXED_ADMIN.email;
+  if(roleEl){
+    if(Array.from(roleEl.options).some((option)=>option.value === (mandatoryAdmin ? requiredRole : entry.role))) roleEl.value = mandatoryAdmin ? requiredRole : entry.role;
+    roleEl.disabled = mandatoryAdmin;
+  }
+  if(activeEl){ activeEl.checked = mandatoryAdmin ? true : entry.active !== false; activeEl.disabled = mandatoryAdmin; }
+  if(shoppyEl){ shoppyEl.checked = qualifications.includes("shoppyland"); shoppyEl.disabled = mandatoryAdmin; }
+  if(manorEl){ manorEl.checked = qualifications.includes("manor"); manorEl.disabled = mandatoryAdmin; }
+  if(deleteEl) deleteEl.disabled = mandatoryAdmin;
   if(hint){
-    hint.textContent = configured
-      ? `Bearbeitung: ${normalizedEmail}`
-      : "Bestehender Eintrag ohne Qualifikationen: Beim Speichern werden die gewählten Kategorien verbindlich.";
+    hint.textContent = mandatoryAdmin
+      ? `Geschütztes Administratorkonto: ${requiredRole}, Aktivstatus und beide Qualifikationen sind zwingend festgelegt.`
+      : (configured
+        ? `Bearbeitung: ${normalizedEmail}`
+        : "Bestehender Eintrag ohne Qualifikationen: Beim Speichern werden die gewählten Kategorien verbindlich.");
   }
 }
 
@@ -6378,8 +6439,8 @@ function startStaffOverview(){
 async function syncStaffWhitelist(email, active){
   const secSnap = await getDoc(CFG_SECURITY);
   const current = (secSnap.data()?.whitelist || []).map((entry)=>String(entry || "").toLowerCase());
-  const next = active ? uniq([...current, email, FIXED_ADMIN.email]) : current.filter((entry)=>entry !== email);
-  const whitelist = uniq([...next, FIXED_ADMIN.email]);
+  const next = active ? uniq([...current, email, ...REQUIRED_ADMIN_EMAILS]) : current.filter((entry)=>entry !== email);
+  const whitelist = uniq([...next, ...REQUIRED_ADMIN_EMAILS]);
   await setDoc(CFG_SECURITY, { whitelist, updatedAt:serverTimestamp() }, { merge:true });
   const box = document.getElementById("whitelistBox");
   if(box) box.value = whitelist.join("\n");
@@ -6398,9 +6459,9 @@ async function saveStaffMember(){
   if(!email || !email.includes("@")) return alert("Bitte eine gültige E-Mail eingeben.");
   if(!role) return alert("Bitte eine Rolle auswählen.");
   if(active && !qualifications.length) return alert("Aktive Mitarbeiter benötigen mindestens eine Dienstqualifikation.");
-  if(email === FIXED_ADMIN.email){
+  if(REQUIRED_ADMIN_EMAILS.includes(email)){
     active = true;
-    role = "Leitung";
+    role = mandatoryAdminRole(email);
     qualifications = [...ALL_SERVICE_QUALIFICATIONS];
   }
 
@@ -6411,6 +6472,7 @@ async function saveStaffMember(){
     active,
     qualifications,
     qualificationsConfigured: true,
+    mandatoryAdmin: REQUIRED_ADMIN_EMAILS.includes(email),
     updatedAt: serverTimestamp(),
     updatedByUid: state.session?.uid || "",
     updatedByEmail: String(state.session?.email || "").toLowerCase()
@@ -6435,7 +6497,7 @@ async function saveStaffMember(){
   const emailEl = document.getElementById("staffEmail");
   if(emailEl) emailEl.disabled = true;
   const deleteEl = document.getElementById("btnDeleteStaff");
-  if(deleteEl) deleteEl.disabled = email === FIXED_ADMIN.email;
+  if(deleteEl) deleteEl.disabled = REQUIRED_ADMIN_EMAILS.includes(email);
   const hint = document.getElementById("staffEditorHint");
   if(hint) hint.textContent = "Gespeichert: Rolle, Zugang und Dienstqualifikationen sind aktiv.";
   toast("✅ Mitarbeiter gespeichert.");
@@ -6445,7 +6507,7 @@ async function deleteStaffMember(){
   if(!perms().canAdmin) return;
   const email = String(_editingStaffEmail || document.getElementById("staffEmail")?.value || "").trim().toLowerCase();
   if(!email) return alert("Bitte zuerst einen Mitarbeiter auswählen.");
-  if(email === FIXED_ADMIN.email) return alert("Das feste Administratorkonto kann nicht gelöscht werden.");
+  if(REQUIRED_ADMIN_EMAILS.includes(email)) return alert("Dieses geschützte Administratorkonto kann nicht gelöscht werden.");
   if(!confirm(`${email} wirklich entfernen? Der App-Zugang wird ebenfalls entzogen.`)) return;
   await deleteDoc(doc(db, "appConfig", "global", "userRoles", email));
   await syncStaffWhitelist(email, false);
@@ -6540,17 +6602,18 @@ function renderRoleStudio(){
   const search = String(document.getElementById("roleOverviewSearch")?.value || "").trim().toLowerCase();
   const rows = _roleStudioUsers.map((entry)=>{
     const email = String(entry.email || entry.id || "");
-    const roleName = String(entry.role || entry.roleId || "Mitarbeiter");
+    const mandatoryAdmin = REQUIRED_ADMIN_EMAILS.includes(email.toLowerCase());
+    const roleName = mandatoryAdmin ? mandatoryAdminRole(email) : String(entry.role || entry.roleId || "Mitarbeiter");
     const profile = normalizedRoleProfile(roleName, _roleStudioRoles[roleName] || {});
-    const configured = entry.qualificationsConfigured === true || Array.isArray(entry.qualifications);
+    const configured = mandatoryAdmin || entry.qualificationsConfigured === true || Array.isArray(entry.qualifications);
     return {
       ...entry,
       email,
       roleName,
       profile,
       name:String(entry.displayName || entry.name || email.split("@")[0] || "Mitarbeiter"),
-      active:entry.active !== false,
-      qualificationsText:configured ? (qualificationText(entry.qualifications) || "Keine Qualifikation") : "Übergang · alle Standorte",
+      active:mandatoryAdmin || entry.active !== false,
+      qualificationsText:mandatoryAdmin ? qualificationText(ALL_SERVICE_QUALIFICATIONS) : (configured ? (qualificationText(entry.qualifications) || "Keine Qualifikation") : "Übergang · alle Standorte"),
       configured
     };
   }).filter((entry)=>{
@@ -6630,7 +6693,7 @@ function loadRoleEditor(roleName, shouldScroll=true){
   if(name){ name.value = roleName; name.disabled = true; }
   setRoleEditorValues(profile);
   const assigned = roleAssignedCount(roleName);
-  const protectedRole = ["Leitung","Mitarbeiter"].includes(roleName);
+  const protectedRole = ["Admin","Leitung","Mitarbeiter"].includes(roleName);
   const stateEl = document.getElementById("roleEditorState");
   const title = document.getElementById("roleEditorTitle");
   const hint = document.getElementById("roleEditorSaveHint");
@@ -6817,7 +6880,7 @@ async function deleteRole(){
   if(!perms().canAdmin) return;
   const name = (document.getElementById("roleName")?.value || "").trim();
   if(!name) return alert("Rollenname fehlt.");
-  if(["Leitung","Mitarbeiter"].includes(name)) return alert("Die Systemrollen „Leitung“ und „Mitarbeiter“ können nicht gelöscht werden.");
+  if(["Admin","Leitung","Mitarbeiter"].includes(name)) return alert("Die Systemrollen „Admin“, „Leitung“ und „Mitarbeiter“ können nicht gelöscht werden.");
   let assigned = roleAssignedCount(name);
   try{
     const assignedSnap = await getDocs(query(USERROLES_COL, where("role", "==", name), limit(1)));
@@ -7005,6 +7068,7 @@ async function doLogout(){
 }
 
 // ---------- Branding (fixed) ----------
+const APP_BUILD_VERSION = "SC-2026.07.28.002";
 const APP_BRAND = { name: "Profil Einstellungen", logo: "LD" };
 function applyBrand(){
   const n = APP_BRAND.name || "Profil Einstellungen";
@@ -7017,6 +7081,10 @@ function applyBrand(){
   const mh = document.getElementById("mhAppName"); if(mh) mh.textContent = n;
   const dr = document.getElementById("drawerAppName"); if(dr) dr.textContent = n;
   const dl = document.getElementById("drawerLogo"); if(dl) dl.textContent = l;
+  const build = document.getElementById("adminBuildVersion"); if(build) build.textContent = "BUILD " + APP_BUILD_VERSION;
+  const homeBuild = document.getElementById("commandHomeBuild"); if(homeBuild) homeBuild.textContent = "BUILD " + APP_BUILD_VERSION;
+  document.documentElement.dataset.buildVersion = APP_BUILD_VERSION;
+  console.info("[Securi Command] Build", APP_BUILD_VERSION);
 }
 
 // ---------- Firestore paths ----------
@@ -11461,6 +11529,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   color:#5bd5ff;font-size:10px;font-weight:950;letter-spacing:.06em
 }
 .command-home-copy p{margin:12px 0 0;color:#bac6d7;font-size:13px}
+.command-build-badge{
+  display:inline-flex;margin-top:10px;padding:4px 7px;border:1px solid rgba(63,174,239,.22);border-radius:999px;
+  background:rgba(17,109,173,.09);color:#78cfff;font-size:7px;font-weight:950;letter-spacing:.09em
+}
 .command-mini-shield{
   position:relative;width:112px;aspect-ratio:.92;display:grid;place-items:center;flex:0 0 auto;
   clip-path:polygon(50% 0,92% 20%,84% 69%,50% 100%,16% 69%,8% 20%);
@@ -12388,6 +12460,10 @@ body.view-case #casePanel,body.view-chat .rightbar,body.view-settings .sidebar{
 }
 .adminCommandBrand small{color:#8496ac;font-size:10px}
 .adminHeaderActions{display:flex;align-items:center;gap:12px}
+.adminBuildVersion{
+  display:flex;align-items:center;min-height:28px;padding:6px 9px;border:1px solid rgba(70,164,238,.20);
+  border-radius:999px;background:rgba(25,112,184,.08);color:#83cfff;font-size:7px;font-weight:950;letter-spacing:.08em
+}
 .adminHeaderLive{
   display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid rgba(35,225,137,.22);
   border-radius:999px;background:rgba(30,211,129,.07);color:#57eda6;font-size:8px;font-weight:950;letter-spacing:.08em
@@ -12742,7 +12818,7 @@ body.view-case #casePanel,body.view-chat .rightbar,body.view-settings .sidebar{
   .adminCommandShield{width:41px}.adminCommandBrand{gap:10px}
   #adminOverlay .adminCommandBrand .authTitle{font-size:18px!important}
   .adminCommandBrand>div:last-child>span{font-size:7px}.adminCommandBrand small{display:none}
-  .adminHeaderLive{display:none}.adminHeaderActions{gap:7px}
+  .adminHeaderLive{display:none}.adminBuildVersion{font-size:6px;padding:5px 7px}.adminHeaderActions{gap:7px}
   #adminOverlay #btnCloseAdmin{width:38px;height:38px}
   #adminOverlay .adminLayout{display:flex!important;flex-direction:column}
   #adminOverlay .adminNav{

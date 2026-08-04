@@ -2,8 +2,8 @@
 
 <html lang="de">
 <head>
-<!-- SECURI_COMMAND_BUILD: SC-2026.07.28.002 -->
-<meta content="SC-2026.07.28.002" name="app-build-version"/>
+<!-- SECURI_COMMAND_BUILD: SC-2026.08.04.004 -->
+<meta content="SC-2026.08.04.004" name="app-build-version"/>
 <!-- PWA / App Icons -->
 <link href="/manifest.webmanifest" rel="manifest"/>
 <link href="/favicon.ico" rel="icon"/>
@@ -2640,6 +2640,53 @@ input, textarea, select { scroll-margin-top: 90px; }
   .evtCard h3{ font-size: 17px; }
 }
 </style>
+<style id="manor-event-ui">
+/* ===== Ereignis Manor ===== */
+#eventBrandChooser button[data-event-brand="manor"]{
+  --event-color:#f1efe9;
+}
+#eventBrandChooser button[data-event-brand="manor"]::before{content:"M" !important;font-family:Georgia,serif;font-weight:900;letter-spacing:.08em}
+#eventBrandChooser button[data-event-brand="manor"]:not(:disabled){
+  border-color:rgba(245,241,230,.70)!important;
+  background:radial-gradient(circle at 50% 34%,rgba(245,241,230,.20),transparent 58%),#211f1b!important;
+  box-shadow:0 10px 28px rgba(231,222,199,.14)!important;
+}
+#eventBrandChooser button[data-event-brand="manor"]:disabled{
+  opacity:.52!important;
+  cursor:not-allowed!important;
+}
+#eventWrapManor{--manor-gold:#d9c59a;--manor-cream:#f1efe9;--manor-dark:#15140f;}
+#eventWrapManor .manorEventHeader{
+  background:linear-gradient(135deg,rgba(225,214,188,.24),rgba(83,77,63,.18),rgba(0,0,0,.12))!important;
+  border-color:rgba(217,197,154,.34)!important;
+}
+#eventWrapManor .eventTitle{color:#fff!important;letter-spacing:.02em}
+#eventWrapManor .manorEventNav .eventBreadcrumb{
+  background:rgba(217,197,154,.10)!important;border-color:rgba(217,197,154,.25)!important;color:#eee6d5!important;
+}
+#eventWrapManor .evtCard{
+  border-color:rgba(217,197,154,.19)!important;
+  background:radial-gradient(700px 260px at 5% 0%,rgba(217,197,154,.09),transparent 65%),rgba(7,13,22,.88)!important;
+}
+#eventWrapManor .evtCard h3{color:#f6f0e4!important}
+#eventWrapManor .evtBtn.primary{border-color:rgba(217,197,154,.44)!important;background:linear-gradient(145deg,#665838,#3d3422)!important}
+#eventWrapManor .manorProfileList{display:grid;gap:8px;margin:12px 0}
+#eventWrapManor .manorProfileList span{
+  display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border-radius:12px;
+  border:1px solid rgba(217,197,154,.14);background:rgba(217,197,154,.055);color:#e9e3d6;font-size:12.5px;line-height:1.4
+}
+#eventWrapManor .manorProfileList span::before{content:"•";color:var(--manor-gold);font-weight:900}
+#eventWrapManor .manorNoticeGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+#eventWrapManor .manorNotice{padding:11px 12px;border-radius:13px;border:1px solid rgba(217,197,154,.14);background:rgba(0,0,0,.18);display:flex;flex-direction:column;gap:5px}
+#eventWrapManor .manorNotice b{font-size:12px;color:#f0e5cc}
+#eventWrapManor .manorNotice span{font-size:11.5px;line-height:1.4;color:var(--muted)}
+#eventWrapManor .manorRuleAlert{margin-top:11px;padding:11px 12px;border-radius:13px;border:1px solid rgba(255,187,73,.28);background:rgba(255,171,45,.09);font-size:12px;line-height:1.45;color:#ffe4af}
+#eventWrapManor .tag.manorComplaint{background:#ffcc00!important;color:#111!important;border:0!important}
+#eventWrapManor .tag.manorNoComplaint{background:#57c8ff!important;color:#07111a!important;border:0!important}
+#eventWrapManor .tag.manorBan{background:#d9c59a!important;color:#15120c!important;border:0!important}
+#eventWrapManor .tag.manorComp{background:#8de0a7!important;color:#07130a!important;border:0!important}
+@media(max-width:700px){#eventWrapManor .manorNoticeGrid{grid-template-columns:1fr}}
+</style>
 <style id="decathlon-ui-colors">
 /* === Decathlon: bessere Übersicht (nur Ereignis Decathlon) === */
 #eventWrapDecathlon{
@@ -3473,7 +3520,7 @@ button[data-event="decathlon"]:hover {
 </div>
 </div>
 <div class="adminHeaderActions">
-<span class="adminBuildVersion" id="adminBuildVersion">BUILD SC-2026.07.28.002</span>
+<span class="adminBuildVersion" id="adminBuildVersion">BUILD SC-2026.08.04.004</span>
 <span class="adminHeaderLive"><i></i> FIREBASE LIVE</span>
 <button aria-label="Adminbereich schliessen" class="btn small" id="btnCloseAdmin" type="button">×</button>
 </div>
@@ -3996,7 +4043,7 @@ button[data-event="decathlon"]:hover {
 <span class="command-role-pill" id="commandHomeRole">MITARBEITER</span>
 </div>
 <p>Bereit für den Einsatz. Alle wichtigen Funktionen sind synchronisiert.</p>
-<small class="command-build-badge" id="commandHomeBuild">BUILD SC-2026.07.28.002</small>
+<small class="command-build-badge" id="commandHomeBuild">BUILD SC-2026.08.04.004</small>
 </div>
 <div class="command-mini-shield"><span>★</span></div>
 </section>
@@ -4119,10 +4166,126 @@ button[data-event="decathlon"]:hover {
   <div class="evtGrid2">
     <button class="evtBtn primary" type="button" data-event-brand="migros">Ereignis Migros</button>
     <button class="evtBtn secondary" type="button" data-event-brand="decathlon">Ereignis Decathlon</button>
-    <button class="evtBtn secondary" type="button" data-event-brand="placeholder1" disabled>Platzhalter 1</button>
+    <button class="evtBtn secondary" id="eventBrandManorBtn" type="button" data-event-brand="manor" disabled aria-disabled="true" title="Nur mit Dienstqualifikation Manor verfügbar">Ereignis Manor</button>
     <button class="evtBtn secondary" type="button" data-event-brand="placeholder2" disabled>Platzhalter 2</button>
   </div>
   <div class="evtHint" style="margin-top:10px;">Nach der Auswahl öffnet sich das passende Menü.</div>
+</div>
+
+
+<div class="eventWrap" id="eventWrapManor" style="display:none;">
+  <div class="eventHeader manorEventHeader">
+    <div class="eventTitle">Ereignis Manor</div>
+    <div class="eventHeaderActions">
+      <button class="evtBtn backBrand backIcon" id="evtManorBackToBrand" type="button" title="Zurück" aria-label="Zurück">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        <span class="srOnly">Zurück</span>
+      </button>
+      <button class="evtBtn ghost" id="evtManorRestart" type="button">Neu starten</button>
+    </div>
+  </div>
+
+  <div class="eventNav manorEventNav">
+    <button class="evtBtn ghost" id="evtManorBackBtn" disabled type="button">← Zurück</button>
+    <div class="eventBreadcrumb" id="evtManorCrumb">Start</div>
+  </div>
+
+  <section class="evtCard manorInfoCard" id="manor_evt_start" data-crumb="Start">
+    <h3>Massnahmenschema bei Diebstahl</h3>
+    <div class="evtHint" style="margin-bottom:12px;">Wähle zuerst den Deliktsbetrag. Die weiteren Schritte entsprechen der Manor-Vorgabe.</div>
+    <div class="evtGrid2">
+      <button class="evtBtn no" type="button" onclick="manorEventShow('manor_evt_u200_profile','Bis CHF 200.–')">Bis CHF 200.–</button>
+      <button class="evtBtn yes" type="button" onclick="manorEventShow('manor_evt_ge200_special','Ab CHF 200.–')">Ab CHF 200.–</button>
+    </div>
+    <div class="manorNoticeGrid">
+      <div class="manorNotice"><b>Jugendliche bis und mit 16 Jahren</b><span>Abholung durch Erziehungsberechtigte oder Polizei. Alternative Entlassung nur mit Einverständnis der Erziehungsberechtigten und im Rapport festhalten.</span></div>
+      <div class="manorNotice"><b>Täterschaft bis 18 Jahre</b><span>Falls verpflichtet, Erziehungsberechtigte kontaktieren und über das Geschehen informieren.</span></div>
+    </div>
+  </section>
+
+  <section class="evtCard hidden" id="manor_evt_u200_profile" data-crumb="Bis CHF 200.– → Täterprofil">
+    <h3>Trifft eines dieser Täterprofile zu?</h3>
+    <div class="manorProfileList">
+      <span>Gruppendiebstahl (ab 2 Personen)</span>
+      <span>Wiederholungstäter</span>
+      <span>Profis (mit Werkzeugen oder präparierter Tasche)</span>
+      <span>Unkooperativ (geflüchtet, aggressiv, gibt Tat nicht zu)</span>
+      <span>Diebestour (mehrere Läden betroffen)</span>
+    </div>
+    <div class="evtGrid2" style="margin-top:12px;">
+      <button class="evtBtn yes" type="button" onclick="manorEventShow('manor_evt_complaint','Profil trifft zu')">JA</button>
+      <button class="evtBtn no" type="button" onclick="manorEventShow('manor_evt_u200_no_profile','Keines der Profile')">NEIN</button>
+    </div>
+  </section>
+
+  <section class="evtCard hidden" id="manor_evt_ge200_special" data-crumb="Ab CHF 200.– → Sonderregelung">
+    <h3>Sonderregelung prüfen</h3>
+    <div class="evtHint">Nur möglich, wenn alle Punkte erfüllt sind: <b>Ersttäter</b>, Deliktbetrag <b>über CHF 200.– aber nicht über CHF 300.–</b> und die Person ist bereit, <b>Schaden und Umtriebsentschädigung sofort</b> zu begleichen.</div>
+    <div class="evtGrid2" style="margin-top:12px;">
+      <button class="evtBtn yes" type="button" onclick="manorEventShow('manor_evt_special_result','Sonderregelung erfüllt')">Alle Kriterien erfüllt</button>
+      <button class="evtBtn no" type="button" onclick="manorEventShow('manor_evt_complaint','Sonderregelung nicht anwendbar')">Nicht erfüllt / über CHF 300.–</button>
+    </div>
+  </section>
+
+  <section class="evtCard hidden" id="manor_evt_complaint" data-crumb="Strafantrag stellen">
+    <h3>Strafantrag stellen</h3>
+    <ul class="evtActions">
+      <li><span class="tag manorComplaint">Strafantrag</span><div><b>Ja</b></div></li>
+    </ul>
+    <div class="evtHint" style="margin-top:12px;">Zusätzlich das Verhalten / Täterprofil für die Dauer des Hausverbots beurteilen.</div>
+    <button class="evtBtn primary" style="margin-top:12px;" type="button" onclick="manorEventShow('manor_evt_cooperative','Hausverbot bestimmen')">Weiter</button>
+  </section>
+
+  <section class="evtCard hidden" id="manor_evt_cooperative" data-crumb="Strafantrag → Hausverbot">
+    <h3>Ist die Person Ersttäter und kooperativ?</h3>
+    <div class="evtGrid2">
+      <button class="evtBtn yes" type="button" onclick="manorEventShow('manor_evt_one_year','Ersttäter + kooperativ')">JA</button>
+      <button class="evtBtn no" type="button" onclick="manorEventShow('manor_evt_three_year','Nicht Ersttäter / nicht kooperativ')">NEIN</button>
+    </div>
+  </section>
+
+  <section class="evtCard hidden" id="manor_evt_u200_no_profile" data-crumb="Bis CHF 200.– → Standardfall">
+    <h3>Massnahmen</h3>
+    <ul class="evtActions" data-copytitle="Manor – Diebstahl bis CHF 200 ohne besonderes Täterprofil">
+      <li><span class="tag manorNoComplaint">Strafantrag</span><div><b>Kein Strafantrag</b></div></li>
+      <li><span class="tag manorBan">Hausverbot</span><div><b>Kein Hausverbot</b></div></li>
+      <li><span class="tag manorComp">Umtriebsentschädigung</span><div><b>CHF 200.–</b></div></li>
+    </ul>
+    <button class="evtBtn ghost" style="margin-top:10px;" type="button" onclick="copyEvtMeasures('manor_evt_u200_no_profile')">📋 Massnahmen kopieren</button>
+  </section>
+
+  <section class="evtCard hidden" id="manor_evt_special_result" data-crumb="Sonderregelung → Massnahmen">
+    <h3>Massnahmen – Sonderregelung</h3>
+    <ul class="evtActions" data-copytitle="Manor – Sonderregelung Ersttäter CHF 200–300">
+      <li><span class="tag manorNoComplaint">Strafanzeige</span><div><b>Kann ausnahmsweise entfallen</b>, wenn Schaden und Umtriebsentschädigung sofort beglichen werden.</div></li>
+      <li><span class="tag manorBan">Hausverbot</span><div><b>1 Jahr</b></div></li>
+      <li><span class="tag manorComp">Umtriebsentschädigung</span><div><b>CHF 200.–</b></div></li>
+    </ul>
+    <div class="manorRuleAlert">Ein einjähriges Hausverbot wird trotz Verzicht auf die Strafanzeige ausgesprochen.</div>
+    <button class="evtBtn ghost" style="margin-top:10px;" type="button" onclick="copyEvtMeasures('manor_evt_special_result')">📋 Massnahmen kopieren</button>
+  </section>
+
+  <section class="evtCard hidden" id="manor_evt_one_year" data-crumb="Hausverbot → 1 Jahr">
+    <h3>Massnahmen</h3>
+    <ul class="evtActions" data-copytitle="Manor – Strafantrag / Ersttäter kooperativ">
+      <li><span class="tag manorComplaint">Strafantrag</span><div><b>Ja</b></div></li>
+      <li><span class="tag manorBan">Hausverbot</span><div><b>1 Jahr</b></div></li>
+      <li><span class="tag manorComp">Umtriebsentschädigung</span><div><b>CHF 200.–</b></div></li>
+    </ul>
+    <div class="manorRuleAlert">Hat der Täter bereits ein dreijähriges Hausverbot erhalten, wird ein <b>unbefristetes Hausverbot</b> ausgesprochen.</div>
+    <button class="evtBtn ghost" style="margin-top:10px;" type="button" onclick="copyEvtMeasures('manor_evt_one_year')">📋 Massnahmen kopieren</button>
+  </section>
+
+  <section class="evtCard hidden" id="manor_evt_three_year" data-crumb="Hausverbot → 3 Jahre">
+    <h3>Massnahmen</h3>
+    <ul class="evtActions" data-copytitle="Manor – Strafantrag / nicht kooperativ oder Wiederholung">
+      <li><span class="tag manorComplaint">Strafantrag</span><div><b>Ja</b></div></li>
+      <li><span class="tag manorBan">Hausverbot</span><div><b>3 Jahre</b></div></li>
+      <li><span class="tag manorComp">Umtriebsentschädigung</span><div><b>CHF 200.–</b></div></li>
+    </ul>
+    <div class="manorRuleAlert">Hat der Täter bereits ein dreijähriges Hausverbot erhalten, wird ein <b>unbefristetes Hausverbot</b> ausgesprochen.</div>
+    <button class="evtBtn ghost" style="margin-top:10px;" type="button" onclick="copyEvtMeasures('manor_evt_three_year')">📋 Massnahmen kopieren</button>
+  </section>
 </div>
 
 <div class="eventWrap" id="eventWrapDecathlon" style="display:none;">
@@ -5270,6 +5433,27 @@ function effectiveServiceQualifications(){
   return [...ALL_SERVICE_QUALIFICATIONS];
 }
 
+function hasStrictServiceQualification(key){
+  const normalized = String(key || "").trim().toLowerCase();
+  if(isFixedAdminIdentity()) return true;
+  if(!state.qualificationsConfigured) return false;
+  return normalizeServiceQualifications(state.qualifications).includes(normalized);
+}
+window.hasStrictServiceQualification = hasStrictServiceQualification;
+
+function refreshEventBrandQualifications(){
+  const manorBtn = document.getElementById("eventBrandManorBtn");
+  if(!manorBtn) return;
+  const allowed = hasStrictServiceQualification("manor");
+  manorBtn.disabled = !allowed;
+  manorBtn.setAttribute("aria-disabled", allowed ? "false" : "true");
+  manorBtn.title = allowed
+    ? "Manor-Massnahmenschema öffnen"
+    : "Nur mit Dienstqualifikation Manor verfügbar";
+  manorBtn.dataset.qualificationState = allowed ? "allowed" : "blocked";
+}
+window.refreshEventBrandQualifications = refreshEventBrandQualifications;
+
 function allowedServiceLocations(){
   return effectiveServiceQualifications().flatMap((key)=>SERVICE_QUALIFICATIONS[key]?.locations || []);
 }
@@ -5644,6 +5828,7 @@ async function loadMyRole(email, uid){
     state.qualifications = [...ALL_SERVICE_QUALIFICATIONS];
   }
   applyServiceLocationQualifications();
+  refreshEventBrandQualifications();
   applyPermsUI();
 }
 
@@ -7068,7 +7253,7 @@ async function doLogout(){
 }
 
 // ---------- Branding (fixed) ----------
-const APP_BUILD_VERSION = "SC-2026.07.28.002";
+const APP_BUILD_VERSION = "SC-2026.08.04.004";
 const APP_BRAND = { name: "Profil Einstellungen", logo: "LD" };
 function applyBrand(){
   const n = APP_BRAND.name || "Profil Einstellungen";
@@ -10905,24 +11090,76 @@ document.addEventListener("DOMContentLoaded", function(){
   })();
 
 
-  // === Ereignis Brand-Auswahl (Migros / Decathlon) ===
+  // === Ereignis Manor: Entscheidungsbaum nach Manor-Massnahmenschema ===
+  (function(){
+    const stack = [];
+    const ids = [
+      'manor_evt_start','manor_evt_u200_profile','manor_evt_ge200_special','manor_evt_complaint',
+      'manor_evt_cooperative','manor_evt_u200_no_profile','manor_evt_special_result','manor_evt_one_year','manor_evt_three_year'
+    ];
+    function hideAll(){ ids.forEach((id)=>document.getElementById(id)?.classList.add('hidden')); }
+    function setCrumb(value){ const el=document.getElementById('evtManorCrumb'); if(el) el.textContent=value || 'Start'; }
+    function setBackEnabled(enabled){ const el=document.getElementById('evtManorBackBtn'); if(el) el.disabled=!enabled; }
+
+    window.manorEventShow = function(id, crumb){
+      if(!document.getElementById(id)) return;
+      hideAll();
+      document.getElementById(id).classList.remove('hidden');
+      if(stack[stack.length-1] !== id) stack.push(id);
+      setCrumb(crumb || document.getElementById(id)?.dataset?.crumb || 'Manor');
+      setBackEnabled(stack.length > 1);
+      document.getElementById('eventWrapManor')?.scrollIntoView({behavior:'smooth', block:'start'});
+    };
+    window.manorEventBack = function(){
+      if(stack.length <= 1) return;
+      stack.pop();
+      const id = stack[stack.length-1] || 'manor_evt_start';
+      hideAll();
+      const current = document.getElementById(id);
+      current?.classList.remove('hidden');
+      setCrumb(current?.dataset?.crumb || 'Start');
+      setBackEnabled(stack.length > 1);
+      document.getElementById('eventWrapManor')?.scrollIntoView({behavior:'smooth', block:'start'});
+    };
+    window.manorEventReset = function(){
+      stack.length = 0;
+      stack.push('manor_evt_start');
+      hideAll();
+      document.getElementById('manor_evt_start')?.classList.remove('hidden');
+      setCrumb('Start');
+      setBackEnabled(false);
+      document.getElementById('eventWrapManor')?.scrollIntoView({behavior:'smooth', block:'start'});
+    };
+    document.addEventListener('DOMContentLoaded', ()=>{
+      document.getElementById('evtManorBackBtn')?.addEventListener('click', ()=>window.manorEventBack());
+      document.getElementById('evtManorRestart')?.addEventListener('click', ()=>window.manorEventReset());
+      try{ window.manorEventReset(); }catch(_e){}
+    });
+  })();
+
+  // === Ereignis Brand-Auswahl (Migros / Decathlon / Manor) ===
   (function(){
     const chooser = document.getElementById('eventBrandChooser');
     const wrapMigros = document.getElementById('eventWrap');
     const wrapDeca = document.getElementById('eventWrapDecathlon');
+    const wrapManor = document.getElementById('eventWrapManor');
     const btnBackDeca = document.getElementById('evtDecaBackToBrand');
     const btnBackMigros = document.getElementById('evtMigrosBackToBrand');
+    const btnBackManor = document.getElementById('evtManorBackToBrand');
 
     function showChooser(){
       if(chooser) chooser.style.display = '';
       if(wrapMigros) wrapMigros.style.display = 'none';
       if(wrapDeca) wrapDeca.style.display = 'none';
+      if(wrapManor) wrapManor.style.display = 'none';
+      try{ window.refreshEventBrandQualifications?.(); }catch(_e){}
       try{ localStorage.removeItem('eventBrand'); }catch(e){}
     }
 
     function showMigros(){
       if(chooser) chooser.style.display = 'none';
       if(wrapDeca) wrapDeca.style.display = 'none';
+      if(wrapManor) wrapManor.style.display = 'none';
       if(wrapMigros) wrapMigros.style.display = '';
       try{ localStorage.setItem('eventBrand','migros'); }catch(e){}
       // Ensure the Migros decision tree is reset to start for clarity
@@ -10932,10 +11169,27 @@ document.addEventListener("DOMContentLoaded", function(){
     function showDeca(){
       if(chooser) chooser.style.display = 'none';
       if(wrapMigros) wrapMigros.style.display = 'none';
+      if(wrapManor) wrapManor.style.display = 'none';
       if(wrapDeca) wrapDeca.style.display = '';
       try{ localStorage.setItem('eventBrand','decathlon'); }catch(e){}
       try{ window.decaEventReset && window.decaEventReset(); }catch(e){}
       if(wrapDeca) wrapDeca.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    function showManor(){
+      try{ window.refreshEventBrandQualifications?.(); }catch(_e){}
+      if(!(window.hasStrictServiceQualification?.('manor') === true)){
+        alert('Ereignis Manor ist nur mit der Dienstqualifikation Manor verfügbar.');
+        showChooser();
+        return;
+      }
+      if(chooser) chooser.style.display = 'none';
+      if(wrapMigros) wrapMigros.style.display = 'none';
+      if(wrapDeca) wrapDeca.style.display = 'none';
+      if(wrapManor) wrapManor.style.display = '';
+      try{ localStorage.setItem('eventBrand','manor'); }catch(e){}
+      try{ window.manorEventReset?.(); }catch(_e){}
+      if(wrapManor) wrapManor.scrollIntoView({behavior:'smooth', block:'start'});
     }
 
     // Delegate clicks from chooser buttons
@@ -10946,6 +11200,7 @@ document.addEventListener("DOMContentLoaded", function(){
         const brand = btn.getAttribute('data-event-brand');
         if(brand === 'migros') showMigros();
         else if(brand === 'decathlon') showDeca();
+        else if(brand === 'manor') showManor();
       });
     }
 
@@ -10957,6 +11212,10 @@ document.addEventListener("DOMContentLoaded", function(){
       btnBackMigros.addEventListener('click', showChooser);
     }
 
+    if(btnBackManor){
+      btnBackManor.addEventListener('click', showChooser);
+    }
+
     // Expose for other UI elements if needed
     window.eventBrandShowChooser = showChooser;
 
@@ -10965,6 +11224,7 @@ document.addEventListener("DOMContentLoaded", function(){
     try{ saved = localStorage.getItem('eventBrand'); }catch(e){}
     if(saved === 'migros') showMigros();
     else if(saved === 'decathlon') showDeca();
+    else if(saved === 'manor' && (window.hasStrictServiceQualification?.('manor') === true)) showManor();
     else showChooser();
   })();
 
@@ -11622,8 +11882,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 #rankingPanel .evtGrid2 .evtBtn[data-event-brand="migros"]::before{content:"🔥"}
 #rankingPanel .evtGrid2 .evtBtn[data-event-brand="decathlon"]{--event-color:#00a6ff}
 #rankingPanel .evtGrid2 .evtBtn[data-event-brand="decathlon"]::before{content:"✚"}
-#rankingPanel .evtGrid2 .evtBtn[data-event-brand="placeholder1"]{--event-color:#24e38a}
-#rankingPanel .evtGrid2 .evtBtn[data-event-brand="placeholder1"]::before{content:"🚘"}
+#rankingPanel .evtGrid2 .evtBtn[data-event-brand="manor"]{--event-color:#d9c59a}
+#rankingPanel .evtGrid2 .evtBtn[data-event-brand="manor"]::before{content:"M";font-family:Georgia,serif;font-weight:900}
 #rankingPanel .evtGrid2 .evtBtn[data-event-brand="placeholder2"]{--event-color:#bd45ff}
 #rankingPanel .evtGrid2 .evtBtn[data-event-brand="placeholder2"]::before{content:"◈"}
 #rankingPanel .evtGrid2 .evtBtn:disabled{opacity:.4;filter:saturate(.45);cursor:not-allowed}
@@ -12116,6 +12376,9 @@ body.view-case #casePanel,body.view-chat .rightbar,body.view-settings .sidebar{
 }
 #eventBrandChooser .evtGrid2>button.evtBtn[data-event-brand="decathlon"]{
   border-color:#24aef5!important;background:radial-gradient(circle at 50% 34%,rgba(30,154,255,.34),transparent 58%),#07243d!important
+}
+#eventBrandChooser .evtGrid2>button.evtBtn[data-event-brand="manor"]:not(:disabled){
+  border-color:#d9c59a!important;background:radial-gradient(circle at 50% 34%,rgba(217,197,154,.28),transparent 58%),#262117!important
 }
 #eventBrandChooser .evtGrid2>button.evtBtn:disabled{
   opacity:.68!important;color:#d5e0ea!important;filter:saturate(.62)!important;background:#101d29!important

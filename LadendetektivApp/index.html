@@ -2,8 +2,8 @@
 
 <html lang="de">
 <head>
-<!-- SECURI_COMMAND_BUILD: SC-2026.08.04.004 -->
-<meta content="SC-2026.08.04.004" name="app-build-version"/>
+<!-- SECURI_COMMAND_BUILD: SC-2026.11.13.001 -->
+<meta content="SC-2026.11.13.001" name="app-build-version"/>
 <!-- PWA / App Icons -->
 <link href="/manifest.webmanifest" rel="manifest"/>
 <link href="/favicon.ico" rel="icon"/>
@@ -3480,6 +3480,7 @@ button[data-event="decathlon"]:hover {
 }
 </style>
 
+<link rel="stylesheet" href="./case-statistics.css"/>
 </head>
 <body>
 <div class="authOverlay" id="authOverlay">
@@ -3520,7 +3521,7 @@ button[data-event="decathlon"]:hover {
 </div>
 </div>
 <div class="adminHeaderActions">
-<span class="adminBuildVersion" id="adminBuildVersion">BUILD SC-2026.08.04.004</span>
+<span class="adminBuildVersion" id="adminBuildVersion">BUILD SC-2026.11.13.001</span>
 <span class="adminHeaderLive"><i></i> FIREBASE LIVE</span>
 <button aria-label="Adminbereich schliessen" class="btn small" id="btnCloseAdmin" type="button">×</button>
 </div>
@@ -4043,7 +4044,7 @@ button[data-event="decathlon"]:hover {
 <span class="command-role-pill" id="commandHomeRole">MITARBEITER</span>
 </div>
 <p>Bereit für den Einsatz. Alle wichtigen Funktionen sind synchronisiert.</p>
-<small class="command-build-badge" id="commandHomeBuild">BUILD SC-2026.08.04.004</small>
+<small class="command-build-badge" id="commandHomeBuild">BUILD SC-2026.11.13.001</small>
 </div>
 <div class="command-mini-shield"><span>★</span></div>
 </section>
@@ -4883,6 +4884,7 @@ button[data-event="decathlon"]:hover {
 <div class="subtabBar" id="caseSubtabBar">
 <button class="subtabBtn active" id="caseTabCases" type="button">Fall erfassen</button>
 <button class="subtabBtn" id="caseTabRanking" type="button">Rangliste</button>
+<button class="subtabBtn hidden" id="caseTabStatistics" type="button" hidden>Statistik</button>
 </div>
 <div class="subtabView isShown" id="caseSubCases">
 <div class="section">
@@ -4925,6 +4927,7 @@ button[data-event="decathlon"]:hover {
 <div class="list" id="rankingList" style="padding:0; gap:10px;"></div>
 </div>
 </div>
+<div class="subtabView isHidden" id="caseSubStatistics" hidden></div>
 </section>
 <!-- MAIN -->
 <main class="card main">
@@ -5047,6 +5050,7 @@ button[data-event="decathlon"]:hover {
 </div>
 </div>
 <script type="module">
+import { installCaseStatistics } from "./case-statistics.js";
 // ===== Push/FCM: Service Worker Registrierung (muss im Root liegen) =====
 const SW_URL = "/firebase-messaging-sw.js";
 const swReady = (async () => {
@@ -5212,11 +5216,14 @@ let state = {
   unsubCases: null,
   unsubServices: null,
   cases: [],
+  casesStatus: "loading",
   services: [],
   rankings: [],
   qualifications: [],
   qualificationsConfigured: false,
   };
+
+let caseStatistics = null;
 
 // ---------- Auth utils ----------
 function normalizeEmail(input){
@@ -5594,6 +5601,7 @@ function checkPushState(){
 }
 
 function applyPermsUI(){
+  caseStatistics?.refresh();
   const p = perms();
   const isFixedAdmin = isFixedAdminIdentity();
   // Upload controls
@@ -7253,7 +7261,7 @@ async function doLogout(){
 }
 
 // ---------- Branding (fixed) ----------
-const APP_BUILD_VERSION = "SC-2026.08.04.004";
+const APP_BUILD_VERSION = "SC-2026.11.13.001";
 const APP_BRAND = { name: "Profil Einstellungen", logo: "LD" };
 function applyBrand(){
   const n = APP_BRAND.name || "Profil Einstellungen";
@@ -7912,6 +7920,7 @@ async function sendChat(){
 // ---------- Fälle + Rangliste (Firestore realtime) ----------
 // Global collection for cases. Each document represents one reported case.
 const CASES_COL = collection(db, "cases");
+caseStatistics = installCaseStatistics({ getState: () => state, isAdmin: isAdminUser, renderCases: renderMyCases, renderRanking });
 // Per-user subcollection for services ("Dienste")
 function servicesCol(uid){ return collection(db, "users", uid, "services"); }
  
@@ -7951,6 +7960,7 @@ function computeRankingFromCases(casesArr){
 }
 
 function renderRanking(){
+  caseStatistics?.refresh();
   const list = document.getElementById("rankingList");
   if(!list) return;
 
@@ -8045,6 +8055,8 @@ const btnDel = card.querySelector("button");
 }
 
 function watchCases(){
+  state.casesStatus = "loading";
+  caseStatistics?.refresh();
   if(state.unsubCases) state.unsubCases();
       if(state.unsubMyProfile) state.unsubMyProfile();
 // global -> needs login
@@ -8059,11 +8071,14 @@ function watchCases(){
       arr.push({ id: d.id, ...data, occurredAtMs });
     });
     state.cases = arr;
+    state.casesStatus = "ready";
     state.rankings = computeRankingFromCases(arr);
 
     renderMyCases();
     renderRanking();
   }, (err)=>{
+    state.casesStatus = "error";
+    caseStatistics?.refresh();
     console.error(err);
   });
 }
@@ -10672,82 +10687,6 @@ async function saveDelinq(){
   });
 })();
 
-// ===== Case SubTabs (Fall / Rangliste) =====
-function setCaseSubTab(tab){
-  try{
-    state.caseSubTab = tab;
-    try{ localStorage.setItem("caseSubTab", tab); }catch(_){}
-    const b1 = document.getElementById("caseTabCases");
-    const b2 = document.getElementById("caseTabRanking");
-    const v1 = document.getElementById("caseSubCases");
-    const v2 = document.getElementById("caseSubRanking");
-    if(b1) b1.classList.toggle("active", tab==="cases");
-    if(b2) b2.classList.toggle("active", tab==="ranking");
-    if(v1) v1.style.display = (tab==="cases") ? "" : "none";
-    if(v2) v2.style.display = (tab==="ranking") ? "" : "none";
-
-    // Render relevant list
-    if(tab==="ranking"){
-      try{ renderRanking(); }catch(_){}
-    }else{
-      try{ renderMyCases(); }catch(_){}
-    }
-  }catch(e){
-    console.warn("setCaseSubTab failed", e);
-  }
-}
-
-document.addEventListener("DOMContentLoaded", ()=>{
-  // restore last subtab
-  let t = "cases";
-  try{ t = localStorage.getItem("caseSubTab") || "cases"; }catch(_){}
-  if(t !== "ranking") t = "cases";
-  try{ state.caseSubTab = t; }catch(_){}
-  document.getElementById("caseTabCases")?.addEventListener("click", ()=> setCaseSubTab("cases"));
-  document.getElementById("caseTabRanking")?.addEventListener("click", ()=> setCaseSubTab("ranking"));
-});
-
-</script>
-<script id="initCaseSubTabsV3">
-document.addEventListener("DOMContentLoaded", function(){
-  const btnCases = document.getElementById("caseTabCases");
-  const btnRank  = document.getElementById("caseTabRanking");
-  const viewCases = document.getElementById("caseSubCases");
-  const viewRank  = document.getElementById("caseSubRanking");
-
-  function activate(which){
-    if(!btnCases || !btnRank || !viewCases || !viewRank) return;
-
-    const isCases = which === "cases";
-    btnCases.classList.toggle("active", isCases);
-    btnRank.classList.toggle("active", !isCases);
-
-    viewCases.classList.toggle("isShown", isCases);
-    viewCases.classList.toggle("isHidden", !isCases);
-    viewRank.classList.toggle("isShown", !isCases);
-    viewRank.classList.toggle("isHidden", isCases);
-
-    // If ranking view is shown, ensure ranking is refreshed if function exists
-    if(!isCases && typeof window.refreshRanking === "function"){
-      try{ window.refreshRanking(); }catch(_){}
-    }
-  }
-
-  // Make absolutely sure clicks work even if something stops propagation
-  if(btnCases){
-    btnCases.style.pointerEvents = "auto";
-    btnCases.addEventListener("click", function(e){ e.preventDefault(); e.stopPropagation(); activate("cases"); }, {passive:false});
-    btnCases.addEventListener("touchstart", function(e){ e.stopPropagation(); }, {passive:true});
-  }
-  if(btnRank){
-    btnRank.style.pointerEvents = "auto";
-    btnRank.addEventListener("click", function(e){ e.preventDefault(); e.stopPropagation(); activate("rank"); }, {passive:false});
-    btnRank.addEventListener("touchstart", function(e){ e.stopPropagation(); }, {passive:true});
-  }
-
-  // default
-  activate("cases");
-});
 </script>
 <script id="initToolsSubTabs">
 (function(){
@@ -10850,84 +10789,6 @@ document.addEventListener("DOMContentLoaded", function(){
     }
   }catch(_){}
 });
-</script>
-<script id="caseSubtabsJSV17">
-(function(){
-  const KEY = "tas_case_subtab_v1"; // "cases" | "ranking"
-
-  window.setCaseSubTab = function(which){
-    try{
-      const btnCases = document.getElementById("caseTabCases");
-      const btnRank  = document.getElementById("caseTabRanking");
-      const viewCases = document.getElementById("caseSubCases");
-      const viewRank  = document.getElementById("caseSubRanking");
-
-      if(!btnCases || !btnRank || !viewCases || !viewRank) return;
-
-      const isCases = (which === "cases");
-
-      btnCases.classList.toggle("active", isCases);
-      btnRank.classList.toggle("active", !isCases);
-
-      viewCases.classList.toggle("isShown", isCases);
-      viewCases.classList.toggle("isHidden", !isCases);
-
-      viewRank.classList.toggle("isShown", !isCases);
-      viewRank.classList.toggle("isHidden", isCases);
-
-      try{ localStorage.setItem(KEY, which); }catch(_){}
-
-      // When showing ranking, render immediately (data is computed from cases watcher)
-      if(!isCases && typeof window.renderRanking === "function"){
-        try{ window.renderRanking(); }catch(_){}
-      }
-    }catch(_){}
-  };
-
-  function bind(){
-    const btnCases = document.getElementById("caseTabCases");
-    const btnRank  = document.getElementById("caseTabRanking");
-    if(btnCases){
-      btnCases.addEventListener("click", (e)=>{ e.preventDefault(); e.stopPropagation(); window.setCaseSubTab("cases"); }, {passive:false});
-      btnCases.addEventListener("touchstart", (e)=>{ e.stopPropagation(); }, {passive:true});
-    }
-    if(btnRank){
-      btnRank.addEventListener("click", (e)=>{ e.preventDefault(); e.stopPropagation(); window.setCaseSubTab("ranking"); }, {passive:false});
-      btnRank.addEventListener("touchstart", (e)=>{ e.stopPropagation(); }, {passive:true});
-    }
-    // default
-    let which = "cases";
-    try{
-      const saved = localStorage.getItem(KEY);
-      if(saved === "ranking" || saved === "cases") which = saved;
-    }catch(_){}
-    window.setCaseSubTab(which);
-  }
-
-  document.addEventListener("DOMContentLoaded", ()=>{
-    bind();
-
-    // When switching to the Fall tab, re-apply saved subtab after render
-    ["setView","setMobileView"].forEach(fn=>{
-      const orig = window[fn];
-      if(typeof orig !== "function") return;
-      window[fn] = function(v){
-        const r = orig.apply(this, arguments);
-        if(String(v)==="case"){
-          setTimeout(()=>{
-            try{
-              let which="cases";
-              const saved = localStorage.getItem(KEY);
-              if(saved==="ranking"||saved==="cases") which=saved;
-              window.setCaseSubTab(which);
-            }catch(_){ window.setCaseSubTab("cases"); }
-          }, 50);
-        }
-        return r;
-      };
-    });
-  });
-})();
 </script>
 <script>
 /* === Ereignis Decision Tree Logic === */

@@ -6,7 +6,7 @@ const calendar = new Intl.DateTimeFormat("en-CA", {
 const dateTime = new Intl.DateTimeFormat("de-CH", {
   timeZone: STATISTICS_TIME_ZONE, dateStyle: "medium", timeStyle: "short"
 });
-const units = ["day", "week", "month"];
+const units = ["day", "week", "month", "year"];
 
 export function swissDateKey(value = Date.now()) {
   const parts = Object.fromEntries(calendar.formatToParts(new Date(value)).map(p => [p.type, p.value]));
@@ -27,21 +27,25 @@ export function periodBounds(unit, anchor) {
   const start = calendarDate(anchor);
   if (unit === "week") start.setUTCDate(start.getUTCDate() - (start.getUTCDay() + 6) % 7);
   if (unit === "month") start.setUTCDate(1);
+  if (unit === "year") start.setUTCMonth(0, 1);
   const end = new Date(start);
-  if (unit === "month") end.setUTCMonth(end.getUTCMonth() + 1);
+  if (unit === "year") end.setUTCFullYear(end.getUTCFullYear() + 1);
+  else if (unit === "month") end.setUTCMonth(end.getUTCMonth() + 1);
   else end.setUTCDate(end.getUTCDate() + (unit === "week" ? 7 : 1));
   return { start: keyOf(start), end: keyOf(end) }; // Inclusive start, exclusive end.
 }
 
 export function shiftPeriod(unit, anchor, amount) {
   const date = calendarDate(periodBounds(unit, anchor).start);
-  if (unit === "month") date.setUTCMonth(date.getUTCMonth() + amount);
+  if (unit === "year") date.setUTCFullYear(date.getUTCFullYear() + amount);
+  else if (unit === "month") date.setUTCMonth(date.getUTCMonth() + amount);
   else date.setUTCDate(date.getUTCDate() + amount * (unit === "week" ? 7 : 1));
   return keyOf(date);
 }
 
 export function periodLabel(unit, anchor) {
   const bounds = periodBounds(unit, anchor);
+  if (unit === "year") return bounds.start.slice(0, 4);
   if (unit === "month") return new Intl.DateTimeFormat("de-CH", { month: "long", year: "numeric", timeZone: "UTC" }).format(calendarDate(bounds.start));
   if (unit === "day") return shortDate(bounds.start);
   const last = calendarDate(bounds.end);
@@ -155,7 +159,7 @@ export function installCaseStatistics({ getState, isAdmin, renderCases, renderRa
         <div class="cs-heading"><div><h3>Fallstatistik</h3><p>Gesamtübersicht und Fälle pro Mitarbeiter</p></div><span class="chip">Leitung</span></div>
         <p class="hint">Gezählt wird das Falldatum in Schweizer Zeit. Wochen laufen von Montag bis Sonntag.</p>
         <div class="cs-filters">
-          <label>Ansicht<select id="csUnit"><option value="day">Tag</option><option value="week">Woche</option><option value="month" selected>Monat</option></select></label>
+          <label>Ansicht<select id="csUnit"><option value="day">Tag</option><option value="week">Woche</option><option value="month" selected>Monat</option><option value="year">Jahr</option></select></label>
           <label>Datum im Zeitraum<input id="csAnchor" type="date" value="${filters.anchor}" required></label>
           <label>Mitarbeiter<select id="csEmployee"><option value="all">Alle Mitarbeiter</option></select></label>
         </div>
@@ -215,9 +219,9 @@ export function installCaseStatistics({ getState, isAdmin, renderCases, renderRa
     select.innerHTML = '<option value="all">Alle Mitarbeiter</option>' + model.employees.map(e => `<option value="${escape(e.key)}">${escape(e.name)}${e.email ? ` (${escape(e.email)})` : ""}</option>`).join("");
     select.value = filters.employee;
     doc.getElementById("csStatus").textContent = model.undated ? `${model.undated} Fälle ohne gültiges Falldatum können keinem Zeitraum zugeordnet werden.` : "";
-    doc.getElementById("csTotals").innerHTML = units.map((unit, i) => `<button type="button" class="cs-total${filters.unit === unit ? " is-selected" : ""}" data-unit="${unit}" aria-pressed="${filters.unit === unit}"><span>Gesamt ${["Tag", "Woche", "Monat"][i]}</span><strong>${model.totals[unit]}</strong><small>${escape(periodLabel(unit, filters.anchor))}</small></button>`).join("");
+    doc.getElementById("csTotals").innerHTML = units.map((unit, i) => `<button type="button" class="cs-total${filters.unit === unit ? " is-selected" : ""}" data-unit="${unit}" aria-pressed="${filters.unit === unit}"><span>Gesamt ${["Tag", "Woche", "Monat", "Jahr"][i]}</span><strong>${model.totals[unit]}</strong><small>${escape(periodLabel(unit, filters.anchor))}</small></button>`).join("");
     doc.getElementById("csTotals").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { filters.unit = b.dataset.unit; doc.getElementById("csUnit").value = filters.unit; refresh(); }));
-    doc.getElementById("csHistoryTitle").textContent = `Gesamtverlauf · ${filters.unit === "day" ? "14 Tage" : filters.unit === "week" ? "12 Wochen" : "12 Monate"}`;
+    doc.getElementById("csHistoryTitle").textContent = `Gesamtverlauf · ${filters.unit === "day" ? "14 Tage" : filters.unit === "week" ? "12 Wochen" : filters.unit === "month" ? "12 Monate" : "12 Jahre"}`;
     const max = Math.max(1, ...model.history.map(b => b.count));
     doc.getElementById("csHistory").innerHTML = model.history.map(b => `<button type="button" class="cs-history-row${b.start === model.bounds.start ? " is-selected" : ""}" data-date="${b.start}" aria-label="${escape(b.label)}: ${b.count} Fälle anzeigen"><span>${escape(b.label)}</span><span class="cs-bar" aria-hidden="true"><i style="width:${b.count / max * 100}%"></i></span><strong>${b.count}</strong></button>`).join("");
     doc.getElementById("csHistory").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { filters.anchor = b.dataset.date; refresh(); }));
@@ -246,3 +250,4 @@ export function installCaseStatistics({ getState, isAdmin, renderCases, renderRa
   refresh();
   return { refresh, activate };
 }
+
